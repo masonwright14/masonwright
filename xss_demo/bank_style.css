@@ -1,0 +1,108 @@
+body {
+    margin:0px;
+    padding:0px;
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+img {
+    float:left; 
+    padding:5px; 
+    margin-right:10px;
+}
+
+div {
+    margin-top:0px;
+    margin-bottom:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+    font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+p {
+    padding-left:10px;
+    padding-right:10px;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding-top:0px;
+    padding-bottom:5px;
+}
+
+hr {
+    width:98%;
+}
+
+div#leftHeader {
+    padding-left:10px;
+    height:60px;
+
+    padding-top:10px;
+    color:#cc0000;
+    font-size:30pt;
+    font-weight:bold;
+    float:left;
+    width:600px;
+}
+
+div#rightHeader {
+    padding-right:10px;
+    height:60px;
+
+    padding-top:10px;
+    color:#000000;
+    font-size:11pt;
+    float:right;
+    width:400px;
+}
+
+div#welcome {
+    width:100%;
+    font-size:20pt;
+    font-weight:bold;
+    background-color:#ccffff;
+}
+
+div#introduction {
+    font-size:30pt;
+    font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+    color:#000000;
+    background-color:#99eeee;
+    width:100%;
+    height:80px;
+}
+
+div#center {
+    height:200px;
+}
+
+div#leftCenter {
+    width:48%;
+    
+    height:200px;
+    float:left;
+    background-color:#cccccc;
+}
+
+div#rightCenter {
+    width:48%;
+    height:200px;
+    float:left;
+    background-color:#ffffff;
+    border-width:1px;
+    border-color:#000000;
+    border-style:solid;
+}
+
+div#rightCenterInner {
+    font-family:Georgia, "Times New Roman", serif;
+    text-align:center;
+    font-size:32pt;
+    font-weight:bold;
+    color:#000000;
+    padding-top:70px;
+}
+
+div#myText {
+    font-size:14pt;
+}
+
