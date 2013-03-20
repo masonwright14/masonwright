@@ -1,0 +1,37 @@
+.data
+    save: .space 40
+.text
+
+main:
+    la $s0, save # $s0 = &save[0]
+
+    addi $s1, $zero, 5 # $s1 = 5 = k
+
+    sw $s1, 0( $s0 )
+    sw $s1, 4( $s0 )
+    sw $s1, 8( $s0 )
+    sw $s1, 12( $s0 )
+    sw $s1, 16( $s0 )
+    addi $t0, $zero, 7
+    sw $t0, 20( $s0 )
+    sw $t0, 24( $s0 )
+
+    li $s3, 7 # $s3 = save.length
+
+    add $s2, $zero, $zero # $s2 = i
+loop:
+    beq $s2, $s3, ending # jump to ending if past end of array
+    sll $t1, $s2, 2 # $t1 = i * 4
+    add $t1, $t1, $s0 # $t1 = &save[i]
+    lw $t2, 0( $t1 ) # $t2 = save[i]
+    addi $s2, $s2, 1 # i++
+    beq $t2, $s1, loop # continue if save[i] == k
+
+ending:
+    addi $s2, $s2, -1 # revert to previous $s2
+    li $v0, 1 # print_int code in $v0
+    add $a0, $s2, $zero # i is in $a0 for printing
+    syscall # print_int from $a0
+
+    li $v0, 10 # exit code in $v0
+    syscall # exit

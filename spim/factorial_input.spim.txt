@@ -1,0 +1,53 @@
+.data
+    prompt: .asciiz "\nEnter a positive integer:\n"
+    reply: .asciiz " factorial:\n"
+.text
+
+main:
+    li $v0, 4 # print_string code in $v0
+    la $a0, prompt # address of prompt in $a0
+    syscall # run print_string on prompt
+
+    li $v0, 5 # read_int code in $v0
+    syscall # run read_string into input
+
+    add $t0, $v0, $zero # save input value in $t0
+    li $v0, 1 # print_int code in $v0
+    add $a0, $t0, $zero # address of input from $t0 in $a0
+    syscall # run print_string on input
+
+    li $v0, 4 # print_string code in $v0
+    la $a0, reply # address of reply in $v0
+    syscall # run print_string on reply
+
+    add $a0, $t0, $zero # load input number into $a0
+    jal factorial # call factorial procedure
+    add $a0, $v0, $zero # move result from $v0 to $a0 for printing
+    li $v0, 1 # print_int code in $v0
+    syscall # print_int from $a0
+
+    li $v0, 10 # exit code in $v0
+    syscall # exit
+
+factorial:
+    addi $sp, $sp, -8 # push 2 items onto stack
+    sw $a0, 0( $sp ) # store the argument
+    sw $ra, 4( $sp ) # store the return address
+
+    slti $t0, $a0, 1 # $t0 will be 1 if $a0 is less than one
+    beq $t0, $zero, fact_recurse # if not less than 1, go to fact_recurse
+    
+    addi $v0, $zero, 1 # prepare to return 1 in $v0
+    addi $sp, $sp, 8 # pop two items from the stack
+    jr $ra # return to caller
+
+fact_recurse:
+    addi $a0, $a0, -1 # decrement argument
+    jal factorial # call factorial recursively
+    
+    lw $a0, 0( $sp ) # load argument from store
+    lw $ra, 4( $sp ) # load return address from store
+    addi $sp, $sp, 8 # pop two items from the stack
+
+    mul $v0, $a0, $v0 # prepare to return n * ( n - 1 )
+    jr $ra # return value in $v0

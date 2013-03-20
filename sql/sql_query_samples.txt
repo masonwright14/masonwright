@@ -1,0 +1,42 @@
+mysql> SELECT game_sessions.user_id, games.name, game_sessions.id, game_sessions.created_at, game_events.id, game_events.content
+FROM games, game_events, game_sessions
+WHERE 
+	game_events.game_session_id = game_sessions.id
+AND 
+	game_sessions.game_id = games.id
+ORDER BY 
+	game_sessions.user_id, game_events.id
+INTO OUTFILE 
+	'/tmp//output.csv' 
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+mysql> SELECT users.subject_identifier, games.name, date( game_sessions.created_at ), game_events.id, game_events.content
+FROM users, games, game_sessions, game_events
+WHERE 
+	date( game_sessions.created_at ) = '2012-05-12'
+AND
+	date( game_events.created_at ) = date( game_sessions.created_at )
+AND
+	game_events.game_session_id = game_sessions.id
+AND 
+	game_sessions.game_id = games.id
+AND
+	users.id = game_sessions.user_id
+AND
+	users.subject_identifier IS NOT NULL
+AND
+	users.group IN ('Cavender_1', 'Cavender_2', 'generic', 'Ison_1', 'Ison_2')
+ORDER BY 
+	game_sessions.user_id, game_events.id
+INTO OUTFILE 
+	'/tmp//output.csv' 
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+
+SELECT date( game_events.created_at ) FROM game_sessions, users, game_events WHERE users.group IN ('Ford_12', 'Ford_13', 'Ford_14', 'generic') AND users.id = game_sessions.user_id AND game_events.game_session_id = game_sessions.id GROUP BY date( game_events.created_at );
+
+SELECT subject_identifier FROM game_events, game_sessions, users WHERE users.group IN ('Cavender_1', 'Cavender_2', 'generic', 'Ison_1', 'Ison_2') AND users.id = game_sessions.user_id AND game_events.game_session_id = game_sessions.id AND date( game_events.created_at ) = '2012-05-09' GROUP BY users.username;

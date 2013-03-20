@@ -1,0 +1,60 @@
+.data
+    prompt: .asciiz "\nEnter a positive integer max:\n"
+    newline: .asciiz "\n"
+.text
+
+main:
+    li $v0, 4 # print_string code in $v0
+    la $a0, prompt # address of prompt in $a0
+    syscall # run print_string on prompt
+
+    li $v0, 5 # read_int code in $v0
+    syscall # run read_string into input
+
+    add $a0, $v0, $zero # load input number into $a0
+    jal all_primes # call all-primes procedure
+
+    li $v0, 10 # exit code in $v0
+    syscall # exit
+
+all_primes:
+    addi $sp, $sp, -16 # push 4 items onto stack
+    sw $a0, 0( $sp ) # store the argument
+    sw $ra, 4( $sp ) # store the return address
+    sw $s0, 8( $sp ) # store $s0
+    sw $s1, 12( $sp ) # store $s1
+
+    addi $s0, $zero, 1 # initialize counter in $s0 to 1
+    add $s1, $a0, $zero # store value of $a0 for use in this procedure
+
+loop:
+    slt $t1, $s1, $s0 # $t1 is 0 unless loop should end
+    bne $t1, $zero, end_all_primes
+
+    add $a0, $s0, $zero # copy counter from $s0 to $a0 for printing
+    li $v0, 1 # print_int code in $v0
+    syscall # print_int from $a0
+
+    li $v0, 4 # print_string code in $v0
+    la $a0, newline # address of prompt in $a0
+    syscall # run print_string on prompt
+
+    addi $s0, $s0, 1 # increment the counter in $s0
+
+    j loop
+
+end_all_primes:
+    lw $a0, 0( $sp ) # load argument from store
+    lw $ra, 4( $sp ) # load return address from store
+    lw $s0, 8( $sp ) # load $s0 from store
+    lw $s1, 12( $sp ) # load $s1 from store
+    addi $sp, $sp, 16 # pop 4 items from the stack
+    jr $ra # return to caller
+
+test_prime:
+    addi $sp, $sp, -8 # push 2 items onto stack
+    sw $a0, 0( $sp ) # store the argument
+    sw $ra, 4( $sp ) # store the return address
+
+    addi $t0, $zero, 1 # initialize counter in $t0 to 1
+    add $t2, $a0, $zero # store value of $a0 for use in this procedure

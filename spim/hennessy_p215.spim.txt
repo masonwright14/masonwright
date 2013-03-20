@@ -1,0 +1,89 @@
+.data
+    array: .space 40
+.text
+
+main:
+    li $v0, 5 # read_int code in $v0
+    syscall # run read_string into input
+
+    add $a0, $v0, $zero # save input value in $a0
+    jal set_array
+
+set_array:
+    add $sp, $sp, -16 # push 4 items onto stack
+    sw $s0, 0( $sp ) # store old value from $s0
+    sw $s1, 4( $sp ) # store old value from $s1
+    sw $s2, 8( $sp ) # store old value from $s2
+    sw $ra, 12( $sp ) # store return address
+
+    add $s0, $zero, $zero # initialize $s0 to 0 (i = 0)
+    la $s1, array # address of array[ 0 ] is in $s1
+    add $s2, $a0, $zero # store $a0 in $s2 ($s2 = num)
+
+loop:
+    slti $t0, $s0, 10
+    beq $t0, $zero, ending
+
+    add $a0, $s2, $zero # $a0 = num
+    add $a1, $s0, $zero # $a1 = i
+    jal compare
+
+    sll $t0, $s0, 2 # $t0 = i * 4
+    add $t2, $t0, $s1 # $t2 = &array[ i ]
+    sw $v0, 0( $t2 ) # store result of compare at array[ i ]
+
+    addi $s0, $s0, 1 # i++
+    j loop
+
+compare:
+    addi $sp, $sp, -12
+    sw $a0, 0( $sp )
+    sw $a1, 4( $sp )
+    sw $ra, 8( $sp )
+
+    jal subtract
+
+    slt $t0, $zero, $v0
+    bne $v0, $zero, after
+    addi $t0, $zero, 1
+after: 
+    add $v0, $t0, $zero
+    lw $a0, 0( $sp )
+    lw $a1, 4( $sp )
+    lw $ra, 8( $sp )
+    addi $sp, $sp, 12
+    jr $ra
+
+
+subtract:
+    sub $v0, $a0, $a1
+    jr $ra
+
+
+ending:
+    add $t1, $zero, $zero # $t1 = j
+
+    la $t0, array # $t0 = &array
+
+loop2:
+    slti $t2, $t1, 10
+    beq $t2, $zero, quit_now
+    
+    sll $t3, $t1, 2 # $t3 = j * 4
+    add $t3, $t3, $t0 # $t3 = &array + j * 4
+    lw $a0, 0( $t3 ) # $a0 = array[ j ]
+
+    li $v0, 1 # print_int code in $v0
+    syscall # print_int from $a0
+    addi $t1, $t1, 1 # j++
+    j loop2
+
+quit_now:
+    lw $s0, 0( $sp ) # store old value in $s0
+    lw $s1, 4( $sp ) # store old value in $s1
+    lw $s2, 8( $sp ) # store old value in $s2
+    lw $ra, 12( $sp ) # load old return address
+    add $sp, $sp, 16 # pop 4 items from stack
+   
+    li $v0, 10 # exit code in $v0
+    syscall # exit

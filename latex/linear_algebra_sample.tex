@@ -1,0 +1,400 @@
+\documentclass[letterpaper,12pt]{article}
+\usepackage{amsmath}
+\author{Mason Wright}
+\title{Homework 9}
+\begin{document}
+\maketitle
+$\mathbf{1.i}$
+\\True.
+\begin{equation*}
+\| \vec{u} + \vec{v} \| ^2 = ( \vec{u} + \vec{v} ) \cdot ( \vec{u} + \vec{v} ) = \vec{u} \cdot \vec{u} + 2 \vec{u} \cdot \vec{v} + \vec{v} \cdot \vec{v}
+\end{equation*}
+\begin{equation*}
+\| \vec{u} \| ^2 + \| \vec{v} \| ^2 = \vec{u} \cdot \vec{u} + \vec{v} \cdot \vec{v}
+\end{equation*}
+Therefore,
+\begin{equation*}
+\| \vec{u} + \vec{v} \| ^2 = \| \vec{u} \| ^2 + \| \vec{v} \| ^2 \rightarrow 2 \vec{u} \cdot \vec{v} = 0 
+\end{equation*}
+Thus, $\vec{u}$ and $\vec{v}$ are orthogonal if $\| \vec{u} + \vec{v} \| ^2 = \| \vec{u} \| ^2 + \| \vec{v} \| ^2$.
+\\
+\\$\mathbf{1.ii}$
+\\False. Counterexample:
+Let $\vec{u} = 
+\begin{vmatrix}
+1 \\
+0
+\end{vmatrix}$, and let
+$\vec{v} =
+\begin{vmatrix}
+0 \\
+2
+\end{vmatrix}$.
+\begin{equation*}
+\vec{u} + \vec{v} = 
+\begin{vmatrix}
+1 \\
+2
+\end{vmatrix}
+\end{equation*}
+\begin{equation*}
+\vec{u} - \vec{v} = 
+\begin{vmatrix}
+1 \\
+-2
+\end{vmatrix}
+\end{equation*}
+\begin{equation*}
+\| \vec{u} + \vec{v} \| = \| \vec{u} - \vec{v} \| = \sqrt{5}
+\end{equation*}
+\begin{equation*}
+\| \vec{u} \| = 1 \neq \| \vec{v} \|
+\end{equation*}
+\\
+\\$\mathbf{1.iii}$
+\\True. Any $\vec{w} \in W^{\perp}$ must be in $V^{\perp}$, because any $\vec{w} \in W^{\perp}$ is orthogonal to all vectors in
+$W$, including all vectors in $V$.
+\\
+\\$\mathbf{1.iv}$
+\\True. Any $\vec{w} \in W$ must be in $V$, because any $\vec{w} \in W$ is orthogonal to all vectors in $W^{\perp}$, 
+which includes all vectors in $V^{\perp}$, which means that all $\vec{w} \in W$ are in $(V^{\perp})^{\perp}$, which is just $V$.
+\\
+\\$\mathbf{1.v}$
+\\False. Counterexample: Let $V$ be the span of $\begin{vmatrix} 1 \\ 0 \end{vmatrix}$, and let $W$ be the span of
+$\begin{vmatrix} 0 \\ 1 \end{vmatrix}$, with $V$ and $W$ in $\mathbf{R}^2$.
+Then $V^{\perp}$ is the span of $\begin{vmatrix} 0 \\ 1 \end{vmatrix}$, and $W^{\perp}$ is the span of 
+$\begin{vmatrix} 1 \\ 0 \end{vmatrix}$. Thus, $V^{\perp} \cap W^{\perp} = \{ \vec{0} \}$.
+So $(V^{\perp} \cap W^{\perp})^{\perp}$ is all of $\mathbf{R}^2$. All of $\mathbf{R}^2$ is not contained in
+$V \cup W$, so the statement is false.
+\\
+\\$\mathbf{2.i}$
+\\
+$\vec{v_1} =
+\begin{vmatrix}
+1 \\
+2 \\
+0 \\
+2
+\end{vmatrix}$, so $\| \vec{v_1} \|$ is $3$. Thus, $\vec{u_1} =
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix}$
+\\$\vec{v_2}^{\perp} = \vec{v_2} - (\vec{v_2} \cdot \vec{u_1}) \vec{u_1}$, so:
+\begin{align*}
+\vec{v_2}^{\perp} & =
+\begin{vmatrix}
+2 \\
+2 \\
+-1 \\
+6
+\end{vmatrix}
+- \Bigg(
+\begin{vmatrix}
+2 \\
+2 \\
+-1 \\
+6
+\end{vmatrix}
+\cdot
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix}
+\Bigg)
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix} \\
+& =
+\begin{vmatrix}
+0 \\
+-2 \\
+-1 \\
+2
+\end{vmatrix}
+\end{align*}
+\begin{equation*}
+\vec{u_2} =
+\vec{v_2}^{\perp} / \| \vec{v_2}^{\perp} \| =
+\vec{v_2}^{\perp} / 3 =
+\begin{vmatrix}
+0 \\
+-2/3 \\
+-1/3 \\
+2/3
+\end{vmatrix}
+\end{equation*}
+\begin{align*}
+\vec{v_3}^{\perp} & = \vec{v_3} - (\vec{v_3} \cdot \vec{u_1}) \vec{u_1} - (\vec{v_3} \cdot \vec{u_2}) \vec{u_2}
+\\ & = 
+\begin{vmatrix}
+5 \\
+3 \\
+1 \\
+-1
+\end{vmatrix}
+- \Bigg(
+\begin{vmatrix}
+5 \\
+3 \\
+1 \\
+-1
+\end{vmatrix}
+\cdot
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix}
+\Bigg)
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix}
+- \Bigg(
+\begin{vmatrix}
+5 \\
+3 \\
+1 \\
+-1
+\end{vmatrix}
+\cdot
+\begin{vmatrix}
+0 \\
+-2/3 \\
+-1/3 \\
+2/3
+\end{vmatrix}
+\Bigg)
+\begin{vmatrix}
+0 \\
+-2/3 \\
+-1/3 \\
+2/3
+\end{vmatrix}
+\\ & =
+\begin{vmatrix}
+4 \\
+-1 \\
+0 \\
+-1
+\end{vmatrix}
+\end{align*}
+\begin{equation*}
+\vec{u_3} = \vec{v_3}^{\perp} / \| \vec{v_3}^{\perp} \| 
+=
+\vec{v_3}^{\perp} / \sqrt{18}
+= 
+\begin{vmatrix}
+2 \sqrt{2} / 3 \\
+-\sqrt{2} / 6 \\
+0 \\
+-\sqrt{2} / 6
+\end{vmatrix}
+\end{equation*}
+\\
+\\$\mathbf{2.ii}$
+\\ Q is 
+$\begin{bmatrix}
+\vec{u_1} & \vec{u_2} & \vec{u_3}
+\end{bmatrix}$, or 
+$\begin{bmatrix}
+1/3 & 0 & 2 \sqrt{2} / 3 \\
+2/3 & -2/3 & - \sqrt{2} / 6 \\
+0 & -1/3 & 0 \\
+2/3 & 2/3 & -\sqrt{2} / 6
+\end{bmatrix}$.
+\\R is 
+$\begin{bmatrix}
+\| \vec{v_1} \| & \vec{u_1} \cdot \vec{v_2} & \vec{u_1} \cdot \vec{v_3} \\
+0 & \| \vec{v_2}^{\perp} \| & \vec{u_2} \cdot \vec{v_3} \\
+0 & 0 & \| \vec{v_3}^{\perp} \|
+\end{bmatrix}$.
+\\ $\| \vec{v_1} \| = 3$. $\| \vec{v_2}^{\perp}  \| = 3$. $\| \vec{v_3}^{\perp}  \| = \sqrt{18}$.
+\begin{equation*}
+\vec{u_1} \cdot \vec{v_2} =
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix}
+\cdot
+\begin{vmatrix}
+2 \\
+2 \\
+-1 \\
+6
+\end{vmatrix}
+= 6
+\end{equation*}
+\begin{equation*}
+\vec{u_1} \cdot \vec{v_3} =
+\begin{vmatrix}
+1/3 \\
+2/3 \\
+0 \\
+2/3
+\end{vmatrix}
+\cdot
+\begin{vmatrix}
+5 \\
+3 \\
+1 \\
+-1
+\end{vmatrix}
+= 3
+\end{equation*}
+\begin{equation*}
+\vec{u_2} \cdot \vec{v_3} =
+\begin{vmatrix}
+0 \\
+-2/3 \\
+-1/3 \\
+2/3
+\end{vmatrix}
+\cdot
+\begin{vmatrix}
+5 \\
+3 \\
+1 \\
+-1
+\end{vmatrix}
+=
+-3
+\end{equation*}
+\begin{equation*}
+R =
+\begin{bmatrix}
+3 & 6 & 3 \\
+0 & 3 & -3 \\
+0 & 0 & 3 \sqrt{2}
+\end{bmatrix}
+\end{equation*}
+\\
+\\$\mathbf{2.iii}$
+\begin{equation*}
+proj_V(\vec{x}) = (\vec{u_1} \cdot \vec{x}) \vec{u_1} +  (\vec{u_2} \cdot \vec{x}) \vec{u_2} +  (\vec{u_3} \cdot \vec{x}) \vec{u_3}
+\end{equation*}
+\begin{equation*}
+A = 
+\begin{bmatrix}
+proj_V(\vec{e_1}) & 
+proj_V(\vec{e_2}) & 
+proj_V(\vec{e_3}) & 
+proj_V(\vec{e_4})
+\end{bmatrix}
+\end{equation*}
+\begin{equation*}
+proj_V(\vec{e_1})  =
+1/3 \vec{u_1} + 2 \sqrt{2} / 3 \vec{u_3} =
+\begin{vmatrix}
+1 \\
+0 \\
+0 \\
+0
+\end{vmatrix}
+\end{equation*}
+\begin{equation*}
+proj_V(\vec{e_2})  =
+2/3 \vec{u_1} - 2/3 \vec{u_2} - \sqrt{2}/6 \vec{u_3} =
+\begin{vmatrix}
+0 \\
+17 / 18 \\
+2 / 9 \\
+1 / 18
+\end{vmatrix}
+\end{equation*}
+\begin{equation*}
+proj_V(\vec{e_3})  =
+-1/3 \vec{u_2} =
+\begin{vmatrix}
+0 \\
+2/9 \\
+1/9 \\
+-2/9
+\end{vmatrix}
+\end{equation*}
+\begin{equation*}
+proj_V(\vec{e_4})  =
+2/3 \vec{u_1} + 2/3 \vec{u_2} - \sqrt{2}/6 \vec{u_3} =
+\begin{vmatrix}
+0 \\
+1/18 \\
+-2/9 \\
+17/18
+\end{vmatrix}
+\end{equation*}
+\begin{equation*}
+A =
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 17/18 & 2/9 & 1/18 \\
+0 & 2/9 & 1/9 & -2/9 \\
+0 & 1/18 & -2/9 & 17/18
+\end{bmatrix}
+\end{equation*}
+\\
+\\$\mathbf{3.i}$
+\\ $T(\vec{x} - T(\vec{x})) = T(\vec{x}) - T(T(\vec{x}))$, because $T$ is a linear transformation.
+It is given that $T(T(\vec{x})) = T(\vec{x})$.
+So $T(\vec{x} - T(\vec{x})) = T(\vec{x}) - T(\vec{x}) = \vec{0}$. Therefore,
+$(\vec{x} - T(\vec{x})) \in Ker(T)$.
+\begin{align*}
+\vec{x} &= \vec{x} + T(\vec{x}) - T(\vec{x}) \\ & =
+T(\vec{x}) + (\vec{x} - T(\vec{x}))
+\end{align*}
+But $T(\vec{x}) \in Im(T)$, and $(\vec{x} - T(\vec{x})) \in Ker(T)$.
+So any $\vec{x}$ can be written as the sum of some $\vec{y} \in Ker(T)$, and some $\vec{z} \in Im(T)$.
+\\
+\\$\mathbf{3.ii}$
+\\
+\begin{align*}
+f(t) & = \| t \vec{y} + \vec{z} \|^2
+\\ & = (t \vec{y} + \vec{z}) \cdot (t \vec{y} + \vec{z})
+\\ & = t^2 (\vec{y} \cdot \vec{y}) + 2t (\vec{y} \cdot \vec{z}) + \vec{z} \cdot \vec{z}
+\\ & = t^2 \| \vec{y} \|^2 + 2t (\vec{y} \cdot \vec{z}) + \| \vec{z} \|^2
+\end{align*}
+\\
+\\$\mathbf{3.iii}$
+\\
+Because $T$ is a linear transformation and $\vec{y}$ is in the kernel of $T$:
+\begin{equation*}
+T(t \vec{y} + \vec{z}) = t T(\vec{y}) + T(\vec{z}) = \vec{0} + T(\vec{z}) = T(\vec{z})
+\end{equation*}
+Because $\| T(  \vec{x} ) \| \leq \| \vec{x} \|$ for all $\vec{x}$, $\| T(  \vec{z} ) \| \leq \| t \vec{y} + \vec{z} \|$.
+Therefore, since sizes are non-negative, $\| T(  \vec{z} ) \|^2 \leq \| t \vec{y} + \vec{z} \|^2$.
+Because $\vec{z} = T(\vec{x})$ for some $\vec{x}$, $T(\vec{z}) = T(T(\vec{x})) = T(\vec{x}) = \vec{z}$.
+So $T(\vec{z}) = \vec{z}$. Therefore, $\| \vec{z} \|^2 \leq \| t \vec{y} + \vec{z} \| ^2$.
+\\
+\\But $f(t) - f(0) = \| t \vec{y} + \vec{z} \| ^2 - \| \vec{z} \|^2$, since $f(0) = \| \vec{z} \| ^2$. So $f(t) - f(0)$ is always
+non-negative, meaning that $f(0)$ is a global minimum.
+\\
+\\$\mathbf{3.iv}$
+\\$f(t)$ is a quadratic function, because $f(t) = a t^2 + b  t + c$, where $a = \| \vec{y} \| ^2$, $b = 2(\vec{y} \cdot \vec{z})$, and 
+$c = \| \vec{z} \| ^2$. So because there is a global minimum at $0$, $f'(0) = 0$.
+$f'(t) = 2 \|\vec{y}\|^2 t + 2(\vec{y} \cdot \vec{z})$, so $f'(0) = 2 (\vec{y} \cdot \vec{z})$. This means that
+$\vec{y} \cdot \vec{z} = 0$, so $\vec{y}$ and $\vec{z}$ are orthogonal.
+\\
+\\$\mathbf{3.v}$
+\\
+An orthogonal projection onto vector subspace $V$ is a function $L(\vec{x})$ such that $L(\vec{x}) = \vec{x}^{\parallel}$, where
+$\vec{x} = \vec{x}^{\parallel} + \vec{x}^{\perp}$, $\vec{x}^{\perp}$ is orthogonal to all $\vec{v} \in V$, 
+and $\vec{x}^{\parallel} \in V$, for any $\vec{x}$ in the domain.
+\\\\We have shown that any $\vec{y} \in Ker(T)$ is orthogonal to any $\vec{z} \in Im(T)$, and that $\vec{x} - T(\vec{x}) \in Ker(T)$.
+Therefore, $\vec{x} - T(\vec{x})$ is orthogonal to any $\vec{v} \in Im(T)$. We know that any $\vec{x} = (\vec{x} - T(\vec{x})) + T(\vec{x})$. $T(\vec{x}) \in Im(T)$ by definition of the image.
+We know that the image of $T$ is a linear subspace, because it is the image of a linear
+transformation.
+\\
+\\Thus, $T$ is the orthogonal projection onto $Im(T)$, where $T(\vec{x}) = \vec{x}^{\parallel}$ and $\vec{x} - T(\vec{x}) = \vec{x}^{\perp}$.
+\end{document}

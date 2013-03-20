@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+   <title>Pong</title>
+   <meta charset="utf-8">
+
+   <link href="pong.css" rel="stylesheet" type="text/css">
+
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+   <script type="text/javascript" src="pong.js"></script>
+</head>
+
+<body>
+   <div id="game">
+     
+   <canvas id="theCanvas" width="640" height="480">
+      <p>Sorry, your browser is stupid.</p>
+   </canvas>
+
+     <audio id="hitSound">
+        <source src="sounds/hit.ogg">
+        <source src="sounds/hit.mp3">
+     </audio>
+     <audio id="wallSound">
+        <source src="sounds/wall.ogg">
+        <source src="sounds/wall.mp3">
+     </audio>
+     <audio id="missSound">
+        <source src="sounds/miss.ogg">
+        <source src="sounds/miss.mp3">
+     </audio>
+     
+   </div>
+</body>
+</html>

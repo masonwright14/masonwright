@@ -1,0 +1,2246 @@
+Copyright (C) 2010 Massachusetts Institute of Technology
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Image saved on Tuesday March 9, 2010 at 6:59:21 PM
+  Release 9.0.1     || Microcode 15.1 || Runtime 15.7 || SF 4.41
+  LIAR/x86-64 4.118 || Edwin 3.116
+;You are in an interaction window of the Edwin editor.
+;Type `C-h' for help, or `C-h t' for a tutorial.
+;`C-h m' will describe some commands.
+;`C-h' means: hold down the Ctrl key and type `h'.
+;Package: (user)
+
+; 1.1.1
+
+486
+; 486
+
+(+ 137 349)
+; 486
+
+(- 1000 334)
+; 666
+
+(* 5 99)
+; 495
+
+(/ 10 5)
+; 2
+
+(+ 2.7 10)
+; 12.7
+
+(+ 21 35 12 7)
+; 75
+
+(* 25 4 12)
+; 1200
+
+(+ (* 3 5)
+   (- 10 6))
+; 19
+
+(+ (* 3 
+      (+ (* 2 4) 
+	 (+ 3 5))) 
+   (+ (- 10 7) 
+      6))
+; 57
+
+; 1.1.2
+
+(define size 2)
+; size
+
+size
+; 2
+
+(* 5 size)
+; 10
+
+(define pi 3.14159)
+; pi
+
+pi
+; 3.14159
+
+(define radius 10)
+; radius
+
+(* pi (* radius radius))
+; 314.159
+
+(define circumference (* 2 pi radius))
+; circumference
+
+circumference
+; 62.8318
+
+; 1.1.3
+
+(* (+ 2 (* 4 6))
+   (+ 3 5 7))
+; 390
+
+; 1.1.4, 1.1.5
+
+(define (square x) (* x x))
+; square
+
+(square 21)
+; 441
+
+(square (+ 2 5))
+; 49
+
+(square (square 3))
+; 81
+
+(define (sum-of-squares x y)
+        (+ (square x)
+           (square y)))
+; sum-of-squares
+
+(sum-of-squares 3 4)
+; 25
+
+(define (f a)
+        (sum-of-squares (+ a 1)
+                        (* a 2)))
+; f
+
+(f 5)
+; 136
+
+; 1.1.6
+
+(define (abs x)
+        (cond ((> x 0) x)
+	      ((= x 0) 0)
+	      ((< x 0) (- x))))
+; abs
+
+(define (abs x)
+        (cond ((< x 0) (- x))
+	      (else x)))
+; abs
+
+(define (abs x)
+        (if (< x 0)
+            (- x)
+	    x))
+; abs
+
+(abs (- 5))
+; 5
+
+(abs 100)
+; 100
+
+(abs 0)
+; 0
+
+(define (>= x y)
+        (not (< x y)))
+; >=
+
+(>= 5 5)
+; #t
+
+(>= 10 1)
+; #t
+
+(>= 1 10)
+; #f
+
+10
+; 10
+
+(+ 5 3 4)
+; 12
+
+(- 9 1)
+; 8
+
+(/ 6 2)
+; 3
+
+(+ (* 2 4)
+   (- 4 6))
+; 6
+
+(define a 3)
+; a
+
+(define b (+ a 1))
+; b
+
+(+ a
+   b
+   (* a b))
+; 19
+
+(= a b)
+; #f
+
+(if (and (> b a)
+	 (< b (* a b)))
+    b
+    a)
+; 4
+
+(cond ((= a 4) 6)
+      ((= b 4) (+ 6 7 a))
+      (else 25))
+; 16
+
+(+ 2
+   (if (> b a) b
+	       a))
+; 6
+
+(* (cond ((> a b) a)
+	 ((< a b) b)
+	 (else -1))
+   (+ a 1))
+; 16
+
+(/ (+ 4
+      5
+      (- 2
+         (- 3
+            (+ 6
+               (/ 4 5)))))
+   (* 3
+      (- 6 2)
+      (- 2 7)))
+; -37/150
+
+(define (ex1.3 a b c)
+        (if (and (< a b) (< a c))
+            (sum-of-squares b c)
+            (if (and (< b a) (< b c))
+                (sum-of-squares a c)
+                (sum-of-squares a b))))
+; ex1.3
+
+(ex1.3 3 5 4)
+; 41
+
+(ex1.3 5 4 3)
+; 41
+
+(define (a-plus-abs-b a b)
+        ((if (> b 0) + -) a b))
+; a-plus-abs-b
+
+(a-plus-abs-b 3 -4)
+; 7
+
+(a-plus-abs-b 3 9)
+; 12
+
+(define (p) (p))
+; p
+
+(define (test x y)
+        (if (= x 0) 0 y))
+; test
+
+(test 0 (p))
+; no output; infinite loop, therefore interpreter
+; must be using applicative order evalution (evalute first,
+; even if not used), b/c (p) causes an infinite loop
+
+; 1.1.7
+
+(define (sqrt x)
+        (sqrt-iter 1.0 x))
+; sqrt
+
+(define (sqrt-iter guess x)
+        (if (close-enough? guess x)
+            guess
+	    (sqrt-iter (improve guess x) 
+		       x)))
+; sqrt-iter
+
+(define (improve guess x)
+        (average guess 
+	         (/ x guess)))
+; improve
+
+
+(define (average a b)
+        (/ (+ a b) 2.0))
+; average
+
+(average 5 8)
+; 6.5
+
+;; alternative form that incorporates average
+(define (improve guess x)
+        (/ (+ guess
+              (/ x guess))
+           2))
+; improve
+
+; standard definition of close-enough?
+(define (close-enough? guess x)
+        (< (abs (- (square guess) 
+	            x)) 
+	   0.001))
+; close-enough?
+
+; my new definition of close-enough? from exercise 1.7
+(define (close-enough? guess x)
+        (< (abs (- (improve guess x) 
+	           guess))
+	   (/ guess 1000)))
+; close-enough?
+
+(sqrt 9)
+; 3.00009155413138
+
+(sqrt (+ 100 37))
+; 11.704699917758145
+
+(sqrt (+ (sqrt 2) (sqrt 3)))
+; 1.7739279023207892
+
+(square (sqrt 1000))
+; 1000.000369924366
+
+(square (sqrt 0.001))
+; about 1.001 e-3 with my improved close-enough? from ex. 1.7
+; about 1.7 e-3 with the standard close-enough? (much further off)
+
+(square (sqrt 9283946))
+
+(define (new-if predicate then-clause else-clause)
+        (cond (predicate then-clause)
+              (else else-clause)))
+; new-if
+
+(new-if (= 2 3) 0 5)
+; 5
+
+(new-if (= 1 1) 0 5)
+; 0
+
+; from exercise 1.6: THIS DOES NOT WORK!
+; because you aren't using if, which short-circuits before
+; evaluating the recursive case if not needed, there will
+; be no base case, and the first time sqrt-iter is called,
+; it will start an infinite recursion sequence.
+(define (sqrt-iter guess x)
+        (new-if (close-enough? guess x)
+                guess
+                (sqrt-iter (improve guess x)
+                           x)))
+; sqrt-iter
+
+(define (cbrt x)
+        (cbrt-iter 1.0 x))
+; cbrt
+
+(define (cbrt-iter guess x)
+        (if (cube-close-enough? guess x)
+	    guess
+            (cbrt-iter (cube-improve guess x) 
+                       x)))
+; cbrt-iter
+
+(define (cube x)
+        (* x x x))
+; cube
+
+(define (cube-close-enough? guess x)
+        (< (abs(- (cube guess) 
+	          x)) 
+	   0.001))
+; cube-close-enough?
+
+(define (cube-improve guess x)
+        (/ (+ (/ x 
+	         (square guess))
+	      (* 2 guess))
+           3))
+; cube-improve
+
+(cbrt 1)
+; 1
+
+(cbrt 8)
+; 2.000[...]
+
+(cbrt 100)
+; 4.64159[...]
+
+; 1.1.8
+
+(define (square x)
+        (* x x ))
+; square
+
+(define (square x)
+       (exp (double (log x))))
+; square
+
+(define (double x)
+        (+ x x))
+; double
+
+(define (square y)
+        (* y y))
+; square
+
+(square 6)
+; 36 [same with any of the definitions of square]
+
+(define (sqrt x)
+   (define (sqrt-iter guess x)
+           (if (close-enough? guess x)
+               guess
+               (sqrt-iter (improve guess x) x)))
+   (define (close-enough? guess x)
+           (< (abs (- (square guess) 
+	              x)) 
+	      0.001))
+   (define (improve guess x)
+           (average guess (/ x guess)))
+   (sqrt-iter 1.0 x))
+; sqrt
+
+(define (sqrt x)
+   (define (sqrt-iter guess)
+           (if (close-enough? guess)
+               guess
+               (sqrt-iter (improve guess))))
+   (define (close-enough? guess)
+           (< (abs (- (square guess) 
+	              x)) 
+              0.001))
+   (define (improve guess)
+           (average guess 
+	            (/ x guess)))
+   (sqrt-iter 1.0))
+
+(sqrt 9)
+; 3.000[...]
+
+(sqrt 1000)
+; 31.6227[...]
+
+; 1.2.1
+
+(define (factorial n)
+        (if (= 1 n)
+            1
+            (* n
+               (factorial (- n 1)))))
+; factorial
+
+(factorial 6)
+; 720
+
+(factorial 3)
+; 6
+
+(define (factorial n)
+   (define (iter product counter)
+           (if (> counter n)
+               product
+               (iter (* product counter) 
+	             (+ counter 1))))
+   (iter 1 1))
+; factorial
+
+; this version is a recursive procedure
+(define (plus a b)
+        (if (= a 0)
+            b
+            (inc (plus (dec a) 
+		    b))))
+; plus
+
+; this version is an iterative procedure b/c it uses tail calls
+(define (plus a b)
+        (if (= a 0)
+            b
+            (plus (dec a) (inc b))))
+; plus
+
+(define (dec a)
+        (- a 1))
+; dec
+
+(define (inc a)
+        (+ a 1))
+; inc
+
+(plus 5 7)
+; 12
+
+(dec 4)
+; 3
+
+(inc 4)
+; 5
+
+(define (A x y)
+        (cond ((= y 0) 0)
+ 	      ((= x 0) (* 2 y))
+	      ((= y 1) 2)
+	      (else (A (- x 1) (A x (- y 1))))))
+; a
+
+(A 1 10)
+; 1024
+
+(A 2 4)
+; 65536
+
+(A 3 3)
+; 65546
+
+(define (f x) (A 0 x))
+; f
+
+(f 0)
+; 0
+
+(f 1)
+; 2
+
+(f 2)
+; 4
+
+(f 7)
+; 14
+
+(f 91)
+; 182
+
+; f(x) = 2 * x
+
+(define (g x) (A 1 x))
+; g
+
+(g 0)
+; 0
+
+(g 1)
+; 2
+
+(g 2)
+; 4
+
+(g 5)
+; 32
+
+(g 10)
+; 1024
+
+; g(x) = 2 ^ x for x >= 1
+
+(define (h x) (A 2 x))
+; h
+
+(h 0)
+; 0
+
+(h 1)
+; 2 (2 ^ 1) (2)
+
+(h 2)
+; 4 (2 ^ 2) (2 ^ 2)
+
+(h 3)
+; 16 (2 ^ 4) (2 ^ (2 ^ 2))
+
+(h 4)
+; 65536 (2 ^ 16) (2 ^ (2 ^ (2 ^ 2)))
+
+; h(x) = 2 ^ (2 ^ (2 ^ ... 2) for x 2's
+
+; 1.2.2
+
+; tree-recursive version; O(c ^ n) time (exponential time)
+(define (fib n)
+        (cond ((= n 0) 0)
+	      ((= n 1) 1)
+              (else (+ (fib (- n 1))
+                       (fib (- n 2))))))
+; fib
+
+; iterative version; O(n) time
+(define (fib n)
+   (define (iter higher lower count)
+           (if (= count 0)
+               lower
+               (iter (+ higher lower) 
+		     higher 
+		     (- count 1))))
+   (iter 1 0 n))
+; fib
+
+(fib 0)
+; 0
+
+(fib 1)
+; 1
+
+(fib 4)
+; 3
+
+(fib 5)
+; 5
+
+(fib 6)
+; 8
+
+(fib 10)
+; 55
+
+(define phi 
+        (/ (+ 1 
+	      (sqrt 5)) 
+	   2))
+; phi
+
+phi
+; 1.6180... (golden ratio)
+
+(define (fib-approx n)
+        (/ (pow phi n)
+           (sqrt 5)))
+; fib-approx
+
+(fib-approx 5)
+; 4.95...
+
+(fib-approx 10)
+; 55.00...
+
+(fib-approx 20)
+; 6765.00...
+
+(fib 20)
+; 6765
+
+(define (pow a b)
+   (define (iter total counter)
+      (if (= 1 counter)
+          total
+          (iter (* total a) 
+	        (- counter 1))))
+   (iter a b))
+; pow
+
+(pow 2 3)
+; 8
+
+(pow 10 3)
+; 1000
+
+(pow 7 2)
+; 49
+
+
+(define (make-change amount)
+   (define (get-denomination index)
+      (cond ((= index 1) 1)
+            ((= index 2) 5)
+            ((= index 3) 10)
+            ((= index 4) 25)
+	    ((= index 5) 50)))
+   (define (iter amount-current denominations)
+      (cond ((= 0 denominations) 0)
+	    ((= 0 amount-current) 1)
+            ((< amount-current 0) 0)
+            (else (+ (iter amount-current
+	                   (- denominations 1))
+                     (iter (- amount-current 
+	                      (get-denomination denominations))
+	                   denominations)))))
+   (iter amount 5))
+; make-change
+
+(make-change 10)
+; 4
+
+(make-change 5)
+; 2
+
+(make-change 100)
+; 292
+
+; recursive version
+(define (f n)
+   (if (< n 3)
+       n
+       (+ (f (- n 1))
+          (* 2 
+	     (f (- n 2)))
+          (* 3 
+	     (f (- n 3))))))
+; f
+
+(f 2)
+; 2
+
+(f 3)
+;4
+
+(f 5)
+; 25
+
+(f 10)
+; 1892
+
+; iterative version
+(define (f n)
+   (define (iter a b c counter)
+      (if (= counter 0)
+	  c
+          (iter b c (+ c
+                       (* 2 b)
+                       (* 3 a))
+	            (- counter 1))))
+   (if (< n 3)
+       n
+       (iter 0 1 2 (- n 2))))
+; f
+
+; row starts at 1 at top of Pascal's triangle
+; index starts at 1 on left
+(define (pascal row index)
+   (cond ((= 0 row) 0)
+	 ((= 0 index) 0)
+         ((> index row) 0)
+         ((and (= row 1) (= index 1)) 1)
+         (else (+ (pascal (- row 1) (- index 1))
+		  (pascal (- row 1) index)))))
+; pascal
+
+(pascal 1 1)
+; 1
+
+(pascal 2 2)
+; 1
+
+(pascal 3 2)
+; 2
+
+(pascal 5 2)
+; 4
+
+(pascal 5 3)
+; 6
+
+(pascal 9 4)
+; 56
+
+; sin x = 3 sin (x / 3) - 4 sin(x / 3)^3, x in radians
+(define (sine angle)
+   (if (not (> (abs angle) 0.1))
+       angle
+       (p (sine (/ angle 3.0)))))
+; sine
+
+(define (cube x) (* x x x))
+; cube
+
+(cube 4)
+; 64
+
+(define (p x) (- (* 3 x) 
+	         (* 4 (cube x))))
+; p
+
+(sine 0)
+; 0
+
+(sine (/ pi 2))
+; 0.999...
+
+(sine (/ pi 4))
+; 0.707...
+
+(sine 12.15)
+; -.399...
+
+; 1.2.4
+
+; recursive version
+(define (exp b n)
+   (if (= n 0)
+       1
+       (* b 
+	  (exp b 
+	       (- n 1)))))
+; exp
+
+(exp 2 3)
+; 8
+
+(exp 5 4)
+; 625
+
+(exp 7 0)
+; 1
+
+; iterative version
+(define (exp b n)
+   (define (iter product counter)
+      (if (= counter 0)
+          product
+          (iter (* product b) 
+	        (- counter 1))))
+   (iter 1 n))
+; exp
+
+; recursive version
+(define (fast-exp b n)
+   (cond ((= n 0) 1)
+         ((even? n) (square(fast-exp b 
+	                             (/ n 2))))
+         (else (* b 
+	          (fast-exp b 
+              	            (- n 1))))))
+; fast-exp
+
+; idea 1: use fast-exp (square b) (/ n 2) if n is even
+; idea 2: keep a multiplier to mulitply result by
+;        -must also keep "squares used" count
+;        -must also keep "original b" variable
+;        -each time you would multiply by b in recursive version,
+;              instead add b ^ (2 * squares-used) to multiplier
+
+; iterative version
+(define (fast-exp b n)
+   (define (iter b n multiplier)
+      (cond ((= n 1) (* b multiplier))
+            ((even? n) (iter (square b) (/ n 2) multiplier))
+	    (else (iter b 
+	                (- n 1) 
+	                (* multiplier b)))))
+   (iter b n 1))
+; fast-exp
+
+(fast-exp 3 3)
+; 27
+
+(fast-exp 2 10)
+; 1024
+
+(fast-exp 2 20)
+; 1048576
+
+(fast-exp 7 7)
+; 823453
+
+(fast-exp 1.01 1000)
+; 20959.1...
+
+(exp 1.01 1000)
+; 20959.1...
+
+(define (even? n)
+   (= 0 
+      (remainder n 2)))
+; even?
+
+(remainder 7 2)
+; 1
+
+(define (times a b)
+   (if (= b 0)
+       0
+       (+ a 
+	  (times a 
+	         (- b 1)))))
+; times
+
+; recursive version
+(define (fast-multiply a b)
+   (cond ((= b 0) 0)
+         ((even? b) (fast-multiply (double a) 
+				   (halve b)))
+         (else (+ a
+                  (fast-multiply a 
+			         (- b 1))))))
+; fast-multiply
+
+; iterative version
+(define (fast-multiply a b)
+   (define (iter a b add-on)
+      (cond ((= b 0) 0)
+	    ((= b 1) (+ a add-on))
+            ((even? b) (iter (double a)
+ 	 		     (halve b)
+ 			     add-on))
+            (else (iter a
+                        (- b 1)
+                        (+ add-on a)))))
+   (iter a b 0))
+; fast-multiply
+
+(fast-multiply 4 0)
+; 0
+
+(fast-multiply 2 3)
+
+(fast-multiply 5 10)
+; 50
+
+(fast-multiply 170 924)
+; 157080
+
+(times 5 10)
+; 50
+
+(times 9 8)
+; 72
+
+(define (double a)
+        (* a 2))
+; double
+
+(double 7)
+; 14
+
+(define (halve a)
+        (/ a 2.0))
+; halve
+
+(halve 7)
+; 3.5
+
+; exercise 1.19
+; a second round = 2a + b
+; b second round = a + b
+;
+; a first round = bq + ap + aq
+; b first round = bp + aq 
+;
+; a second round = (bp + aq)q + (bq + aq + ap)(p + q)
+; b second round = (bp + aq)p + (bq + aq + ap)q
+;
+; a second round = bpq + aq2 + bpq + bq2 + 2apq + ap2 + aq2
+;                = 2bpq + bq2 + 2aq2 + ap2 + 2apq
+;                = b(2pq + q2) + a (2q2 + p2 + 2pq)
+;                = b(2pq + q2) + a(q2 + p2) + a (2pq + q2)
+; b second round = bp2 + apq + bq2 + aq2 + apq
+;		 = b(p2 + q2) + a(2pq + q2)
+; q' = 2pq + q2
+; p' = p2 + q2
+
+(define (fib n)
+   (fib-iter 1 0 0 1 n))
+; fib
+
+(define (fib-iter a b p q count)
+   (cond ((= count 0) b)
+         ((even? count) (fib-iter a
+	  		 	  b
+				  (+ (square p)
+				     (square q))
+				  (+ (* 2 p q) 
+				     (square q))
+				  (/ count 2)))
+	 (else (fib-iter (+ (* b q) 
+			    (* a q) 
+			    (* a p))
+			 (+ (* b p) 
+			    (* a q))
+			 p
+			 q
+			 (- count 1)))))
+; fib-iter
+
+(fib 3)
+; 2
+
+(fib 5)
+; 5
+				 
+(fib 6)
+; 8
+
+(fib 19)
+; 4181
+
+; 1.2.5
+
+(define (gcd a b)
+   (if (= b 0)
+       a
+       (gcd b 
+            (remainder a b))))
+; gcd
+
+(gcd 16 28)
+; 4
+
+(gcd 28 16)
+; 4
+
+(gcd 2000 248)
+; 8
+
+; exercise 1.20
+; normal order of gcd 206 40 (expand, then evaluate):
+; gcd 206 40, gcd 40 (remainder 206 40), gcd 6 (remainder 40 6), gcd 4 (remainder 6 4), gcd 2 (remainder 4 2), 2
+; remainder was calculated 4 times
+; this is wrong, there are 18 evaluations in the normal order form:
+; gcd 206 40
+; gcd 40 (remainder 206 40)
+; 	(remainder 206 40) != 0 -- 1 remainder
+; gcd (remainder 206 40) (remainder 40 (remainder 206 40))
+; 	(remainder 40 (remainder 206 40)) != 0 -- 3 total remainders
+; gcd (remainder 40 (remainder 206 40)) (remainder (remainder 206 40) (remainder 40 (remainder 206 40)))
+; 	(remainder (remainder 206 40) (remainder 40 (remainder 206 40))) != 0 -- 7 total remainders
+; gcd (r(r(206 40) r(40 4(206 40)))   r(r(40 r(206 40)) r(r(206 40) r(40 r(206 40)))
+; must evaluate both of these arguments: b evaluates to 0 -> 14 total remainders
+; then evaluate a to return it, 2, -> 18 total remainders.
+; applicative order of gcd 206 40 (evaluate, then apply_:
+; gcd 206 40, gcd 40 6, gcd 6 4, gcd 4 2, gcd 2 0, 2
+; remainder calculated 4 times again (remainder must be calculated either way) 
+
+(define (smallest-divisor n)
+   (define (iter n current)
+      (cond ((> (square current) 
+	        n)
+             n)
+            ((divides? n current) 
+	     current)
+            (else (iter n 
+			(+ current 1)))))
+   (iter n 2))
+; find-divisor
+
+(define (smallest-divisor n)
+   (define (iter n current)
+       (cond ((> (square current) n) n)
+             ((divides? n current) current)
+             (else (iter n (next current)))))
+   (iter n 2))
+; smallest-divisor
+
+(define (divides? a b)
+   (= (remainder a b)
+      0))
+; divides?
+
+
+(smallest-divisor 19)
+; 19
+
+(smallest-divisor 49)
+; 7
+
+(define (prime? n)
+   (= n
+      (smallest-divisor n)))
+; prime?
+
+(prime? 7)
+; #t
+
+(prime? 48)
+; #f
+
+(define (exp-mod base exp m)
+   (cond ((= exp 0) 1)
+         ((even? exp) 
+	  (remainder (square (exp-mod base 
+	                              (/ exp 2) 
+	 			      m)) 
+	             m))
+	 (else (remainder (* base
+   			     (exp-mod base
+				      (- exp 1)
+				      m))
+			   m))))
+; exp-mod
+
+; returns 0 if value is a nontrivial square root of 1 mod n
+(define (report-miller-rabin value n)
+   (if (and (> value 1) 
+	    (< value 
+	       (- n 1)) 
+	    (= (remainder value n) 
+	       1))
+	0
+	value))
+; report-miller-rabin
+
+(define (exp-mod-miller-rabin base exp m)
+   (cond ((= exp 0) 1)
+         ((even? exp) 
+ 	  (remainder (report-miller-rabin (square (exp-mod-miller-rabin base
+      				                                        (/ exp 2)
+				                                        m))
+					   m)
+		     m))
+	  (else (remainder (* base
+			      (exp-mod-miller-rabin base
+				       (- exp 1)
+				       m))
+			    m))))
+; exp-mod-miller-rabin
+
+(define (miller-rabin-trial n)
+   (define (test a)
+      (= (exp-mod-miller-rabin a (- n 1) n)
+	 1))
+   (test (+ (random (- n 1))
+            1)))
+; miller-rabin-trial
+
+(define (miller-rabin-trial-all n)
+   (define (iter counter)
+      (cond ((= n counter) true)
+            ((miller-rabin-trial n) (iter (+ counter 1)))
+	    (else false)))
+   (iter 2))
+; miller-rabin-trial-all
+
+(miller-rabin-trial-all 7)
+; #t
+
+(miller-rabin-trial-all 97)
+; #t
+
+(miller-rabin-trial-all 49)
+; #f
+
+; Carmichael numbers; should all return false, as Miller-Rabin should be impossible to fool, unlike Fermat test
+(miller-rabin-trial-all 561)
+; #f
+
+(miller-rabin-trial-all 1105)
+; #f
+
+(miller-rabin-trial-all 1729)
+; #f
+
+(miller-rabin-trial-all 2465)
+; #f
+
+(miller-rabin-trial-all 2821)
+; #f
+
+(miller-rabin-trial-all 6601)
+; #f
+
+(remainder 1 3)
+; 1
+
+(remainder 1 8)
+; 1
+
+(remainder 7 8)
+; 7
+
+(define (fermat-trial n)
+   (define (test a)
+      (= (exp-mod a n n) 
+	 a))
+   (test (+ (random (- n 1))
+	    1)))
+; fermat-trial
+
+(define (fermat-test n times)
+   (cond ((= times 0) true)
+         ((fermat-trial n) (fermat-test n 
+			   (- times 1)))
+	 (else false)))
+; fermat-test
+
+(define (fermat-test-all n)
+   (define (iter counter)
+      (cond ((= counter n) true)
+            ((= counter 
+	        (exp-mod counter n n)) (iter (+ counter 1)))
+            (else false)))
+   (iter 2))
+; fermat-test-all
+
+(fermat-test-all 7)
+; #t
+
+(fermat-test-all 101)
+; #t
+
+(fermat-test-all 49)
+; #f
+
+; these are Carmichael numbers (fool the Fermat test)
+(fermat-test-all 561)
+; #t
+(prime? 561)
+; #f
+(smallest-divisor 561)
+; 3
+
+(fermat-test-all 1105)
+; #t
+(prime? 1105)
+; #f
+(smallest-divisor 1105)
+; 5
+
+(fermat-test-all 1729)
+; #t
+(prime? 1729)
+; #f
+(smallest-divisor 1729)
+; 7
+
+(fermat-test-all 2465)
+; #t
+(prime? 2465)
+; #f
+(smallest-divisor 2465)
+; 5
+
+(fermat-test-all 2821)
+; #t
+(prime? 2821)
+; #f
+(smallest-divisor 2821)
+; 7
+
+(fermat-test-all 6601)
+; #t
+(prime? 6601)
+; #f
+(smallest-divisor 6601)
+; 7
+
+(define (prime? n)
+   (fermat-test n 100))
+; prime?
+
+(random 3)
+; returns 0, 1, or 2
+
+(+ (random (- 3 1)) 1)
+; returns 1 or 2
+
+(exp-mod 2 5 5)
+; 2
+
+(exp-mod 4 7 7)
+; 4
+
+(fermat-trial 7)
+; #t
+
+(fermat-test 7 2)
+; #t
+
+(fermat-test 7 100)
+; #t
+
+(fermat-test 19 1000)
+; #t
+
+(fermat-test 287 100)
+; #f
+
+(smallest-divisor 199)
+; 199
+
+(smallest-divisor 1999)
+; 1999
+
+(smallest-divisor 19999)
+; 7
+	 
+(define (timed-prime-test n)
+   (newline)
+   (display n)
+   (start-prime-test n (runtime)))
+; timed-prime-test
+
+(define (start-prime-test n start-time)
+   (if (prime? n)
+       (print-prime-test (- (runtime) start-time))))
+; start-prime-test
+
+(define (print-prime-test time-taken)
+   (display " *** ")
+   (display time-taken))
+; print-prime-test
+
+(print-prime-test 100)
+; *** 100
+
+(timed-prime-test 7)
+; 7 *** 0.
+
+(timed-prime-test 1999)
+; 1999 *** 0.
+
+(display "Hello, world!")
+; Hello, world! [in the *scheme* buffer]
+
+(define (test-prime-iter counter max)
+   (if (< counter max)
+       	(continue-test-prime-iter counter max)))
+; test-prime-iter
+
+(define (continue-test-prime-iter counter max)
+   (timed-prime-test counter)
+   (if (even? counter)
+       (test-prime-iter (+ counter 1) max)
+       (test-prime-iter (+ counter 2) max)))
+; continue-test-prime-iter
+
+(test-prime-iter 1 100)
+; all have 0. as their runtime; 1, 3, 5
+
+(test-prime-iter 1000 1100)
+; 1009, 1013, 1019. all but 10031 have 0. as their runtime
+
+(test-prime-iter 10000 10100)
+; 10007, 10009, 10037. all have 0. as their runtime
+
+(test-prime-iter 100000 100100)
+; 100003, 100019, 100043. all are 0. runtime, except 100043 (0.009999)
+
+(test-prime-iter 1000000 1000100)
+; 1000003, 1000033, 1000037. all are 0. runtime, except 1000081 (0.01)
+
+
+(define (next test-divisor)
+   (if (= test-divisor 2)
+       3
+       (+ test-divisor 2)))
+; next
+
+(next 2)
+; 3
+
+(next 1)
+; 3
+
+
+; 1.3
+
+(define (cube x) (* x x x))
+; cube
+
+(cube 3)
+; 27
+
+(* 3 3 3)
+; 27
+
+(cube -1)
+; -1
+
+(* -1 -1 -1)
+; -1
+
+
+; 1.3.1
+
+(define (sum-integers a b)
+   (if (> a b)
+       0
+       (+ a 
+	  (sum-integers (+ a 1)
+			b))))
+; sum-integers
+
+(sum-integers 90 88)
+; 0
+
+(sum-integers 100 100)
+; 100
+
+(sum-integers 1 100)
+; 5050
+
+(define (sum-cubes a b)
+   (if (> a b)
+       0
+       (+ (cube a)
+	  (sum-cubes (+ a 1)
+	             b))))
+; sum-cubes
+
+(sum-cubes 1 2)
+; 9
+
+(sum-cubes 1 3)
+; 36
+
+(sum-cubes 1 4)
+; 100
+
+(sum-cubes 1 5)
+; 225
+
+(define (pi-sum a b)
+   (if (> a b)
+       0
+       (+ (/ 1.0
+             (* a
+	        (+ a 2)))
+	  (pi-sum (+ a 4) 
+		  b))))
+; pi-sum
+
+(pi-sum 1 5)
+; .3619...
+
+(pi-sum 1 100)
+; .3901...
+
+(pi-sum 1 10000)
+; .3926...
+
+(/ pi 8.0)
+; .3926...
+
+(define (sum-terms term-rule a next-rule b)
+   (if (> a b)
+       0
+       (+ (term-rule a)
+	  (sum-terms term-rule (next-rule a) next-rule b))))
+; sum-terms
+
+(define (sum-cubes a b)
+   (sum-terms cube a increment b))
+; sum-cubes
+
+(define (increment x)
+   (+ x 1))
+; increment
+
+(increment 7)
+; 8
+
+(sum-cubes 1 10)
+; 3025
+
+(define (sum-integers a b)
+   (sum-terms identity a increment b))
+; sum
+
+(define (identity x)
+  x)
+; identity
+
+(identity 29)
+; 29
+
+(sum-integers 1 100)
+; 5050
+
+(define (pi-sum a b)
+   (define (pi-term x)
+	   (/ 1.0 (* x (+ x 2))))
+   (define (pi-next x)
+           (+ x 4))
+   (sum-terms pi-term a pi-next b))
+; pi-sum
+
+(pi-sum 1 10000)
+; .3926...
+
+(* 8 
+   (pi-sum 1 1000))
+; 3.139...
+
+(* 8
+   (pi-sum 1 100000))
+; 3.14157...
+
+; uses a Riemann sum-like method to approximate an integral
+(define (integral f a b dx)
+   (define (add-dx x) (+ x dx))
+   (* (sum-terms f 
+	         (+ a 
+	            (/ dx 2))
+	 	 add-dx
+	         b)
+      dx))
+; integral
+
+(integral identity 0 1 0.01)
+; .5000...
+
+(integral cube 0 1 0.01)
+; .24998...
+
+(integral cube 0 1 0.001)
+; .2499998...
+
+; ex. 1.29, using Simpson's Rule
+(define (integral f a b n)
+   (define (simpsons-next x) (+ 1 x))
+   (define h (/ (- b a) 
+		n))
+   (define (y x) (f (+ a 
+		       (* x h))))
+   (define (simpsons-term x)
+      (cond ((and (even? x) 
+	          (> x 0) 
+	 	  (< x n))
+             (* 2 
+		(y x)))
+	    ((not (even? x))
+             (* 4
+                (y x)))
+            ((or (= 0 x) 
+		 (= n x))
+             (y x))))
+   (* (/ h 3) 
+      (sum-terms simpsons-term a simpsons-next n)))
+; integral
+             
+(integral cube 0 1 100)
+; 1/4
+
+(integral cube 0 1 1000)
+; 1/4
+
+(integral identity 0 1 1000)
+; 1/2
+
+; ex. 1.30, iterative version
+(define (sum-terms term a next b)
+   (define (iter a result)
+      (if (> a b)
+          result
+          (iter (next a)
+                (+ (term a) 
+	           result))))
+   (iter a 0))
+; sum-terms
+
+(sum-terms cube 1 increment 10)
+; 3025
+      
+; recursive version
+(define (product-terms term a next b)
+   (if (> a b)
+       1
+       (* (term a)
+	  (product-terms term 
+	 	         (next a)
+			 next
+	                 b))))
+; product-terms
+
+; iterative version
+(define (product-terms term a next b)
+   (define (iter a result)
+      (if (> a b)
+          result
+          (iter (next a)
+                (* (term a)
+ 		   result))))
+   (iter a 1))
+; product-terms
+
+(product-terms cube 1 increment 5)
+; 1728000
+
+(product-terms square 1 increment 5)
+; 14400
+
+(product-terms square 1 increment 3)
+; 36
+
+(define (factorial n)
+   (product-terms identity 1 increment n))
+; factorial
+
+(factorial 5)
+; 120
+
+(factorial 10)
+; 3628800
+
+(define (wallis-sequence n)
+   (define (wallis-term x)
+      (if (even? x)
+          (/ (+ x 2.0)
+	     (+ x 1.0))
+          (/ (+ x 1.0)
+             (+ x 2.0))))
+   (product-terms wallis-term 1 increment n))
+; wallis-sequence
+
+(wallis-sequence 100)
+; .78925...
+
+(/ pi 4)
+; .78539...
+
+(wallis-sequence 10000)
+; .78543...
+
+; recursive version
+(define (accumulate combiner null-value term a next b)
+   (if (> a b)
+       null-value
+       (combiner (term a)
+		 (accumulate combiner null-value term (next a) next b))))
+; accumulate
+
+(define (accumulate combiner null-value term a next b)
+   (define (iter a result)
+      (if (> a b)
+          result
+          (iter (next a)
+		(combiner (term a)
+			  result))))
+   (iter a null-value))
+; accumulate
+
+(define (sum-terms a b)
+   (accumulate + 0 identity a increment b))
+; sum-terms
+
+(sum-terms 5 10)
+; 45
+
+(sum-terms 1 100)
+; 5050
+
+(define (product-terms a b)
+   (accumulate * 1 identity a increment b))
+; product-terms
+
+(product-terms 1 10)
+; 3628800
+
+(product-terms 1 5)
+; 120
+
+(define (filtered-accumulate combiner null-value term a next b predicate)
+   (if (> a b)
+       null-value
+       (if (predicate a)
+	   (combiner (term a)
+		     (filtered-accumulate combiner null-value term (next a) next b predicate))
+	   (combiner null-value
+		     (filtered-accumulate combiner null-value term (next a) next b predicate)))))
+; filtered-accumulate
+
+(define (sum-terms a b)
+   (filtered-accumulate + 0 identity a increment b always-true))
+; sum-terms
+
+(define (always-true x) true)
+; always-true
+
+(define (sum-prime-squares a b)
+   (filtered-accumulate + 0 square a increment b prime?))
+; sum-prime-squares
+
+(sum-prime-squares 1 10)
+; 88
+
+(sum-prime-squares 1 100)
+; 65797
+
+(define (relatively-prime? 
+
+(define (product-relatively-prime-up-to n)
+   (define (prp-gcd x)
+      (= 1 
+	 (gcd x n)))
+   (filtered-accumulate * 1 identity 1 increment n prp-gcd))
+; product-relatively-prime-up-to
+
+(product-relatively-prime-up-to 5)
+; 24
+
+(product-relatively-prime-up-to 10)
+; 189
+
+; 1.3.2
+
+((lambda (x) (+ x 4)) 5)
+; 9
+
+((lambda (x) (/ 1.0 
+		(* x 
+		   (+ x 2)))) 10)
+; .0083... (1/120)
+
+(define (pi-sum a b)
+   (sum-terms (lambda (x) (/ 1.0 
+			     (* x 
+				(+ x 2))))
+	      a
+	      (lambda (x) (+ x 4))
+	      b))
+; pi-sum
+
+(pi-sum 1 100)
+; .3901...
+
+(/ pi 8.0)
+; .3926...
+
+(pi-sum 1 10000)
+; .3926...
+
+(define (integral f a b dx)
+   (* (sum-terms f
+		 (+ a (/ dx 2.0))
+	         (lambda (x) (+ x dx))
+		 b)
+      dx))
+; integral
+
+(integral cube 0 1 0.01)
+; .24998...
+
+(integral cube 0 1 0.0001)
+; .2499999...
+
+(define (plus4 x)
+        (+ x 4))
+; plus4
+
+(define plus4
+        (lambda (x) 
+		(+ x 4)))
+; plus4
+
+(plus4 5)
+; 9
+
+((lambda (x y z)
+         (+ x 
+	    y
+	    (square z)))
+ 1 2 3)
+; 12
+	
+(define (f x y)
+   (define (f-helper a b)
+      (+ (* x a a)
+         (* y b)
+	 (* a b)))
+   (f-helper (+ 1 
+		(* x y))
+             (- 1 y)))
+; f
+
+; using lambda
+(define (f x y)
+   ((lambda (a b)
+       (+ (* x a a)
+	  (* y b)
+	  (* a b)))
+    (+ 1 
+       (* x y))
+    (- 1 y)))
+; f
+
+; using let
+(define (f x y)
+   (let ((a (+ 1 
+	       (* x y)))
+         (b (- 1 y)))
+    (+ (* x a a)
+       (* y b)
+       (* a b))))
+; f
+
+; using internal definitions
+(define (f x y)
+   (define a (+ 1 
+		(* x y)))
+   (define b (- 1 y))
+   (+ (* x a a)
+      (* y b)
+      (* a b)))
+; f
+
+(f 1 2)
+; 4
+
+(define my-var 5)
+; my-var
+
+(+ (let ((my-var 3))
+      (+ my-var
+         (* my-var 10)))
+   my-var)
+; 38 [not  36, because my-var outsid the scope of the "let" parentheses is still 5, not 3
+
+(define my-var 2)
+; my-var
+
+(let ((my-var 3)
+      (my-other-var (+ my-var 2)))
+   (* my-var my-other-var))
+; 12 [not 15, because my-other-var was set based on the state of my-var prior to the let (i.e., 2),
+; so my-other-var was set to 4 and not 5.]
+
+(define (f g)
+   (g 2))
+; f
+
+(f square)
+; 4
+
+(f (lambda (x) (* x 
+		  (+ x 1))))
+; 6
+
+(f f)
+; [error: 2 is not applicable; tried to run (2 2)]
+
+; 1.3.3
+
+(define (search f neg pos)
+   (let ((midpoint (average neg pos)))
+      (if (close-enough? neg pos)
+	  midpoint
+          (let ((test-value (f midpoint)))
+	     (cond ((positive? test-value)
+	            (search f neg midpoint))
+	           ((negative? test-value)
+		    (search f midpoint pos))
+	           (else midpoint))))))
+; search
+
+(define tolerance 0.001)
+
+(define (close-enough? a b)
+   (< (abs (- a b))
+      tolerance))
+; close-enough?
+
+(positive? 5)
+; #t
+
+(negative? 0)
+; #f
+
+(close-enough? 1.7 1.8)
+; #f
+
+(close-enough? 1.7 1.700001)
+; #t
+
+(sin pi)
+; 0
+
+(sin (/ pi 2))
+; .9999...
+
+(average 2.0 4.0)
+; 3.
+
+(sin 2.0)
+; .909
+
+(sin 4.0)
+; -.756
+
+(search sin 4.0 2.0)
+; 3.1411... [4.0 goes first because it's the negative value for sin]
+
+(define (half-interval-method f a b)
+   (let ((a-value (f a))
+         (b-value (f b)))
+      (cond ((and (negative? a-value)
+		  (positive? b-value))
+             (search f a b))
+ 	    ((and (positive? a-value)
+	          (negative? b-value))
+	     (search f b a))
+	    (else (error "Values must have opposite sign" a b)))))
+; half-interval-method
+
+(half-interval-method sin 2.0 4.0)
+; 3.1411...
+
+(half-interval-method square 1.0 2.0)
+; [aborts; prints the error message]
+
+(half-interval-method (lambda (x) (- (* x x x)
+		                     (* 2 x)
+				     3))
+	              1.0
+		      2.0)
+; 1.893...
+
+(define tolerance 0.00001)
+; tolerance
+
+(define (fixed-point f first-guess)
+   (define (try guess)
+      (let ((next (f guess)))
+         (if (close-enough? guess next)
+	     next
+	     (try next))))
+   (try first-guess))
+; fixed-point
+
+; this version prints "next" each time it recurses
+(define (fixed-point f first-guess)
+   (define (try guess)
+      (let ((next (f guess)))
+         (newline)
+         (display next)
+	 (if (close-enough? guess next)
+	     next
+	     (try next))))
+   (try first-guess))
+; fixed-point
+
+(fixed-point cos 1.0)
+; .739...
+; other version prints 28 values, starting with .5403..., ending with the same result
+
+(fixed-point (lambda (x) (+ (sin x)
+			    (cos x)))
+	     1.0)
+; 1.258...
+
+(define (sqrt x)
+   (fixed-point (lambda (y) (average y
+				     (/ x y)))
+	        1.0))
+; sqrt 
+
+(sqrt 5)
+; 2.236...
+
+(sqrt 49)
+; 7.00000...
+
+; golden ratio
+(fixed-point (lambda (x) (average x
+		                  (+ 1
+	 			     (/ 1 x))))
+	        1.0)
+; 1.61803...
+
+(define (my-output x)
+   (if (> x 0)
+       (+ x 1)
+       (display-output x)))
+; my-output
+
+(define (display-output x)
+   (newline)
+   (display x))
+; display-output
+
+(my-output -1)
+; -1
+
+; ex. 1.36
+; finding x such that x^x = 1000, without average damping
+(fixed-point (lambda (x) (/ (log 1000)
+			    (log x)))
+	     2.0)
+; 4.55553...
+; this takes 34 steps
+
+; finding x such that x^x = 1000, with average damping
+(fixed-point (lambda (x) (average x
+				  (/ (log 1000)
+				     (log x))))
+	     2.0)
+; 4.55553...
+; this takes only 9 steps (with average damping)
+
+; ex. 1.37
+
+; recursive version
+(define (cont-frac n d k)
+   (define (recurse counter)
+      (if (= counter k)
+	  (/ (n counter)
+	     (d counter))
+	  (/ (n counter)
+	     (+ (d counter)
+		(recurse (+ counter 1))))))
+   (recurse 1))
+; cont-frac
+
+; iterative version
+(define (cont-frac n d k)
+   (define (iter counter result)
+      (if (= counter 0)
+          result
+	  (iter (- counter 1)
+	        (/ (n counter)
+	           (+ result 
+	              (d counter))))))
+   (iter k 0))
+; cont-frac
+
+(cont-frac (lambda (i) 1.0)
+	   (lambda (i) 1.0)
+	   10)
+; .61797...
+
+(/ 1 phi)
+; .61803...
+
+(cont-frac (lambda (i) 1.0)
+	   (lambda (i) 1.0)
+	   100)
+; .61803...
+
+(cont-frac (lambda (i) 1.0)
+	   (lambda (i) 1.0)
+	   11)
+; .61805... [accurate to 4 places]
+
+
+; ex. 1.38
+
+(define (approximate-e k)
+   (+ (cont-frac (lambda (n) 1.0)
+              (lambda (d)
+                      (if (= (remainder d 3.0) 
+			     2.0)
+	                  (* 2.0
+	                     (/ (+ d 1)
+	                        3))
+			  1.0))
+	      k)
+       2))
+; approximate-e
+
+(approximate-e 100)
+; 2.7182818... [this is correct]
+
+(define (tan-cf x k)
+   (cont-frac (lambda (n) (if (= n 1)
+			      x
+			      (* -1 x x)))
+	      (lambda (d) (- (* d 2)
+			     1))
+	  		     
+	      k))
+; tan-cf
+
+(tan-cf (/ pi 4) 100)
+; .9999... [this is correct]
+
+(tan-cf (/ pi 8) 100)
+; .4142... [this is correct]
+
+; 1.3.4
+
+(define (average-damp f)
+   (lambda (x) (average x (f x))))
+; average-damp
+
+((average-damp square) 10)
+; 55 [average of 10, x, and 100, f(x)]
+
+(define (sqrt x)
+   (fixed-point (average-damp (lambda (i) (/ x i)))
+	        1.0))
+; sqrt
+
+(sqrt 5)
+; 2.236...
+
+(sqrt 1000)
+; 31.62...
+
+(define (cube-root x)
+   (fixed-point (average-damp (lambda (i) (/ x 
+					     (square i))))
+	        1.0))
+; cube-root
+
+(cube-root 100)
+; 4.614...
+
+(cube-root 1000)
+; 9.9996...
+
+(define dx 0.00001)
+; dx
+
+(define (deriv f)
+   (lambda (x) (/ (- (f (+ x dx))
+	             (f x))
+		  dx)))
+; deriv
+
+((deriv cube) 5)
+; 75.0001...
+
+((deriv square) 3)
+; 6.0000...
+
+(define (newton-transform g)
+   (lambda (x) (- x 
+		  (/ (g x) 
+		     ((deriv g) x)))))
+; newton-transform
+
+(define (newtons-method g guess)
+   (fixed-point (newton-transform g) guess))
+; newtons-method
+
+(define (sqrt x)
+   (newtons-method (lambda (i) (- (square i)
+				  x))
+	           1.0))
+; sqrt
+
+(sqrt 5)
+; 2.236...
+
+(sqrt 10000)
+; 100.000...
+
+(define (fixed-point-of-transform g transform guess)
+   (fixed-point (transform g) guess))
+; fixed-point-of-transform
+
+(define (sqrt x)
+   (fixed-point-of-transform (lambda (i) (/ x i))
+			     average-damp
+			     1.0))
+; sqrt
+
+(sqrt 5)
+; 2.236...
+
+(sqrt 90)
+; 9.486...
+
+(define (sqrt x)
+   (fixed-point-of-transform (lambda (i) (- (square i)
+					    x))
+			     newton-transform
+			     1.0))
+; sqrt
+
+; ex. 1.40
+
+(define (cubic a b c)
+   (lambda (x) (+ (cube x)
+		  (* a 
+		     (square x))
+	          (* b x)
+		  c)))
+; cubic
+
+(newtons-method (cubic 1 1 1) 1)
+; -.99999...
+
+(newtons-method (cubic 1 2 3) 1)
+; -1.275...
+
+(newtons-method (cubic 0 0 4) 1)
+; -1.587...
+
+; ex. 1.41
+
+(define (double f)
+   (lambda (x) (f (f x))))
+; double
+
+((double increment) 5)
+; 7
+
+((double square) 2)
+; 16
+
+((double (double increment)) 5)
+; 9
+
+; ex. 1.42
+
+(define (compose f g)
+   (lambda (x) (f (g x))))
+; compose
+
+((compose square increment) 6)
+ 49
+
+((compose increment square) 6)
+; 37
+
+((compose cube square) 5)
+; 15625
+
+(define (repeated f n)
+   (define (iter counter)
+      (if (= counter n)
+          (lambda (x) (f x))
+          (compose f
+		   (iter (+ counter 1)))))
+   (iter 1))
+; repeated
+
+((repeated square 2) 5)
+; 625
+
+((repeated increment 7) 10)
+; 17
+
+((repeated cube 4) 2)
+; [huge number]
+
+; ex. 1.44
+
+(define (average-three a b c)
+   (/ (+ a b c)
+      3.0))
+; average-three
+
+(average-three 3 5 6)
+; 4.6666...
+
+(define (smooth-once f)
+   (lambda (x) (average-three (f x)
+			      (f (- x dx))
+			      (f (+ x dx)))))
+; smooth-once
+
+((smooth-once square) 3)
+; 9.0000...
+
+((smooth-once cos) (/ pi 6))
+; .86602...
+
+(define (smooth-n f n)
+   (lambda (x) (((repeated smooth-once n) f) x)))
+; smooth-n
+
+((smooth-n cos 10) (/ pi 6))
+; .86602...
+
+((smooth-n cube 3) 4)
+; 64.00000...
+
+; ex. 1.45
+
+(define (root x)
+   (fixed-point 
+	(lambda (i) (/ x i))
+	1.0))
+; root
+
+(root 5)
