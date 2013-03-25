@@ -1,0 +1,13 @@
+# select a random emoticon from the list and color it bold blue (1;34m), then leave a space, and revert to plain black (0m)
+# use this value for $PS1, the main prompt in bash
+PS1='\[\033[1;34m\]$(rand_element :-\) \;\) =\( \>=\) o_O 8D \>_\< \:D 8-0 \>_\< \(-_-\)zzz ^_^ \(._.\) )\[\033[0m\] '
+
+rand() {
+	printf $((  $1 *  RANDOM  / 32767   ))
+}
+
+rand_element () {
+    local -a th=("$@")
+    unset th[0]
+    printf $'%s\n' "${th[$(($(rand "${#th[*]}")+1))]}"
+}
