@@ -17,7 +17,7 @@ Summary of Contents:
 
 C:
 
-  threading exercises from Silberschatz
+  	threading exercises from Silberschatz
   
 Java:
 
