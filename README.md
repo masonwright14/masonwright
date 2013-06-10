@@ -19,9 +19,13 @@ C:
   
 Java:
 	Project Euler solutions for the first 25 problems
+	
 	a Mancala engine that uses alpha-beta pruning minimax
+	
 	a model of a deterministic finite automaton the user can configure
+	
 	a Java quine, based on Sipser's Computation Theory book
+	
 	a demonstration of period doubling in the logistic graph
 	
 JavaScript:
@@ -32,14 +36,20 @@ LaTeX:
 	
 NetLogo:
 	an implementation of Conway's Game of Life
+	
 	a wolf-sheep predation model with custom made Poincare plot and recurrence plot
 	
 Perl:
 	a tower of Hanoi implementation as an alarm clock
+	
 	a jotto engine
+	
 	a jumble solver
+	
 	a bf interpreter
+	
 	a nim engine
+	
 	an n-queens solver
 	
 Scheme:
@@ -47,6 +57,7 @@ Scheme:
 	
 bash shell:
 	a script from work for performing periodic screen captures during a software user study
+	
 	a script to select a random emoticon as the prompt
 	
 SPIM:
@@ -56,4 +67,5 @@ SQL:
 	sample queries from work projects
 XSS demo:
 	a class project demonstrating cross-site scripting and defenses against it. project includes
+	
 	CGI scripts in Ruby, as well as JavaScript and HTML for the target sites
