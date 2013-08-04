@@ -13,6 +13,12 @@ https://github.com/MultiAgencyCollective/exchange-net
 And the site is here:
 www.theexchangearchive.com
 
+Or check out an independent study I did in computational finance with my statistics professor, on option pricing models
+(such as Black-Scholes) and volatility models (such as GARCH). I implemented data collection and import routines,
+as well as the models themselves, in Python and Java.
+The source code is here:
+https://github.com/masonwright14/options
+
 Summary of Contents:
 
 C:
