@@ -73,14 +73,14 @@ abstract class MipProblemGenerator {
         final int kMin
     ) {
         final double baseValue = 50.0;
-        final double basePrice = MipGeneratorGLPK.MIN_BUDGET / kMax;
+        final double basePrice = MipGenerator.MIN_BUDGET / kMax;
         final List<Double> values = new ArrayList<Double>();
         final List<Double> prices = new ArrayList<Double>();
         final double budget = 
-            MipGeneratorGLPK.MIN_BUDGET 
-            + Math.random() * MipGeneratorGLPK.MIN_BUDGET / n;
+            MipGenerator.MIN_BUDGET 
+            + Math.random() * MipGenerator.MIN_BUDGET / n;
         final double maxPrice = 
-            MipGeneratorGLPK.MIN_BUDGET + MipGeneratorGLPK.MIN_BUDGET / n;
+            MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / n;
         
         for (int i = 1; i <= n; i++) {
             double newValue = 

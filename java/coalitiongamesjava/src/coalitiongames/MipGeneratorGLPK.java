@@ -1,5 +1,6 @@
 package coalitiongames;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,10 +12,6 @@ import org.gnu.glpk.glp_iocp;
 import org.gnu.glpk.glp_prob;
 
 public final class MipGeneratorGLPK implements MipGenerator {
-
-    public static final double MIN_BUDGET = 100.0;
-    
-    public static final boolean DEBUGGING = true;
     
     /**
      * 
@@ -140,7 +137,15 @@ public final class MipGeneratorGLPK implements MipGenerator {
         final int ret = GLPK.glp_intopt(lp, iocp);
         
         if (ret == 0) {
-            final MipResult result = new MipResult(lp, n);
+            final List<Double> columnValues = new ArrayList<Double>();
+            for (int i = 1; i <= n; i++) {
+                columnValues.add(GLPK.glp_mip_col_val(lp, i));
+            }
+            final MipResult result = new MipResult(
+                GLPK.glp_get_obj_name(lp),
+                GLPK.glp_mip_obj_val(lp),
+                columnValues
+            );
             GLPK.glp_delete_prob(lp);
             
             if (DEBUGGING) {

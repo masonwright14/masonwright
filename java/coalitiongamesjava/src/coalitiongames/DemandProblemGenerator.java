@@ -31,9 +31,9 @@ abstract class DemandProblemGenerator {
         final int kMax,
         final int kMin
     ) {
-        final double basePrice = MipGeneratorGLPK.MIN_BUDGET / kMax;
+        final double basePrice = MipGenerator.MIN_BUDGET / kMax;
         final double maxPrice = 
-            MipGeneratorGLPK.MIN_BUDGET + MipGeneratorGLPK.MIN_BUDGET / n;
+            MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / n;
         
         final List<Double> prices = new ArrayList<Double>();
         for (int i = 1; i <= n; i++) {
@@ -63,8 +63,8 @@ abstract class DemandProblemGenerator {
             }
             
             final double budget = 
-                MipGeneratorGLPK.MIN_BUDGET 
-                + Math.random() * MipGeneratorGLPK.MIN_BUDGET / n;
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
             
             final int id = i;
             agents.add(new Agent(values, budget, id));

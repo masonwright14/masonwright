@@ -23,10 +23,8 @@ abstract class DemandAnalyzer {
         return Math.sqrt(result);
     }
     
-    public static boolean hasClearingErrorDouble(
-        final List<Double> errorDemand
-    ) {
-        for (Double i: errorDemand) {
+    public static boolean hasClearingError(final List<Integer> errorDemand) {
+        for (Integer i: errorDemand) {
             if (i != 0) {
                 return true;
             }
@@ -35,9 +33,12 @@ abstract class DemandAnalyzer {
         return false;
     }
     
-    public static boolean hasClearingError(final List<Integer> errorDemand) {
-        for (Integer i: errorDemand) {
-            if (i != 0) {
+    public static boolean hasClearingErrorDouble(
+        final List<Double> errorDemand
+    ) {
+        final double tolerance = 0.00001;
+        for (Double i: errorDemand) {
+            if (Math.abs(i) > tolerance) {
                 return true;
             }
         }
