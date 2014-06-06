@@ -7,6 +7,8 @@ abstract class MipProblemGenerator {
     
     public static void main(final String[] args) {
         runSmallProblem();
+        System.out.println("\n\n");
+        runSmallProblemKMin();
     }
     
     @SuppressWarnings("unused")
@@ -31,6 +33,21 @@ abstract class MipProblemGenerator {
             kMax, 
             kMin
         );
+    }
+    
+    private static void runSmallProblemKMin() {
+        final int otherAgents = 21;
+        final int valueRange = 10;
+        final int priceRange = 4;
+        final int kMax = 5;
+        final int kMin = 4;
+        runProblem(
+            otherAgents, 
+            valueRange, 
+            priceRange, 
+            kMax, 
+            kMin
+        );       
     }
     
     private static void runSmallProblem() {

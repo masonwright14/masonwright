@@ -114,8 +114,8 @@ abstract class MipGenerator {
                 lp, 
                 thirdColNumber, 
                 GLPKConstants.GLP_LO, 
-                0, 
-                kMin - 1
+                kMin - 1, // lower bound
+                kMax - 1 // upper bound (ignored)
             );
             ind = GLPK.new_intArray(n);
             val = GLPK.new_doubleArray(n);
