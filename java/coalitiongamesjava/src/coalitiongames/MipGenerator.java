@@ -244,8 +244,8 @@ abstract class MipGenerator {
             
             // get cost of the random bundle
             total = 0;
-            for (int i = 0; i < prices.size(); i++) {
-                total += columnValues.get(i) * prices.get(i);
+            for (int i = 0; i < demand.length; i++) {
+                total += demand[i] * prices.get(i);
             }
             // test if bundle is affordable
             if (total <= budget) {
