@@ -33,6 +33,22 @@ public final class MipResult {
     public double getObjectiveValue() {
         return objectiveValue;
     }
+    
+    public List<Integer> getRoundedColumnValues() {
+        List<Integer> result = new ArrayList<Integer>();
+        final double tolerance = 0.001;
+        for (double columnValue: columnValues) {
+            if (Math.abs(columnValue) < tolerance) {
+                result.add(0);
+            } else if (Math.abs(columnValue - 1) < tolerance) {
+                result.add(1);
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+        
+        return result;
+    }
 
     public List<Double> getColumnValues() {
         return columnValues;
