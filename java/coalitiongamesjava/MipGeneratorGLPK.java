@@ -42,7 +42,7 @@ public final class MipGeneratorGLPK implements MipGenerator {
         assert budget >= MIN_BUDGET;
         assert kMax >= kMin;
         assert kMin >= 0;
-        assert checkKRange(values.size() + 1, kMin, kMax);
+        assert TabuSearch.checkKRange(values.size() + 1, kMin, kMax);
         
         // NB: values does not include the self agent,
         // so kMax can equal values.size().
@@ -272,21 +272,5 @@ public final class MipGeneratorGLPK implements MipGenerator {
         }
         
         return true;
-    }
-    
-    /*
-     * n should be the total agent count, not "total agents - 1"
-     */
-    private static boolean checkKRange(
-        final int n,
-        final int kMin,
-        final int kMax
-    ) {
-        if (kMin < 0 || kMin > kMax || kMax > n) {
-            throw new IllegalArgumentException();
-        }
-        
-        return (kMin < 2) || (n % kMin == 0) 
-            || (n % kMax == 0) || (n / kMin != n / kMax);
     }
 }

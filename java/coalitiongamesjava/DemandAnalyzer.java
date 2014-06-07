@@ -46,16 +46,20 @@ abstract class DemandAnalyzer {
         return false;
     }
     
+    public static boolean priceIsZero(final double price) {
+        final double tolerance = 0.00001;
+        return Math.abs(price) < tolerance;
+    }
+    
     public static List<Integer> getUnderDemand(
         final List<List<Integer>> demand,
         final List<Double> prices
     ) {
         final List<Integer> result = new ArrayList<Integer>();
         
-        final double tolerance = 0.00001;
         for (int i = 0; i < prices.size(); i++) {
             int underDemand = 0;
-            if (Math.abs(prices.get(i)) >= tolerance) {
+            if (priceIsZero(prices.get(i))) {
                 underDemand = 1;
                 for (int j = 0; j < prices.size(); j++) {
                     if (i != j && demand.get(j).get(i) == 1) {
