@@ -15,6 +15,7 @@ public final class SearchResult {
     private final double maxBudget;
     private final List<Agent> agents;
     private final long durationMillis;
+    private final List<Integer> rsdOrder; // can be null
     
     public SearchResult(
         final List<Double> aPrices,
@@ -25,7 +26,8 @@ public final class SearchResult {
         final int aKMax,
         final double aMaxBudget,
         final List<Agent> aAgents,
-        final long aDurationMillis
+        final long aDurationMillis,
+        final List<Integer> aRsdOrder
     ) {
         assert aPrices.size() == aError.size();
         assert aKMin <= aKMax;
@@ -67,6 +69,14 @@ public final class SearchResult {
             this.agents.add(newAgent);
         }
         this.durationMillis = aDurationMillis;
+        if (aRsdOrder != null) {
+            this.rsdOrder = new ArrayList<Integer>();
+            for (Integer item: aRsdOrder) {
+                this.rsdOrder.add(item);
+            }
+        } else {
+            this.rsdOrder = null;
+        }
     }
 
     public List<Double> getPrices() {
@@ -109,6 +119,10 @@ public final class SearchResult {
         return this.durationMillis;
     }
     
+    public List<Integer> getRsdOrder() {
+        return this.rsdOrder;
+    }
+    
     public String toStringWithoutAgents() {
         StringBuilder builder = new StringBuilder();
         builder.append("SearchResult \n[prices=");
@@ -128,7 +142,9 @@ public final class SearchResult {
         builder.append(", \nmaxBudget=");
         builder.append(maxBudget);
         builder.append(", \ndurationMillis=");
-        builder.append(durationMillis);        
+        builder.append(durationMillis);       
+        builder.append(", \nrsdOrder=");
+        builder.append(rsdOrder);  
         builder.append("]");
         return builder.toString();
     }
@@ -156,6 +172,8 @@ public final class SearchResult {
         builder.append(agents);
         builder.append(", \ndurationMillis=");
         builder.append(durationMillis);  
+        builder.append(", \nrsdOrder=");
+        builder.append(rsdOrder); 
         builder.append("]");
         return builder.toString();
     }

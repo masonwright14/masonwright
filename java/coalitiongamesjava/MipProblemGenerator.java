@@ -6,9 +6,11 @@ import java.util.List;
 abstract class MipProblemGenerator {
     
     public static void main(final String[] args) {
-        runSmallProblem();
-        System.out.println("\n\n");
-        runSmallProblemKMin();
+       runSmallProblem();
+       System.out.println("\n\n");
+       runSmallProblemKMin();
+       // runLargeProblem();
+       // repeatLargeProblem();
     }
     
     @SuppressWarnings("unused")

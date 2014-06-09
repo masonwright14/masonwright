@@ -36,16 +36,12 @@ public final class MipGeneratorGLPK implements MipGenerator {
         final int kMin,
         final double maxPrice
     ) {
-        final int minValues = 4;
-        assert values.size() >= minValues;
+        assert values.size() >= 1;
         assert values.size() == prices.size();
         assert budget >= MIN_BUDGET;
         assert kMax >= kMin;
         assert kMin >= 0;
         
-        // values does not include the self agent,
-        // so kMax can equal values.size().
-        assert kMax <= values.size(); 
         // number of agents is 1 more than the size of values, because
         // values does not include the self agent.
         assert TabuSearch.checkKRange(values.size() + 1, kMin, kMax);
@@ -212,7 +208,8 @@ public final class MipGeneratorGLPK implements MipGenerator {
         final List<List<Integer>> kRanges = TabuSearch.getMinMaxPairs(kSizes);
         final List<MipResult> mipResults = new ArrayList<MipResult>();
         for (final List<Integer> kRange: kRanges) {
-            assert kRange.get(1) > kRange.get(0);
+            // greater than or equal to, in case they are the same
+            assert kRange.get(1) >= kRange.get(0);
             final MipResult mipResult = 
                 getLpSolution(
                     values, 

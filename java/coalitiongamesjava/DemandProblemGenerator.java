@@ -7,9 +7,12 @@ abstract class DemandProblemGenerator {
     
     public static void main(final String[] args) {
         // runSmallProblem();
-        runSmallTabuSearch();
+        // runVerySmallTabuSearch();
+        // runSmallTabuSearch();
+        runVerySmallRsdTabuSearch();
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallTabuSearch() {
         final int agents = 20;
         final int valueRange = 10;
@@ -42,6 +45,37 @@ abstract class DemandProblemGenerator {
     }
     
     @SuppressWarnings("unused")
+    private static void runSmallRsdTabuSearch() {
+        final int agents = 20;
+        final int valueRange = 10;
+        final int kMax = 5;
+        final int kMin = 0;
+        final GammaZ gammaZ = new GammaZ2();
+        runRsdTabuSearch(
+            agents, 
+            valueRange, 
+            kMax, 
+            kMin,
+            gammaZ
+        );
+    }
+    
+    private static void runVerySmallRsdTabuSearch() {
+        final int agents = 10;
+        final int valueRange = 10;
+        final int kMax = 4;
+        final int kMin = 3;
+        final GammaZ gammaZ = new GammaZ2();
+        runRsdTabuSearch(
+            agents, 
+            valueRange, 
+            kMax, 
+            kMin,
+            gammaZ
+        );
+    }
+    
+    @SuppressWarnings("unused")
     private static void runSmallProblem() {
         final int agents = 20;
         final int valueRange = 10;
@@ -57,6 +91,44 @@ abstract class DemandProblemGenerator {
         );
     }
     
+    private static void runRsdTabuSearch(
+        final int n,
+        final double valueRange,
+        final int kMax,
+        final int kMin,
+        final GammaZ gammaZ
+    ) {
+        final double baseValue = 50.0;
+        final List<Agent> agents = new ArrayList<Agent>();
+        for (int i = 1; i <= n; i++) {
+            List<Double> values = new ArrayList<Double>();
+            for (int j = 1; j < n; j++) {
+                double newValue = 
+                    baseValue + Math.random() * valueRange - valueRange / 2.0;
+                if (newValue < 0) {
+                    newValue = 0;
+                }
+                values.add(newValue);
+            }
+            
+            final double budget = 
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            
+            final int id = i;
+            agents.add(new Agent(values, budget, id));
+        }
+        
+        final SearchResult searchResult = 
+            RsdTabuSearch.rsdTabuSearchOneLevel(
+                agents, 
+                gammaZ, 
+                kMax, 
+                kMin
+            );
+        System.out.println(searchResult.toString());
+    }
+
     private static void runTabuSearch(
         final int n,
         final double valueRange,

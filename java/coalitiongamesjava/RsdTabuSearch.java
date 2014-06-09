@@ -3,7 +3,9 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 abstract class RsdTabuSearch {
     
@@ -62,17 +64,26 @@ abstract class RsdTabuSearch {
         
         // indexes in initialResult of players already allocated to a team.
         final List<Integer> takenAgentIndexes = new ArrayList<Integer>();
-        
         // iterate over players in RSD order, by their index in initialResult
         for (final Integer agentIndex: rsdOrder) {
             // if the player has already been assigned to a team, skip it.
             if (takenAgentIndexes.contains(agentIndex)) {
                 continue;
             }
+            if (MipGenerator.DEBUGGING) {
+                // check for duplicates in takenAgentIndexes.
+                Set<Integer> takenAgentIndexSet = new HashSet<Integer>();
+                takenAgentIndexSet.addAll(takenAgentIndexes);
+                if (takenAgentIndexes.size() != takenAgentIndexSet.size()) {
+                    throw new IllegalStateException(
+                        "Duplicate entry: " + takenAgentIndexes
+                    );
+                }
+            }
                         
             // get count of agents that have not yet been assigned to a team.
             final int agentsLeft = agents.size() - takenAgentIndexes.size();
-            
+            assert agentsLeft > 0;
             // feasible team sizes include self as a team member. 
             // an agent can demand 1 less than any value in this list.
             final List<Integer> feasibleTeamSizes = 
@@ -80,7 +91,6 @@ abstract class RsdTabuSearch {
             if (feasibleTeamSizes.isEmpty()) {
                 throw new IllegalStateException();
             }
-            
             /*
              * check if agent can be allocated its favorite 
              * affordable bundle from initialResult.
@@ -89,7 +99,6 @@ abstract class RsdTabuSearch {
              *     -- for example, if there are 12 agents left, kMin = 4,
              *     kMax = 6, can't take 5 agents and leave 7.
              */
-            
             // check if initalResult demand for the current agent is feasible.
             final List<Integer> initialAgentDemand = 
                 initialResult.getAllocation().get(agentIndex);
@@ -118,14 +127,14 @@ abstract class RsdTabuSearch {
                             takenAgentIndexes.add(i);
                         }
                     }
+                    assert takenAgentIndexes.contains(agentIndex);
+                    // done with this agent
+                    continue;
                 }
-                
-                // done with this agent
-                continue;
             }
 
+            assert !takenAgentIndexes.contains(agentIndex);
             // initialDemand demand for this agent was not feasible.
-             
              /* set up MIP over remaining agents, for the current agent
              * -- prices and budgets are the same as in the initialSolution
              * -- remove any agents already "taken" from the MIP
@@ -152,6 +161,20 @@ abstract class RsdTabuSearch {
             final List<Integer> newAgentDemand = 
                 mipResult.getRoundedColumnValues();
             
+            // add 0 demand for agents already on teams,
+            // and 1 demand for the self agent
+            Collections.sort(takenAgentIndexes);
+            for (int i = 0; i < agents.size(); i++) {
+                if (takenAgentIndexes.contains(i)) {
+                    newAgentDemand.add(i, 0);
+                }
+                if (i == agentIndex) {
+                    newAgentDemand.add(i, 1);
+                }
+            }
+            
+            assert newAgentDemand.size() == agents.size();
+            
             // make this allocation.
             allocation.add(newAgentDemand);
             // indicate that all taken agents have been taken.
@@ -160,7 +183,9 @@ abstract class RsdTabuSearch {
                     takenAgentIndexes.add(i);
                 }
             }
+            assert takenAgentIndexes.contains(agentIndex);
         }
+        
         final List<Double> error = new ArrayList<Double>();
         for (int i = 0; i < agents.size(); i++) {
             error.add(0.0);
@@ -173,7 +198,8 @@ abstract class RsdTabuSearch {
         final List<List<Integer>> resultAllocation = getAllocation(allocation);
         final SearchResult result = new SearchResult(
             initialResult.getPrices(), resultAllocation, error, 
-            errorSize, kMin, kMax, maxBudget, agents, searchDurationMillis
+            errorSize, kMin, kMax, maxBudget, agents, searchDurationMillis,
+            rsdOrder
         );
         return result;
     }
@@ -225,6 +251,10 @@ abstract class RsdTabuSearch {
             }
             // if agent i was not found on any team
             if (!found) {
+                System.out.println("Allocation given: ");
+                for (List<Integer> row: partialAllocation) {
+                    System.out.println(row);
+                }
                 throw new IllegalArgumentException("Missing value: " + i);
             }
         }
@@ -307,15 +337,21 @@ abstract class RsdTabuSearch {
         for (Double originalItem: oldPriceList) {
             result.add(originalItem);
         }
+        
+        final List<Integer> myIndexesToRemove = new ArrayList<Integer>();
+        for (final Integer indexToRemove: indexesToRemove) {
+            myIndexesToRemove.add(indexToRemove);
+        }
+        
         // remove the self agent price also
-        indexesToRemove.add(agentIndex);
+        myIndexesToRemove.add(agentIndex);
         // sort the indexes increasing
-        Collections.sort(indexesToRemove);
+        Collections.sort(myIndexesToRemove);
         
         // iterate from last index (highest) to first
-        for (int i = indexesToRemove.size() - 1; i >= 0; i--) {
+        for (int i = myIndexesToRemove.size() - 1; i >= 0; i--) {
             // get the current agent index
-            final int indexToRemove = indexesToRemove.get(i);
+            final int indexToRemove = myIndexesToRemove.get(i);
             // remove the price for this agent
             result.remove(indexToRemove);
         }

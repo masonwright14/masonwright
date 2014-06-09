@@ -163,7 +163,8 @@ abstract class TabuSearch {
             kMax, 
             maxBudget, 
             agents,
-            searchDurationMillis
+            searchDurationMillis,
+            null
         );
         return result;
     }
@@ -183,7 +184,13 @@ abstract class TabuSearch {
         final int kMin,
         final int kMax
     ) {
-        if (kMin < 0 || kMin > kMax || kMax > n) {
+        if (kMin < 0 || kMin > kMax) {
+            if (kMin < 0) {
+                System.out.println("Min below 0: " + kMin);
+            }
+            if (kMin > kMax) {
+                System.out.println("Min above max: " + kMin + " " + kMax);
+            }
             throw new IllegalArgumentException();
         }
         
