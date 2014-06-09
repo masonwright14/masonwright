@@ -76,9 +76,9 @@ public final class PriceWithError implements
         if (this == that) {
             return equal;
         }
-        if (this.errorValue < that.errorValue) {
+        if (this.errorValue > that.errorValue) {
             return after;
-        } else if (this.errorValue > that.errorValue) {
+        } else if (this.errorValue < that.errorValue) {
             return before;
         }
         

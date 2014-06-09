@@ -14,6 +14,7 @@ public final class SearchResult {
     private final int kMax;
     private final double maxBudget;
     private final List<Agent> agents;
+    private final long durationMillis;
     
     public SearchResult(
         final List<Double> aPrices,
@@ -23,8 +24,14 @@ public final class SearchResult {
         final int aKMin,
         final int aKMax,
         final double aMaxBudget,
-       final List<Agent> aAgents
+        final List<Agent> aAgents,
+        final long aDurationMillis
     ) {
+        assert aPrices.size() == aError.size();
+        assert aKMin <= aKMax;
+        assert aMaxBudget >= MipGenerator.MIN_BUDGET;
+        assert aDurationMillis > 0;
+        
         this.prices = new ArrayList<Double>();
         for (double aPrice: aPrices) {
             this.prices.add(aPrice);
@@ -59,6 +66,7 @@ public final class SearchResult {
                 new Agent(values, agent.getBudget(), agent.getId());
             this.agents.add(newAgent);
         }
+        this.durationMillis = aDurationMillis;
     }
 
     public List<Double> getPrices() {
@@ -97,24 +105,30 @@ public final class SearchResult {
         return agents;
     }
     
+    public long getDurationMillis() {
+        return this.durationMillis;
+    }
+    
     public String toStringWithoutAgents() {
         StringBuilder builder = new StringBuilder();
-        builder.append("SearchResult [prices=");
+        builder.append("SearchResult \n[prices=");
         builder.append(prices);
-        builder.append(", budgets=");
+        builder.append(", \nbudgets=");
         builder.append(budgets);
-        builder.append(", allocation=");
+        builder.append(", \nallocation=");
         builder.append(allocation);
-        builder.append(", error=");
+        builder.append(", \nerror=");
         builder.append(error);
-        builder.append(", errorSize=");
+        builder.append(", \nerrorSize=");
         builder.append(errorSize);
-        builder.append(", kMin=");
+        builder.append(", \nkMin=");
         builder.append(kMin);
-        builder.append(", kMax=");
+        builder.append(", \nkMax=");
         builder.append(kMax);
-        builder.append(", maxBudget=");
+        builder.append(", \nmaxBudget=");
         builder.append(maxBudget);
+        builder.append(", \ndurationMillis=");
+        builder.append(durationMillis);        
         builder.append("]");
         return builder.toString();
     }
@@ -122,24 +136,26 @@ public final class SearchResult {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("SearchResult [prices=");
+        builder.append("SearchResult \n[prices=");
         builder.append(prices);
-        builder.append(", budgets=");
+        builder.append(", \nbudgets=");
         builder.append(budgets);
-        builder.append(", allocation=");
+        builder.append(", \nallocation=");
         builder.append(allocation);
-        builder.append(", error=");
+        builder.append(", \nerror=");
         builder.append(error);
-        builder.append(", errorSize=");
+        builder.append(", \nerrorSize=");
         builder.append(errorSize);
-        builder.append(", kMin=");
+        builder.append(", \nkMin=");
         builder.append(kMin);
-        builder.append(", kMax=");
+        builder.append(", \nkMax=");
         builder.append(kMax);
-        builder.append(", maxBudget=");
+        builder.append(", \nmaxBudget=");
         builder.append(maxBudget);
-        builder.append(", agents=");
+        builder.append(", \nagents=");
         builder.append(agents);
+        builder.append(", \ndurationMillis=");
+        builder.append(durationMillis);  
         builder.append("]");
         return builder.toString();
     }

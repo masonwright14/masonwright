@@ -110,16 +110,22 @@ public abstract class NeighborGenerator {
         );
     }
     
+    /**
+     * convenience function that calls neighbors() with default
+     * values for step sizes, for unilateral neighbors and gradient neighbors.
+     */
     private static List<List<Double>> neighbors(
         final List<Double> prices,
         final List<Double> z,
         final double maxPrice
     ) {
         final List<Double> stepSizesUnilateral = new ArrayList<Double>();
+        // assumes MipGenerator.MIN_BUDGET = 100.0
         final Double[] unilateralSizes = {1.0, 0.5, 0.1, 0.05, 0.001};
         Collections.addAll(stepSizesUnilateral, unilateralSizes);
         
         final List<Double> stepSizesGradient = new ArrayList<Double>();
+        // assumes MipGenerator.MIN_BUDGET = 100.0
         final Double[] gradientSizes = {10.0, 5.0, 1.0, 0.5, 0.1};
         Collections.addAll(stepSizesGradient, gradientSizes);
         
@@ -132,6 +138,26 @@ public abstract class NeighborGenerator {
         );
     }
     
+    /**
+     * 
+     * @param prices current price vector, for which to return neighboring price
+     * vectors, in the direction of the gradient based on z and on unilateral
+     * deviations in the direction of the gradient.
+     * @param z loss function. where z is positive, 
+     * gradient increases the price,
+     * and where z is negative, gradient decreases the price along that axis.
+     * @param stepSizesUnilateral step sizes to move in direction of increasing
+     * agent price, for agents with positive error according to z()
+     * @param stepSizesGradient step sizes in which to move in the direction of
+     * the gradient (after converting the gradient to a unit vector)
+     * @param maxPrice maximum allowable price for an agent
+     * @return  a list of lists of doubles, where each list is a price vector
+     * that "neighbors" the given price vector. 
+     * each agent returns a price vector for its unilateral move in the 
+     * direction of its error for each stepSizesUnilateral,
+     * and all agents move in the direction of the gradient 
+     * for stepSizesGradient different step sizes.
+     */
     private static List<List<Double>> neighbors(
         final List<Double> prices,
         final List<Double> z,
@@ -139,7 +165,9 @@ public abstract class NeighborGenerator {
         final List<Double> stepSizesGradient,
         final double maxPrice
     ) {
-        final List<List<Double>> result = new ArrayList<List<Double>>();
+        assert prices.size() == z.size();
+        assert maxPrice >= 0.0;
+        
         final List<List<Double>> unilateralNeighbors = unilateralNeighbors(
             prices, 
             z, 
@@ -152,11 +180,24 @@ public abstract class NeighborGenerator {
             stepSizesGradient, 
             maxPrice
         );
+        final List<List<Double>> result = new ArrayList<List<Double>>();
         result.addAll(unilateralNeighbors);
         result.addAll(gradientNeighbors);
         return result;
     }
     
+    /**
+     * @param prices price vector, for which to return neighboring price vectors
+     * @param z error for each agent
+     * @param stepSizesUnilateral step sizes to 
+     * take if increasing an agent's price
+     * @param maxPrice
+     * @return a list of lists of double, where each list is a price vector.
+     * for each agent, add a list where the agent's price is 0 if z < 0, or
+     * if z > 0, add a list where the agent's price is increased by each amount
+     * in stepSizesUnilateral. attempt to limit the number of redundant lists
+     * returned if possible.
+     */
     private static List<List<Double>> unilateralNeighbors(
         final List<Double> prices,
         final List<Double> z,
@@ -185,7 +226,8 @@ public abstract class NeighborGenerator {
         // iterate over all agents, handling the current agent's unilateral
         // price changes.
         for (int i = 0; i < prices.size(); i++) {
-            // if the agent is under-demanded (price should be reduced)
+            // if the agent is under-demanded (price should be reduced if not
+            // already 0)
             if (z.get(i) < 0) {
                 // don't add  a redundant neighbor vector if agent i's
                 // price is already 0.0
@@ -207,7 +249,8 @@ public abstract class NeighborGenerator {
                 // else if the agent is over-demanded (price should be raised)
             } else if (z.get(i) > 0) {
                 // for each step size, raise the agent's price by that amount
-                // and add the resulting price vector to the neighbors
+                // and add the resulting price vector to the neighbors,
+                // truncated to maxPrice if needed
                 for (final Double stepSize: stepSizesUnilateral) {
                     final List<Double> newPrices = new ArrayList<Double>();
                     for (int j = 0; j < prices.size(); j++) {
@@ -227,6 +270,8 @@ public abstract class NeighborGenerator {
                 }
             }
         }
+        
+        // don't add a neighbor for an agent that has no error (i.e., z == 0)
         
         return result;
     }
@@ -269,9 +314,13 @@ public abstract class NeighborGenerator {
             }
         }
         
-        final List<Double> unitVectorZ = unitVectorZ(z);
-        
         final List<List<Double>> result = new ArrayList<List<Double>>();
+        if (!DemandAnalyzer.hasClearingErrorDouble(z)) {
+            // can't produce a unit vector from the zero vector
+            return result;
+        }
+        
+        final List<Double> unitVectorZ = unitVectorZ(z);
         for (final Double stepSize: stepSizesGradient) {
             List<Double> newPrices = new ArrayList<Double>();
             for (int i = 0; i < prices.size(); i++) {
@@ -293,8 +342,18 @@ public abstract class NeighborGenerator {
         return result;
     }
     
+    /**
+     * @param z a list of doubles. must have at least 1 nonzero entry,
+     * or a unit vector cannot be produced.
+     * @return the same list multiplied by a scalar to make it a unit
+     * vector.
+     */
     private static List<Double> unitVectorZ(final List<Double> z) {
         final double l2Norm = DemandAnalyzer.errorSizeDouble(z);
+        if (l2Norm <= 0.0) {
+            throw new IllegalArgumentException();
+        }
+        
         final List<Double> result = new ArrayList<Double>();
         for (final Double item: z) {
             result.add(item / l2Norm);

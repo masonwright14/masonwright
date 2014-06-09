@@ -7,9 +7,9 @@ abstract class Util {
     public static void printDemandAsMatrix(
         final List<List<Integer>> demand
     ) {   
-        for (List<Integer> row: demand) {
+        for (final List<Integer> row: demand) {
             final StringBuilder builder = new StringBuilder();
-            for (Integer cur: row) {
+            for (final Integer cur: row) {
                 builder.append(cur).append(' ');
             }
             System.out.println(builder.toString());

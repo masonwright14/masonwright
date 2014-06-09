@@ -120,10 +120,10 @@ abstract class DemandProblemGenerator {
         }
         
         
-        final double baseValue = 50.0;
         final List<Agent> agents = new ArrayList<Agent>();
         for (int i = 1; i <= n; i++) {
             List<Double> values = new ArrayList<Double>();
+            final double baseValue = 50.0;
             for (int j = 1; j < n; j++) {
                 double newValue = 
                     baseValue + Math.random() * valueRange - valueRange / 2.0;
