@@ -8,8 +8,16 @@ import java.util.Queue;
 
 public final class DropOutQueue<T> implements Queue<T> {
     
+    /**
+     * underlying linked list for the queue
+     */
     private final List<T> backingList = new LinkedList<T>();
     
+    /**
+     * maximum elements in queue. if a new element is added when
+     * maxSize elements are already in queue, the front element
+     * is dropped out.
+     */
     private final int maxSize;
     
     public DropOutQueue(final int aMaxSize) {
@@ -39,12 +47,20 @@ public final class DropOutQueue<T> implements Queue<T> {
         return this.backingList.size();
     }
 
+    /**
+     * add to the back of the queue.
+     * 
+     * if the queue size would become greater than maxSize,
+     * drop out the front element.
+     * 
+     */
     @Override
     public boolean add(final T arg0) {
         if (arg0 == null) {
             return false;
         }
         
+        // add to end of list, at back of queue
         this.backingList.add(arg0);
         if (this.backingList.size() > maxSize) {
             this.backingList.remove(0);
@@ -57,10 +73,7 @@ public final class DropOutQueue<T> implements Queue<T> {
     
     @Override
     public T remove() {
-        if (this.backingList.isEmpty()) {
-            return null;
-        }
-        return this.backingList.remove(0);
+        throw new UnsupportedOperationException();
     }
     
     @Override

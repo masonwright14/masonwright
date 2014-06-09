@@ -18,12 +18,18 @@ public final class GammaZ2 implements GammaZ {
         final int kMax, 
         final double maxPrice
     ) {
+        if (MipGenerator.DEBUGGING) {
+            for (Double price: prices) {
+                if (price < 0 || price > maxPrice) {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
+        
         final List<Integer> incomingUnrequitedDemand = 
             DemandAnalyzer.getIncomingUnrequitedDemand(demand);
-        final List<Integer> underDemand = DemandAnalyzer.getUnderDemand(
-            demand, 
-            prices
-        );
+        final List<Integer> underDemand = 
+            DemandAnalyzer.getUnderDemand(demand);
         
         final List<Double> result = new ArrayList<Double>();
         for (int i = 0; i < demand.size(); i++) {

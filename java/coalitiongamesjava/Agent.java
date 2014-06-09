@@ -47,9 +47,9 @@ public final class Agent {
         StringBuilder builder = new StringBuilder();
         builder.append("Agent [id=");
         builder.append(id);
-        builder.append(", values=");
+        builder.append(", \nvalues=");
         builder.append(values);
-        builder.append(", budget=");
+        builder.append(", \nbudget=");
         builder.append(budget);
         builder.append("]");
         return builder.toString();

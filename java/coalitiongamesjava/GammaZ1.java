@@ -13,6 +13,7 @@ public final class GammaZ1 implements GammaZ {
      * theta_urq(p_j) = p_j (2 - kMax) / ((kMax - 1) maxPrice) + 1
      * URQ_j = unrequited demand to/from agent j
      * theta_UND(p_j) = p_j (2 epsilon / maxPrice) + 1 - epsilon
+     * UND_j = 1 if no other agent demand j, else 0, regardless of p_j
      * epsilon << 1
      */
     @Override
@@ -22,12 +23,18 @@ public final class GammaZ1 implements GammaZ {
         final int kMax,
         final double maxPrice
     ) {        
+        if (MipGenerator.DEBUGGING) {
+            for (Double price: prices) {
+                if (price < 0 || price > maxPrice) {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
+        
         final List<Integer> unrequitedDemand = 
             DemandAnalyzer.getUnrequitedDemand(demand);
-        final List<Integer> underDemand = DemandAnalyzer.getUnderDemand(
-            demand, 
-            prices
-        );
+        final List<Integer> underDemand = 
+            DemandAnalyzer.getUnderDemand(demand);
         
         final List<Double> result = new ArrayList<Double>();
         for (int i = 0; i < demand.size(); i++) {
@@ -74,7 +81,7 @@ public final class GammaZ1 implements GammaZ {
         final int kMax,
         final double maxPrice
     ) {
-        return price * (2.0 - kMax) / ((kMax - 1.0) * maxPrice) + 1;
+        return price * (2.0 - kMax) / ((kMax - 1.0) * maxPrice) + 1.0;
     }
     
     /*
@@ -85,6 +92,6 @@ public final class GammaZ1 implements GammaZ {
         final double maxPrice
         
     ) {
-        return price * (2.0 * EPSILON / maxPrice) + 1 - EPSILON;
+        return price * (2.0 * EPSILON / maxPrice) + 1.0 - EPSILON;
     }
 }

@@ -6,7 +6,15 @@ public interface MipGenerator {
     
     double MIN_BUDGET = 100.0;
     
-    boolean DEBUGGING = true;
+    boolean DEBUGGING = false;
+    
+    MipResult getLpSolution(
+        List<Double> values,
+        List<Double> prices,
+        double budget,
+        List<Integer> kSizes,
+        double maxPrice
+    );
 
     MipResult getLpSolution(
         List<Double> values,
