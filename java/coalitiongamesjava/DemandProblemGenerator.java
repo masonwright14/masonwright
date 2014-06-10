@@ -10,6 +10,7 @@ abstract class DemandProblemGenerator {
         // runVerySmallTabuSearch();
         // runSmallTabuSearch();
         runVerySmallRsdTabuSearch();
+        // runSmallRsdTabuSearch();
     }
     
     @SuppressWarnings("unused")
@@ -49,13 +50,11 @@ abstract class DemandProblemGenerator {
         final int agents = 20;
         final int valueRange = 10;
         final int kMax = 5;
-        final int kMin = 0;
         final GammaZ gammaZ = new GammaZ2();
         runRsdTabuSearch(
             agents, 
             valueRange, 
             kMax, 
-            kMin,
             gammaZ
         );
     }
@@ -64,13 +63,11 @@ abstract class DemandProblemGenerator {
         final int agents = 10;
         final int valueRange = 10;
         final int kMax = 4;
-        final int kMin = 3;
         final GammaZ gammaZ = new GammaZ2();
         runRsdTabuSearch(
             agents, 
             valueRange, 
-            kMax, 
-            kMin,
+            kMax,
             gammaZ
         );
     }
@@ -95,7 +92,6 @@ abstract class DemandProblemGenerator {
         final int n,
         final double valueRange,
         final int kMax,
-        final int kMin,
         final GammaZ gammaZ
     ) {
         final double baseValue = 50.0;
@@ -120,14 +116,13 @@ abstract class DemandProblemGenerator {
         }
         
         final List<Integer> rsdOrder = 
-            RsdTabuSearch.getShuffledNumberList(agents.size());
+            RsdUtil.getShuffledNumberList(agents.size());
         
         final SearchResult searchResult = 
             RsdTabuSearch.rsdTabuSearchOneLevel(
                 agents, 
                 gammaZ, 
-                kMax, 
-                kMin,
+                kMax,
                 rsdOrder
             );
         System.out.println(searchResult.toString());
