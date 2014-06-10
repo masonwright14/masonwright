@@ -3,6 +3,8 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.List;
 
+import coalitiongames.PriceWithError.PriceUpdateSource;
+
 public final class SearchResult {
 
     private final List<Double> prices;
@@ -16,6 +18,8 @@ public final class SearchResult {
     private final List<Agent> agents;
     private final long durationMillis;
     private final List<Integer> rsdOrder; // can be null
+    private final List<Double> bestErrorValues;
+    private final List<PriceUpdateSource> priceUpdateSources;
     
     public SearchResult(
         final List<Double> aPrices,
@@ -27,7 +31,9 @@ public final class SearchResult {
         final double aMaxBudget,
         final List<Agent> aAgents,
         final long aDurationMillis,
-        final List<Integer> aRsdOrder
+        final List<Integer> aRsdOrder,
+        final List<Double> aBestErrorValues,
+        final List<PriceUpdateSource> aPriceUpdateSources
     ) {
         assert aPrices.size() == aError.size();
         assert aKMin <= aKMax;
@@ -77,6 +83,15 @@ public final class SearchResult {
         } else {
             this.rsdOrder = null;
         }
+        
+        this.bestErrorValues = new ArrayList<Double>();
+        for (Double bestErrorValue: aBestErrorValues) {
+            this.bestErrorValues.add(bestErrorValue);
+        }
+        this.priceUpdateSources = new ArrayList<PriceUpdateSource>();
+        for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
+            this.priceUpdateSources.add(priceUpdateSource);
+        }
     }
 
     public List<Double> getPrices() {
@@ -123,30 +138,12 @@ public final class SearchResult {
         return this.rsdOrder;
     }
     
-    public String toStringWithoutAgents() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SearchResult \n[prices=");
-        builder.append(prices);
-        builder.append(", \nbudgets=");
-        builder.append(budgets);
-        builder.append(", \nallocation=");
-        builder.append(allocation);
-        builder.append(", \nerror=");
-        builder.append(error);
-        builder.append(", \nerrorSize=");
-        builder.append(errorSize);
-        builder.append(", \nkMin=");
-        builder.append(kMin);
-        builder.append(", \nkMax=");
-        builder.append(kMax);
-        builder.append(", \nmaxBudget=");
-        builder.append(maxBudget);
-        builder.append(", \ndurationMillis=");
-        builder.append(durationMillis);       
-        builder.append(", \nrsdOrder=");
-        builder.append(rsdOrder);  
-        builder.append("]");
-        return builder.toString();
+    public List<Double> getBestErrorValues() {
+        return this.bestErrorValues;
+    }
+    
+    public List<PriceUpdateSource> getPriceUpdateSources() {
+        return this.priceUpdateSources;
     }
 
     @Override
@@ -174,6 +171,10 @@ public final class SearchResult {
         builder.append(durationMillis);  
         builder.append(", \nrsdOrder=");
         builder.append(rsdOrder); 
+        builder.append(", \nbestErrorValues=");
+        builder.append(bestErrorValues); 
+        builder.append(", \npriceUpdateSources=");
+        builder.append(priceUpdateSources); 
         builder.append("]");
         return builder.toString();
     }

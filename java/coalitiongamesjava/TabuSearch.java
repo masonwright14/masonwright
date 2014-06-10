@@ -89,6 +89,9 @@ abstract class TabuSearch {
             getInitialPriceWithError(kMax, kMin, agents, maxPrice, gammaZ);
         PriceWithError bestNode = currentNode;
         
+        final List<Double> bestErrorValues = new ArrayList<Double>();
+        final List<PriceUpdateSource> priceUpdateSources =
+            new ArrayList<PriceUpdateSource>();
         final Queue<PriceWithError> tabuQueue = 
             new DropOutQueue<PriceWithError>(queueLength);
         if (MipGenerator.DEBUGGING) {
@@ -99,6 +102,8 @@ abstract class TabuSearch {
         while (bestNode.getErrorValue() > 0.0) {
             // add current node to tabu queue so it won't be revisited
             tabuQueue.add(currentNode);
+            bestErrorValues.add(bestNode.getErrorValue());
+            priceUpdateSources.add(currentNode.getPriceUpdateSource());
             step++;
             if (step > maxSteps) {
                 break;
@@ -166,7 +171,9 @@ abstract class TabuSearch {
             maxBudget, 
             agents,
             searchDurationMillis,
-            null
+            null,
+            bestErrorValues,
+            priceUpdateSources
         );
         return result;
     }
