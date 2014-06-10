@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 
+import coalitiongames.PriceWithError.PriceUpdateSource;
+
 abstract class TabuSearch {
     
     public static void main(final String[] args) {
@@ -298,6 +300,9 @@ abstract class TabuSearch {
         final List<Double> errorDemand = 
             gammaZ.z(aggregateDemand, prices, kMax, maxPrice);
         final double error = DemandAnalyzer.errorSizeDouble(errorDemand);
-        return new PriceWithError(prices, errorDemand, aggregateDemand, error);
+        return new PriceWithError(
+            prices, errorDemand, aggregateDemand, 
+            error, PriceUpdateSource.INITIAL
+        );
     }
 }

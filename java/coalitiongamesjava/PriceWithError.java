@@ -5,18 +5,27 @@ import java.util.List;
 
 public final class PriceWithError implements 
     Comparable<PriceWithError> {
+    
+    public enum PriceUpdateSource {
+        INITIAL, GRADIENT, UNILATERAL
+    }
 
     private final List<Double> prices;
     private final List<Double> error;
     private final List<List<Integer>> demand;
     private final double errorValue;
+    private final PriceUpdateSource priceUpdateSource;
     
     public PriceWithError(
         final List<Double> aPrices,
         final List<Double> aError,
         final List<List<Integer>> aDemand,
-        final double aErrorValue
+        final double aErrorValue,
+        final PriceUpdateSource aPriceUpdateSource
     ) {
+        if (aPriceUpdateSource == null) {
+            throw new IllegalArgumentException();
+        }
         this.prices = new ArrayList<Double>();
         for (double aPrice: aPrices) {
             this.prices.add(aPrice);
@@ -32,6 +41,7 @@ public final class PriceWithError implements
             this.demand.add(newRow);
         }
         this.errorValue = aErrorValue;
+        this.priceUpdateSource = aPriceUpdateSource;
     }
 
     public List<Double> getPrices() {
@@ -49,6 +59,10 @@ public final class PriceWithError implements
     public double getErrorValue() {
         return this.errorValue;
     }
+    
+    public PriceUpdateSource getPriceUpdateSource() {
+        return this.priceUpdateSource;
+    }
 
     @Override
     public String toString() {
@@ -61,6 +75,8 @@ public final class PriceWithError implements
         builder.append(demand);
         builder.append(", errorValue=");
         builder.append(errorValue);
+        builder.append(", priceUpdateSource=");
+        builder.append(priceUpdateSource);
         builder.append("]");
         return builder.toString();
     }

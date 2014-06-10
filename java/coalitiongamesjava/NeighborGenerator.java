@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import coalitiongames.PriceWithError.PriceUpdateSource;
+
 public abstract class NeighborGenerator {
     
     /*
      * Returns neighbors sorted from lowest error to highest.
      */
     public static List<PriceWithError> sortedNeighbors(
-        final List<List<Double>> neighborPrices,
+        final List<PriceWithSource> neighborPricesWithSource,
         final List<Agent> agents,
         final GammaZ gammaZ,
         final int kMax,
@@ -19,25 +21,32 @@ public abstract class NeighborGenerator {
     ) {
         final List<PriceWithError> result = 
             new ArrayList<PriceWithError>();
-        for (final List<Double> neighborPrice: neighborPrices) {
+        for (
+            final PriceWithSource neighborPriceWithSource
+            : neighborPricesWithSource
+        ) {
             final List<List<Integer>> neighborDemand = 
                 DemandGenerator.getAggregateDemand(
                     agents, 
-                    neighborPrice, 
+                    neighborPriceWithSource.getPrice(), 
                     kMax, 
                     kMin, 
                     maxPrice
                 );
             final List<Double> neighborZ = 
-                gammaZ.z(neighborDemand, neighborPrice, kMax, maxPrice);
+                gammaZ.z(
+                    neighborDemand, neighborPriceWithSource.getPrice(), 
+                    kMax, maxPrice
+                );
             final double neighborError = 
                 DemandAnalyzer.errorSizeDouble(neighborZ);
             result.add(
                 new PriceWithError(
-                    neighborPrice, 
+                    neighborPriceWithSource.getPrice(), 
                     neighborZ, 
                     neighborDemand, 
-                    neighborError
+                    neighborError,
+                    neighborPriceWithSource.getPriceUpdateSource()
                 )
             );
         }
@@ -67,7 +76,7 @@ public abstract class NeighborGenerator {
         final int kMax,
         final int kMin
     ) {
-        final List<List<Double>> neighborPrices = 
+        final List<PriceWithSource> neighborPrices = 
             neighbors(
                 prices, 
                 z, 
@@ -94,7 +103,7 @@ public abstract class NeighborGenerator {
         final int kMax,
         final int kMin
     ) {
-        final List<List<Double>> neighborPrices = 
+        final List<PriceWithSource> neighborPrices = 
             neighbors(
                 prices, 
                 z, 
@@ -114,7 +123,7 @@ public abstract class NeighborGenerator {
      * convenience function that calls neighbors() with default
      * values for step sizes, for unilateral neighbors and gradient neighbors.
      */
-    private static List<List<Double>> neighbors(
+    private static List<PriceWithSource> neighbors(
         final List<Double> prices,
         final List<Double> z,
         final double maxPrice
@@ -158,7 +167,7 @@ public abstract class NeighborGenerator {
      * and all agents move in the direction of the gradient 
      * for stepSizesGradient different step sizes.
      */
-    private static List<List<Double>> neighbors(
+    private static List<PriceWithSource> neighbors(
         final List<Double> prices,
         final List<Double> z,
         final List<Double> stepSizesUnilateral,
@@ -168,19 +177,19 @@ public abstract class NeighborGenerator {
         assert prices.size() == z.size();
         assert maxPrice >= 0.0;
         
-        final List<List<Double>> unilateralNeighbors = unilateralNeighbors(
+        final List<PriceWithSource> unilateralNeighbors = unilateralNeighbors(
             prices, 
             z, 
             stepSizesUnilateral, 
             maxPrice
         );
-        final List<List<Double>> gradientNeighbors = gradientNeighbors(
+        final List<PriceWithSource> gradientNeighbors = gradientNeighbors(
             prices, 
             z, 
             stepSizesGradient, 
             maxPrice
         );
-        final List<List<Double>> result = new ArrayList<List<Double>>();
+        final List<PriceWithSource> result = new ArrayList<PriceWithSource>();
         result.addAll(unilateralNeighbors);
         result.addAll(gradientNeighbors);
         return result;
@@ -198,7 +207,7 @@ public abstract class NeighborGenerator {
      * in stepSizesUnilateral. attempt to limit the number of redundant lists
      * returned if possible.
      */
-    private static List<List<Double>> unilateralNeighbors(
+    private static List<PriceWithSource> unilateralNeighbors(
         final List<Double> prices,
         final List<Double> z,
         final List<Double> stepSizesUnilateral,
@@ -221,7 +230,7 @@ public abstract class NeighborGenerator {
             }
         }
         
-        final List<List<Double>> result = new ArrayList<List<Double>>();
+        final List<PriceWithSource> result = new ArrayList<PriceWithSource>();
         
         // iterate over all agents, handling the current agent's unilateral
         // price changes.
@@ -243,7 +252,11 @@ public abstract class NeighborGenerator {
                         }
                     }
                     
-                    result.add(newPrices);
+                    result.add(
+                        new PriceWithSource(
+                            newPrices, PriceUpdateSource.UNILATERAL
+                        )
+                    );
                 }
             
                 // else if the agent is over-demanded (price should be raised)
@@ -266,8 +279,11 @@ public abstract class NeighborGenerator {
                         }
                     }
                     
-                    result.add(newPrices);
-                }
+                    result.add(
+                        new PriceWithSource(
+                            newPrices, PriceUpdateSource.UNILATERAL
+                        )
+                    );                }
             }
         }
         
@@ -291,7 +307,7 @@ public abstract class NeighborGenerator {
      * the number of price lists equals the number of entries in "stepSizes".
      * updated prices will be truncated to [0, maxPrice] before returning.
      */
-    private static List<List<Double>> gradientNeighbors(
+    private static List<PriceWithSource> gradientNeighbors(
         final List<Double> prices,
         final List<Double> z,
         final List<Double> stepSizesGradient,
@@ -314,7 +330,7 @@ public abstract class NeighborGenerator {
             }
         }
         
-        final List<List<Double>> result = new ArrayList<List<Double>>();
+        final List<PriceWithSource> result = new ArrayList<PriceWithSource>();
         if (!DemandAnalyzer.hasClearingErrorDouble(z)) {
             // can't produce a unit vector from the zero vector
             return result;
@@ -336,7 +352,11 @@ public abstract class NeighborGenerator {
                 newPrices.add(newPrice);
             }
             
-            result.add(newPrices);
+            result.add(
+                new PriceWithSource(
+                    newPrices, PriceUpdateSource.GRADIENT
+                )
+            );
         }
         
         return result;
