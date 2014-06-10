@@ -42,10 +42,6 @@ public final class MipGeneratorGLPK implements MipGenerator {
         assert kMax >= kMin;
         assert kMin >= 0;
         
-        // number of agents is 1 more than the size of values, because
-        // values does not include the self agent.
-        assert TabuSearch.checkKRange(values.size() + 1, kMin, kMax);
-        
         if (DEBUGGING) {
             for (Double value: values) {
                 if (value < 0) {

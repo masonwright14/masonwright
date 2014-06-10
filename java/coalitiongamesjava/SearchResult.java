@@ -12,14 +12,89 @@ public final class SearchResult {
     private final List<List<Integer>> allocation;
     private final List<Double> error;
     private final double errorSize;
-    private final int kMin;
-    private final int kMax;
+    private int kMin;
+    private int kMax;
     private final double maxBudget;
     private final List<Agent> agents;
     private final long durationMillis;
     private final List<Integer> rsdOrder; // can be null
     private final List<Double> bestErrorValues;
     private final List<PriceUpdateSource> priceUpdateSources;
+    private List<Integer> teamSizes;
+    
+    public SearchResult(
+        final List<Double> aPrices,
+        final List<List<Integer>> aAllocation,
+        final List<Double> aError,
+        final double aErrorSize,
+        final List<Integer> aTeamSizes,
+        final double aMaxBudget,
+        final List<Agent> aAgents,
+        final long aDurationMillis,
+        final List<Integer> aRsdOrder,
+        final List<Double> aBestErrorValues,
+        final List<PriceUpdateSource> aPriceUpdateSources
+    ) {
+        assert aPrices.size() == aError.size();
+        assert aTeamSizes != null && !aTeamSizes.isEmpty();
+        assert aMaxBudget >= MipGenerator.MIN_BUDGET;
+        assert aDurationMillis > 0;
+        
+        this.prices = new ArrayList<Double>();
+        for (double aPrice: aPrices) {
+            this.prices.add(aPrice);
+        }
+        this.budgets = new ArrayList<Double>();
+        for (Agent agent: aAgents) {
+            this.budgets.add(agent.getBudget());
+        }
+        this.allocation = new ArrayList<List<Integer>>();
+        for (List<Integer> row: aAllocation) {
+            List<Integer> newRow = new ArrayList<Integer>();
+            for (int item: row) {
+                newRow.add(item);
+            }
+            this.allocation.add(newRow);
+        }
+        this.error = new ArrayList<Double>();
+        for (double item: aError) {
+            this.error.add(item);
+        }
+        this.errorSize = aErrorSize;
+        this.teamSizes = new ArrayList<Integer>();
+        for (Integer teamSize: aTeamSizes) {
+            this.teamSizes.add(teamSize);
+        }
+        this.maxBudget = aMaxBudget;
+        this.agents = new ArrayList<Agent>();
+        for (Agent agent: aAgents) {
+            List<Double> values = new ArrayList<Double>();
+            for (double value: agent.getValues()) {
+                values.add(value);
+            }
+            Agent newAgent = 
+                new Agent(values, agent.getBudget(), agent.getId());
+            this.agents.add(newAgent);
+        }
+        this.durationMillis = aDurationMillis;
+        if (aRsdOrder != null) {
+            this.rsdOrder = new ArrayList<Integer>();
+            for (Integer item: aRsdOrder) {
+                this.rsdOrder.add(item);
+            }
+        } else {
+            this.rsdOrder = null;
+        }
+        
+        this.bestErrorValues = new ArrayList<Double>();
+        for (Double bestErrorValue: aBestErrorValues) {
+            this.bestErrorValues.add(bestErrorValue);
+        }
+        this.priceUpdateSources = new ArrayList<PriceUpdateSource>();
+        for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
+            this.priceUpdateSources.add(priceUpdateSource);
+        }
+    }
     
     public SearchResult(
         final List<Double> aPrices,
@@ -121,6 +196,10 @@ public final class SearchResult {
     public int getkMax() {
         return kMax;
     }
+    
+    public List<Integer> getTeamSizes() {
+        return this.teamSizes;
+    }
 
     public double getMaxBudget() {
         return maxBudget;
@@ -163,6 +242,8 @@ public final class SearchResult {
         builder.append(kMin);
         builder.append(", \nkMax=");
         builder.append(kMax);
+        builder.append(", \nteamSizes=");
+        builder.append(teamSizes);        
         builder.append(", \nmaxBudget=");
         builder.append(maxBudget);
         builder.append(", \nagents=");

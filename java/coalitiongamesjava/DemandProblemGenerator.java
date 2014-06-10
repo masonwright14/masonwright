@@ -1,6 +1,7 @@
 package coalitiongames;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 abstract class DemandProblemGenerator {
@@ -9,8 +10,42 @@ abstract class DemandProblemGenerator {
         // runSmallProblem();
         // runVerySmallTabuSearch();
         // runSmallTabuSearch();
-        runVerySmallRsdTabuSearch();
+        // runVerySmallRsdTabuSearch();
         // runSmallRsdTabuSearch();
+        // runVerySmallTabuSearchRanges();
+        runSmallTabuSearchRanges();
+    }
+    
+    @SuppressWarnings("unused")
+    private static void runVerySmallTabuSearchRanges() {
+        final int agents = 10;
+        final int valueRange = 10;
+        final List<Integer> teamSizeRange = new ArrayList<Integer>();
+        final Integer[] myArr = {2, 4};
+        teamSizeRange.addAll(Arrays.asList(myArr));
+        
+        final GammaZ gammaZ = new GammaZ2();
+        runTabuSearchRange(
+            agents, 
+            valueRange, 
+            teamSizeRange,
+            gammaZ
+        );
+    }
+    
+    private static void runSmallTabuSearchRanges() {
+        final int agents = 20;
+        final int valueRange = 10;
+        final List<Integer> teamSizeRange = new ArrayList<Integer>();
+        final Integer[] myArr = {2, 3, 5};
+        teamSizeRange.addAll(Arrays.asList(myArr));
+        final GammaZ gammaZ = new GammaZ2();
+        runTabuSearchRange(
+            agents, 
+            valueRange, 
+            teamSizeRange,
+            gammaZ
+        );
     }
     
     @SuppressWarnings("unused")
@@ -59,6 +94,7 @@ abstract class DemandProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runVerySmallRsdTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -124,6 +160,42 @@ abstract class DemandProblemGenerator {
                 gammaZ, 
                 kMax,
                 rsdOrder
+            );
+        System.out.println(searchResult.toString());
+    }
+    
+    private static void runTabuSearchRange(
+        final int n,
+        final double valueRange,
+        final List<Integer> teamSizes,
+        final GammaZ gammaZ
+    ) {
+        final double baseValue = 50.0;
+        final List<Agent> agents = new ArrayList<Agent>();
+        for (int i = 1; i <= n; i++) {
+            List<Double> values = new ArrayList<Double>();
+            for (int j = 1; j < n; j++) {
+                double newValue = 
+                    baseValue + Math.random() * valueRange - valueRange / 2.0;
+                if (newValue < 0) {
+                    newValue = 0;
+                }
+                values.add(newValue);
+            }
+            
+            final double budget = 
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            
+            final int id = i;
+            agents.add(new Agent(values, budget, id));
+        }
+        
+        final SearchResult searchResult = 
+            TabuSearch.tabuSearchRanges(
+                agents, 
+                gammaZ, 
+                teamSizes
             );
         System.out.println(searchResult.toString());
     }

@@ -50,6 +50,148 @@ abstract class TabuSearch {
         );
     }
     
+    public static SearchResult tabuSearchRanges(
+        final List<Agent> agents,
+        final GammaZ gammaZ,
+        final List<Integer> teamSizes
+    ) {
+        final int defaultQueueLength = 100;
+        final int defaultMaxSteps = 100;
+        return tabuSearchRanges(
+            defaultQueueLength, 
+            defaultMaxSteps, 
+            agents, 
+            gammaZ, 
+            teamSizes
+        );
+    }
+    
+    /**
+     * 
+     * @param queueLength maximum length of drop-out tabu queue
+     * @param maxSteps maximum number of update steps to perform
+     * @param agents a list of all agents with their budgets and preferences
+     * @param gammaZ an error function to use for updating prices
+     * @param teamSizes a list of lists of integers, where each list
+     * has 2 elements, the first of which is a kMin and the second a kMax,
+     * kMin <= kMax. each list represents 1 range of allowable sizes for
+     * the "next" team, based on RsdUtil.getFeasibleNextTeamSizes(), and
+     * TabuSearch.getMinMaxPairs().
+     * @return a SearchResult, including an allocation, price vector,
+     * and other data
+     * @return
+     */
+    public static SearchResult tabuSearchRanges(
+        final int queueLength,
+        final int maxSteps,
+        final List<Agent> agents,
+        final GammaZ gammaZ,
+        final List<Integer> teamSizes
+    ) {
+        assert queueLength > 0;
+        final int minimumAgents = 4;
+        assert agents != null && agents.size() >= minimumAgents;
+        assert gammaZ != null;
+        final int n = agents.size();
+        assert teamSizes != null && !teamSizes.isEmpty();
+        
+        // time the duration of the search to the millisecond
+        final long searchStartMillis = new Date().getTime();
+        final double maxPrice = 
+            MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / n;
+        final double maxBudget = maxPrice;
+        
+        PriceWithError currentNode = 
+            getInitialPriceWithError(teamSizes, agents, maxPrice, gammaZ);
+        PriceWithError bestNode = currentNode;
+        
+        final List<Double> bestErrorValues = new ArrayList<Double>();
+        final List<PriceUpdateSource> priceUpdateSources =
+            new ArrayList<PriceUpdateSource>();
+        final Queue<PriceWithError> tabuQueue = 
+            new DropOutQueue<PriceWithError>(queueLength);
+        if (MipGenerator.DEBUGGING) {
+            System.out.println("Best error: " + bestNode.getErrorValue());
+        }
+        int step = 0;
+        // stop searching if no error at best node
+        while (bestNode.getErrorValue() > 0.0) {
+            // add current node to tabu queue so it won't be revisited
+            tabuQueue.add(currentNode);
+            bestErrorValues.add(bestNode.getErrorValue());
+            priceUpdateSources.add(currentNode.getPriceUpdateSource());
+            step++;
+            if (step > maxSteps) {
+                break;
+            }
+            // get neigbors of currentNode, sorted by increasing error
+            final List<PriceWithError> sortedNeighbors = 
+                NeighborGenerator.sortedNeighbors(
+                    currentNode.getPrices(), 
+                    currentNode.getError(), 
+                    maxPrice, 
+                    agents, 
+                    gammaZ, 
+                    teamSizes
+                );
+            // check if any neighbor is not already in the tabu queue
+            boolean newNeighborFound = false;
+            for (final PriceWithError neighbor: sortedNeighbors) {
+                // check if neighbor is not in the tabu queue
+                if (!tabuQueue.contains(neighbor)) {
+                    currentNode = neighbor;
+                    // found a neighbor not already in the tabu queue
+                    newNeighborFound = true;
+                    if (MipGenerator.DEBUGGING) {
+                        System.out.println("Step: " + step);
+                        System.out.println(
+                            "Current error: " + currentNode.getErrorValue()
+                        );
+                    }
+                    if (
+                        currentNode.getErrorValue() < bestNode.getErrorValue()
+                    ) {
+                        bestNode = currentNode;
+                        if (MipGenerator.DEBUGGING) {
+                            System.out.println(
+                                "Best error: " + bestNode.getErrorValue()
+                            );
+                        }
+                    }
+                    // stop searching neighbors for best one not in tabu queue
+                    break;
+                }
+            }
+            if (!newNeighborFound) {
+                // all neighbors are in the tabu queue
+                break;
+            }
+            if (bestNode != currentNode && !tabuQueue.contains(bestNode)) {
+                // no better neighbors found in last "queueLength" steps
+                break;
+            }
+        }
+        
+        // search complete. return best node.
+        
+        final long searchDurationMillis = 
+            new Date().getTime() - searchStartMillis;
+        final SearchResult result = new SearchResult(
+            bestNode.getPrices(), 
+            bestNode.getDemand(), 
+            bestNode.getError(), 
+            bestNode.getErrorValue(), 
+            teamSizes,
+            maxBudget, 
+            agents,
+            searchDurationMillis,
+            null,
+            bestErrorValues,
+            priceUpdateSources
+        );
+        return result;
+    }
+    
     /**
      * 
      * @param queueLength maximum length of drop-out tabu queue
@@ -272,6 +414,68 @@ abstract class TabuSearch {
         }
         
         return result;
+    }
+    
+    public static List<Integer> getSizesFromMinMaxPairs(
+        final List<List<Integer>> pairs
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (final List<Integer> pair: pairs) {
+            for (int i = pair.get(0); i <= pair.get(1); i++) {
+                result.add(i);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * @param teamSizeRanges list of lists of integers, where each list
+     * has two items and is a (min, max) pair of one size range. acceptable
+     * sizes are these pairs and any integer between a min and its max.
+     * @param agents a list of all agents with their budgets and preferences
+     * @param maxPrice maximum price an agent can be given
+     * @param gammaZ used to evaluate error of a given allocation
+     * @return a price vector for the agents, along with the aggregate
+     * demand it induces, the error according to gammaZ of that demand,
+     * and the l2-norm of this error.
+     */
+    private static PriceWithError getInitialPriceWithError(
+        final List<Integer> teamSizes,
+        final List<Agent> agents,
+        final double maxPrice,
+        final GammaZ gammaZ
+    ) {
+        int kMax = getKMax(teamSizes);
+        final List<Double> prices = new ArrayList<Double>();
+        final double basePrice = MipGenerator.MIN_BUDGET / kMax;
+        for (int i = 1; i <= agents.size(); i++) {
+            prices.add(basePrice);
+        }
+        final List<List<Integer>> aggregateDemand = 
+            DemandGenerator.getAggregateDemand(
+                agents, 
+                prices, 
+                teamSizes, 
+                maxPrice
+            );
+        final List<Double> errorDemand = 
+            gammaZ.z(aggregateDemand, prices, kMax, maxPrice);
+        final double error = DemandAnalyzer.errorSizeDouble(errorDemand);
+        return new PriceWithError(
+            prices, errorDemand, aggregateDemand, 
+            error, PriceUpdateSource.INITIAL
+        );
+    }
+    
+    public static int getKMax(final List<Integer> teamSizes) {
+        int kMax = 0;
+        for (final Integer teamSize: teamSizes) {
+            if (teamSize > kMax) {
+                kMax = teamSize;
+            }
+        }
+        return kMax;
     }
     
     /**

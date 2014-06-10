@@ -8,6 +8,59 @@ import coalitiongames.PriceWithError.PriceUpdateSource;
 
 public abstract class NeighborGenerator {
     
+    public static List<PriceWithError> sortedNeighbors(
+        final List<PriceWithSource> neighborPricesWithSource,
+        final List<Agent> agents,
+        final GammaZ gammaZ,
+        final List<Integer> teamSizes,
+        final double maxPrice
+    ) {
+        final List<PriceWithError> result = 
+            new ArrayList<PriceWithError>();
+        for (
+            final PriceWithSource neighborPriceWithSource
+            : neighborPricesWithSource
+        ) {
+            final List<List<Integer>> neighborDemand = 
+                DemandGenerator.getAggregateDemand(
+                    agents, 
+                    neighborPriceWithSource.getPrice(), 
+                    teamSizes,
+                    maxPrice
+                );
+            final int kMax = TabuSearch.getKMax(teamSizes);
+            final List<Double> neighborZ = 
+                gammaZ.z(
+                    neighborDemand, neighborPriceWithSource.getPrice(), 
+                    kMax, maxPrice
+                );
+            final double neighborError = 
+                DemandAnalyzer.errorSizeDouble(neighborZ);
+            result.add(
+                new PriceWithError(
+                    neighborPriceWithSource.getPrice(), 
+                    neighborZ, 
+                    neighborDemand, 
+                    neighborError,
+                    neighborPriceWithSource.getPriceUpdateSource()
+                )
+            );
+        }
+        
+        Collections.sort(result);
+        
+        if (MipGenerator.DEBUGGING) {
+            final double firstError = result.get(0).getErrorValue();
+            final double lastError = 
+                result.get(result.size() - 1).getErrorValue();
+            if (firstError > lastError) {
+                throw new IllegalStateException();
+            }
+        }
+        
+        return result;
+    }
+    
     /*
      * Returns neighbors sorted from lowest error to highest.
      */
@@ -65,6 +118,7 @@ public abstract class NeighborGenerator {
         return result;
     }
     
+    /*
     public static List<PriceWithError> sortedNeighbors(
         final List<Double> prices,
         final List<Double> z,
@@ -90,6 +144,30 @@ public abstract class NeighborGenerator {
             gammaZ, 
             kMax, 
             kMin, 
+            maxPrice
+        );
+    }
+    */
+    
+    public static List<PriceWithError> sortedNeighbors(
+        final List<Double> prices,
+        final List<Double> z,
+        final double maxPrice,
+        final List<Agent> agents,
+        final GammaZ gammaZ,
+        final List<Integer> teamSizes
+    ) {
+        final List<PriceWithSource> neighborPrices = 
+            neighbors(
+                prices, 
+                z, 
+                maxPrice
+            );
+        return sortedNeighbors(
+            neighborPrices, 
+            agents, 
+            gammaZ, 
+            teamSizes,
             maxPrice
         );
     }
