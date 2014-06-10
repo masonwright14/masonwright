@@ -119,12 +119,16 @@ abstract class DemandProblemGenerator {
             agents.add(new Agent(values, budget, id));
         }
         
+        final List<Integer> rsdOrder = 
+            RsdTabuSearch.getShuffledNumberList(agents.size());
+        
         final SearchResult searchResult = 
             RsdTabuSearch.rsdTabuSearchOneLevel(
                 agents, 
                 gammaZ, 
                 kMax, 
-                kMin
+                kMin,
+                rsdOrder
             );
         System.out.println(searchResult.toString());
     }

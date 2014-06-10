@@ -26,6 +26,9 @@ abstract class RsdTabuSearch {
      * @param gammaZ an error function to use for updating prices
      * @param kMax maximum agents per team, including self
      * @param kMin minimum agents per team, including self
+     * @param rsdOrder shuffled list of numbers from {0, 1, . . . (n - 1)}, 
+     * indicating the random serial dictatorship order to use, based on
+     * indexes of Agents in "agents" list
      * @return a SearchResult, including an allocation, price vector,
      * and other data
      */
@@ -33,10 +36,12 @@ abstract class RsdTabuSearch {
         final List<Agent> agents,
         final GammaZ gammaZ,
         final int kMax,
-        final int kMin
+        final int kMin,
+        final List<Integer> rsdOrder
     ) {
         final int minimumAgents = 4;
         assert agents != null && agents.size() >= minimumAgents;
+        assert rsdOrder.size() == agents.size();
         assert gammaZ != null;
         final int n = agents.size();
         assert kMax <= n;
@@ -52,9 +57,6 @@ abstract class RsdTabuSearch {
         final SearchResult initialResult = TabuSearch.tabuSearch(
             agents, gammaZ, kMax, kMin);
         
-        // shuffle the numbers 0-(N-1), to get Random Serial Dictatorship order.
-        final List<Integer> rsdOrder = 
-            getShuffledNumberList(agents.size());
         
         // an allocation. each player appears in exactly 1 List<Integer>, 
         // or row. there is one row per team, instead of 1 row per player.
@@ -78,6 +80,12 @@ abstract class RsdTabuSearch {
                     throw new IllegalStateException(
                         "Duplicate entry: " + takenAgentIndexes
                     );
+                }
+                
+                for (int i = 0; i < agents.size(); i++) {
+                    if (!rsdOrder.contains(i)) {
+                        throw new IllegalArgumentException("Missing rsdOrder index: " + i);
+                    }
                 }
             }
                         
@@ -411,7 +419,7 @@ abstract class RsdTabuSearch {
      * This method may be used to produce a random serial dictatorship
      * order for "size" number of agents.
      */
-    private static List<Integer> getShuffledNumberList(final int size) {
+    public static List<Integer> getShuffledNumberList(final int size) {
         assert size >= 0;
         
         final List<Integer> result = new ArrayList<Integer>();
