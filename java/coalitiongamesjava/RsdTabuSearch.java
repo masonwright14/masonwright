@@ -58,7 +58,6 @@ abstract class RsdTabuSearch {
         final SearchResult initialResult = TabuSearch.tabuSearch(
             agents, gammaZ, kMax, 0);
         
-        
         // an allocation. each player appears in exactly 1 List<Integer>, 
         // or row. there is one row per team, instead of 1 row per player.
         // columns (items) in each List<Integer> correspond to players, by index
@@ -153,8 +152,7 @@ abstract class RsdTabuSearch {
                  * assign the given bundle to the agent and remove its 
                  * contents from consideration.    
                  */
-                final Agent currentAgent = 
-                    initialResult.getAgents().get(agentIndex);
+                final Agent currentAgent = agents.get(agentIndex);
                 final List<Double> values = RsdUtil.getValueListWithout(
                     currentAgent.getValues(), agentIndex, takenAgentIndexes
                 );
@@ -165,7 +163,7 @@ abstract class RsdTabuSearch {
                 final double maxPrice = MipGenerator.MIN_BUDGET 
                     + MipGenerator.MIN_BUDGET / agents.size();
                 final MipResult mipResult = mipGenerator.getLpSolution(
-                    values, prices,  currentAgent.getBudget(), 
+                    values, prices, currentAgent.getBudget(), 
                     kMax, 0, maxPrice
                 );
                 newAgentDemand.addAll(mipResult.getRoundedColumnValues());
