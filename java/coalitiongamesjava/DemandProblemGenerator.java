@@ -16,7 +16,9 @@ abstract class DemandProblemGenerator {
         // runVerySmallTabuSearchRanges();
         // runSmallTabuSearchRanges();
         // runVerySmallRsdAllLevelsTabuSearch();
-        runSmallRsdAllLevelsTabuSearch();
+        // runSmallRsdAllLevelsTabuSearch();
+        runSmallRandomAllocation();
+        runSmallRandomOptimalSizeAllocation();
     }
     
     @SuppressWarnings("unused")
@@ -100,6 +102,7 @@ abstract class DemandProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallRsdAllLevelsTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -113,6 +116,20 @@ abstract class DemandProblemGenerator {
             kMin,
             gammaZ
         );
+    }
+    
+    private static void runSmallRandomOptimalSizeAllocation() {
+        final int agents = 20;
+        final int kMax = 5;
+        final int kMin = 3;
+        runRandomAllocation(agents, kMax, kMin, true);
+    }
+    
+    private static void runSmallRandomAllocation() {
+        final int agents = 20;
+        final int kMax = 5;
+        final int kMin = 3;
+        runRandomAllocation(agents, kMax, kMin, false);
     }
     
     @SuppressWarnings("unused")
@@ -217,6 +234,40 @@ abstract class DemandProblemGenerator {
                 rsdOrder
             );
         System.out.println(searchResult.toString());
+    }
+    
+    private static void runRandomAllocation(
+        final int n,
+        final int kMax,
+        final int kMin,
+        final boolean optimalSize
+    ) {
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
+            List<Double> values = new ArrayList<Double>();
+            for (int j = 1; j < n; j++) {
+                final double newValue = 10;
+                values.add(newValue);
+            }
+            
+            final double budget = 
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
+        }
+        if (optimalSize) {
+            final SimpleSearchResult searchResult = 
+                RandomAllocation.randomOptimalSizesAllocation(agents, kMax);
+            System.out.println(searchResult.toString());            
+        } else {
+            final SimpleSearchResult searchResult = 
+                RandomAllocation.randomAllocation(agents, kMax, kMin);
+            System.out.println(searchResult.toString());
+        }
     }
     
     private static void runRsdTabuSearch(

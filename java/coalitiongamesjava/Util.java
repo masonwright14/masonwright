@@ -4,6 +4,20 @@ import java.util.List;
 
 abstract class Util {
     
+    public static String demandAsMatrix(
+        final List<List<Integer>> demand
+    ) {
+        final StringBuilder builder = new StringBuilder();
+        for (final List<Integer> row: demand) {
+            for (final Integer cur: row) {
+                builder.append(cur).append(' ');
+            }
+            builder.append('\n');
+        }
+        
+        return builder.toString();
+    }
+    
     public static void printDemandAsMatrix(
         final List<List<Integer>> demand
     ) {   

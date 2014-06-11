@@ -3,8 +3,18 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 abstract class RsdUtil {
+    
+    public static void main(final String[] args) {
+        System.out.println(getOptimalTeamSizeRange(10, 5));
+        System.out.println(getOptimalTeamSizeRange(43, 9));
+        System.out.println(getOptimalTeamSizeList(10, 5));
+        System.out.println(getOptimalTeamSizeList(43, 9));
+        System.out.println(getRandomTeamSizeList(43, 9, 4));
+        System.out.println(getGreedyTeamSizeList(43, 9, 4));
+    }
 
     /**
      * @param oldPriceList the price list including all agent prices
@@ -186,6 +196,194 @@ abstract class RsdUtil {
             teamSize += i;
         }
         return teamSize;
+    }
+    
+    /**
+     * 
+     * @param n total number of agents
+     * @param kMax maximum agents per team
+     * @param kMin minimum agents per team
+     * @return a list of team sizes, where the first size
+     * is the largest feasible team size (such that integers
+     * in [kMin, kMax] can still sum to n), the next is the
+     * largest feasible team size given the earlier ones, etc.
+     */
+    public static List<Integer> getGreedyTeamSizeList(
+        final int n,
+        final int kMax,
+        final int kMin
+    ) {
+        if (!TabuSearch.checkKRange(n, kMin, kMax)) {
+            throw new IllegalArgumentException();
+        }
+        final List<Integer> result = new ArrayList<Integer>();
+        int total = 0;
+        while (total < n) {
+            final List<Integer> feasibleNextTeamSizes = 
+                getFeasibleNextTeamSizes(n - total, kMin, kMax);
+            Collections.sort(feasibleNextTeamSizes);
+            final int teamSize = feasibleNextTeamSizes.get(
+                feasibleNextTeamSizes.size() - 1
+            );
+            result.add(teamSize);
+            total += teamSize;
+        }
+        
+        if (MipGenerator.DEBUGGING) {
+            int checkTotal = 0;
+            for (Integer item: result) {
+                checkTotal += item;
+                if (item < kMin || item > kMax) {
+                    throw new IllegalStateException();
+                }
+            }
+            if (checkTotal != n) {
+                throw new IllegalStateException();
+            }
+        }
+        
+        
+        return result;
+    }
+    
+    /**
+     * 
+     * @param n total number of agents
+     * @param kMax maximum agents per team
+     * @param kMin minimum agents per team
+     * @return a list of team sizes, where the first size
+     * is randomly drawn form all feasible team sizes (such that integers
+     * in [kMin, kMax] can still sum to n), the next is randomly drawn from
+     * feasible feasible team size given the earlier ones, etc.
+     */
+    public static List<Integer> getRandomTeamSizeList(
+        final int n,
+        final int kMax,
+        final int kMin
+    ) {
+        if (!TabuSearch.checkKRange(n, kMin, kMax)) {
+            throw new IllegalArgumentException();
+        }
+        final List<Integer> result = new ArrayList<Integer>();
+        int total = 0;
+        final Random rand = new Random();
+        while (total < n) {
+            final List<Integer> feasibleNextTeamSizes = 
+                getFeasibleNextTeamSizes(n - total, kMin, kMax);
+            final int teamSize = feasibleNextTeamSizes.get(
+                rand.nextInt(feasibleNextTeamSizes.size())
+            );
+            result.add(teamSize);
+            total += teamSize;
+        }
+        
+        if (MipGenerator.DEBUGGING) {
+            int checkTotal = 0;
+            for (Integer item: result) {
+                checkTotal += item;
+                if (item < kMin || item > kMax) {
+                    throw new IllegalStateException();
+                }
+            }
+            if (checkTotal != n) {
+                throw new IllegalStateException();
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 
+     * @param n total number of agents
+     * @param kMax maximum agents per team
+     * @return a list of team sizes, where the earlier sizes
+     * are the "optimal kMax" for as long as possible, before
+     * switching permanently to the "optimal kMin."
+     * these kMax and kMin values come from 
+     * getOptimalTeamSizeRange().
+     */
+    public static List<Integer> getOptimalTeamSizeList(
+        final int n, 
+        final int kMax
+    ) {
+        assert n >= 1;
+        assert kMax >= 1;
+        
+        final List<Integer> optimalRange = 
+            getOptimalTeamSizeRange(n, kMax);
+        final List<Integer> result = new ArrayList<Integer>();
+        final int kMin = optimalRange.get(0);
+        final int newKMax = optimalRange.get(1);
+        int total = 0;
+        while (total < n) {
+            if (
+                getFeasibleNextTeamSizes(n - total, kMin, newKMax).
+                    contains(newKMax)
+            ) {
+                result.add(newKMax);
+                total += newKMax;
+            } else {
+                result.add(kMin);
+                total += kMin;
+            }
+        }
+        
+        if (MipGenerator.DEBUGGING) {
+            int checkTotal = 0;
+            for (Integer item: result) {
+                checkTotal += item;
+                if (item < kMin || item > newKMax) {
+                    throw new IllegalStateException();
+                }
+            }
+            if (checkTotal != n) {
+                throw new IllegalStateException();
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * @param n total number of agents
+     * @param kMax maximum agents per team
+     * @return a list with 2 elements. item 0 is the
+     * minimum of the size range that is the greatest possible
+     * minimum team size to divide n players. item 1 is the maximum
+     * size range that is the least possible for this minimum size.
+     * examples: 
+     * (10,5)->(5,5)
+     * (10,4)->(3,4)
+     * (19,12)->(9,10)
+     */
+    public static List<Integer> getOptimalTeamSizeRange(
+        final int n, 
+        final int kMax
+    ) {
+        assert n >= 1;
+        assert kMax >= 1;
+        
+        final List<Integer> result = new ArrayList<Integer>();
+        if (kMax >= n) {
+            result.add(n);
+            result.add(n);
+            return result;
+        }
+        if (n % kMax == 0) {
+            result.add(kMax);
+            result.add(kMax);
+            return result;
+        }
+        // newMax = ceil(N / ceil(N / k))
+        final int newMax = (int) Math.ceil(n / Math.ceil(
+            ((double) n) / kMax)
+        ); 
+        final int kMin = newMax - 1;
+        result.add(kMin);
+        // kMax = kMin + 1
+        result.add(newMax);
+        return result;
     }
     
     /**

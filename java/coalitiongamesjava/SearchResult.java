@@ -249,9 +249,9 @@ public final class SearchResult {
         builder.append(prices);
         builder.append(", \nbudgets=");
         builder.append(budgets);
-        builder.append(", \nallocation=");
-        builder.append(allocation);
-        builder.append(", \nerror=");
+        builder.append(", \nallocation=\n");
+        builder.append(Util.demandAsMatrix(allocation));
+        builder.append("\n, error=");
         builder.append(error);
         builder.append(", \nerrorSize=");
         builder.append(errorSize);
