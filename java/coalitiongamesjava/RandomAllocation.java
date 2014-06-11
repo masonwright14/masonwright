@@ -17,7 +17,6 @@ abstract class RandomAllocation {
             optimalTeamSizes.get(0)
         );
     }
-
     
     public static SimpleSearchResult randomAllocation(
         final List<Agent> agents,

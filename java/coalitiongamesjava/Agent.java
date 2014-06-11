@@ -1,6 +1,7 @@
 package coalitiongames;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +44,73 @@ public final class Agent {
         this.budget = aBudget;
         this.id = aId;
         this.uuid = aUuid;
+    }
+    
+    public double getValueByUUID(final UUID aUuid) {
+        for (int i = 0; i < this.values.size(); i++) {
+            if (this.agentIdsForValues.get(i).equals(aUuid)) {
+                return this.values.get(i);
+            }
+        }
+        
+        throw new IllegalArgumentException("not found");
+    }
+    
+    public List<UUID> getAgentIdsHighValueToLow() {
+        List<ValueWithUUID> valuesWithUUID = new ArrayList<ValueWithUUID>();
+        for (int i = 0; i < this.values.size(); i++) {
+            valuesWithUUID.add(
+                new ValueWithUUID(
+                    this.agentIdsForValues.get(i), 
+                    this.values.get(i)
+                )
+            );
+        }
+        Collections.sort(valuesWithUUID);
+        Collections.reverse(valuesWithUUID);
+        assert valuesWithUUID.get(0).getInnerValue() 
+            >= valuesWithUUID.get(valuesWithUUID.size() - 1).getInnerValue();
+        List<UUID> result = new ArrayList<UUID>();
+        for (ValueWithUUID current: valuesWithUUID) {
+            result.add(current.getInnerUuid());
+        }
+        
+        return result;
+    }
+    
+    private static class ValueWithUUID implements Comparable<ValueWithUUID> {
+        private final UUID innerUuid;
+        private final double innerValue;
+        
+        public ValueWithUUID(
+            final UUID aInnerUuid,
+            final double aInnerValue
+        ) {
+            this.innerUuid = aInnerUuid;
+            this.innerValue = aInnerValue;
+        }
+
+        public UUID getInnerUuid() {
+            return innerUuid;
+        }
+
+        public double getInnerValue() {
+            return innerValue;
+        }
+
+        @Override
+        public int compareTo(final ValueWithUUID that) {
+            final int before = -1;
+            final int equal = 0;
+            final int after = 1;
+            if (this.innerValue > that.innerValue) {
+                return after;
+            } else if (this.innerValue < that.innerValue) {
+                return before;
+            }
+            
+            return equal;
+        }
     }
     
     public List<Double> getValues() {
