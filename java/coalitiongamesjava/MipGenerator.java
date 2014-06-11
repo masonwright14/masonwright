@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface MipGenerator {
     
-    // TODO
+
     // handle case where no set of size kMin or larger
     // is affordable.
     // return an MipResult that indicates this,
@@ -15,6 +15,10 @@ public interface MipGenerator {
     
     boolean DEBUGGING = false;
     
+    /*
+     * handle case where no set of size kMin or larger
+     *  is affordable.
+     */
     MipResult getLpSolution(
         List<Double> values,
         List<Double> prices,
@@ -23,6 +27,10 @@ public interface MipGenerator {
         double maxPrice
     );
 
+    /*
+     * handle case where no set of size kMin or larger
+     *  is affordable.
+     */
     MipResult getLpSolution(
         List<Double> values,
         List<Double> prices,

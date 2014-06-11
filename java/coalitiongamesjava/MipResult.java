@@ -11,10 +11,13 @@ public final class MipResult {
     
     private final List<Double> columnValues;
     
+    private final boolean isSuccess;
+    
     public MipResult(
         final String aLpName,
         final double aObjectiveValue,
-        final List<Double> aColumnValues
+        final List<Double> aColumnValues,
+        final boolean aIsSuccess
     ) {
         this.lpName = aLpName;
         this.objectiveValue = aObjectiveValue;
@@ -22,6 +25,7 @@ public final class MipResult {
         for (final Double columnValue: aColumnValues) {
             this.columnValues.add(columnValue);
         }
+        this.isSuccess = aIsSuccess;
     }
 
     public String getLpName() {
@@ -30,6 +34,10 @@ public final class MipResult {
 
     public double getObjectiveValue() {
         return objectiveValue;
+    }
+    
+    public boolean isSuccess() {
+        return this.isSuccess;
     }
     
     public List<Integer> getRoundedColumnValues() {
@@ -59,6 +67,8 @@ public final class MipResult {
         builder.append(lpName);
         builder.append(", \nobjectiveValue=");
         builder.append(objectiveValue);
+        builder.append(", \nisSuccess=");
+        builder.append(isSuccess);
         builder.append(", \nroundedColumnValues=");
         builder.append(getRoundedColumnValues());
         builder.append("\n]");
