@@ -3,6 +3,7 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 abstract class DemandProblemGenerator {
     
@@ -13,9 +14,9 @@ abstract class DemandProblemGenerator {
         // runVerySmallRsdTabuSearch();
         // runSmallRsdTabuSearch();
         // runVerySmallTabuSearchRanges();
-        // runSmallTabuSearchRanges();
+        runSmallTabuSearchRanges();
         // runVerySmallRsdAllLevelsTabuSearch();
-        runSmallRsdAllLevelsTabuSearch();
+        // runSmallRsdAllLevelsTabuSearch();
     }
     
     @SuppressWarnings("unused")
@@ -100,7 +101,7 @@ abstract class DemandProblemGenerator {
     }
     
     private static void runSmallRsdAllLevelsTabuSearch() {
-        final int agents = 20;
+        final int agents = 10;
         final int valueRange = 10;
         final int kMax = 5;
         final int kMin = 3;
@@ -158,6 +159,23 @@ abstract class DemandProblemGenerator {
         );
     }
     
+    private static List<UUID> getUuids(final int n) {
+        final List<UUID> uuids = new ArrayList<UUID>();
+        for (int i = 0; i < n; i++) {
+            uuids.add(UUID.randomUUID());
+        }
+        return uuids;
+    }
+    
+    private static List<UUID> getUuidsWithout(
+        final List<UUID> original,
+        final int toRemove
+    ) {
+        final List<UUID> result = new ArrayList<UUID>(original);
+        result.remove(toRemove);
+        return result;
+    }
+    
     private static void runRsdAllLevelsTabuSearch(
         final int n,
         final double valueRange,
@@ -167,7 +185,8 @@ abstract class DemandProblemGenerator {
     ) {
         final double baseValue = 50.0;
         final List<Agent> agents = new ArrayList<Agent>();
-        for (int i = 1; i <= n; i++) {
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
             List<Double> values = new ArrayList<Double>();
             for (int j = 1; j < n; j++) {
                 double newValue = 
@@ -181,9 +200,9 @@ abstract class DemandProblemGenerator {
             final double budget = 
                 MipGenerator.MIN_BUDGET 
                 + Math.random() * MipGenerator.MIN_BUDGET / n;
-            
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, budget, id));
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
         }
         
         final List<Integer> rsdOrder = 
@@ -208,7 +227,8 @@ abstract class DemandProblemGenerator {
     ) {
         final double baseValue = 50.0;
         final List<Agent> agents = new ArrayList<Agent>();
-        for (int i = 1; i <= n; i++) {
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
             List<Double> values = new ArrayList<Double>();
             for (int j = 1; j < n; j++) {
                 double newValue = 
@@ -223,8 +243,9 @@ abstract class DemandProblemGenerator {
                 MipGenerator.MIN_BUDGET 
                 + Math.random() * MipGenerator.MIN_BUDGET / n;
             
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, budget, id));
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
         }
         
         final List<Integer> rsdOrder = 
@@ -248,7 +269,8 @@ abstract class DemandProblemGenerator {
     ) {
         final double baseValue = 50.0;
         final List<Agent> agents = new ArrayList<Agent>();
-        for (int i = 1; i <= n; i++) {
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
             List<Double> values = new ArrayList<Double>();
             for (int j = 1; j < n; j++) {
                 double newValue = 
@@ -263,8 +285,9 @@ abstract class DemandProblemGenerator {
                 MipGenerator.MIN_BUDGET 
                 + Math.random() * MipGenerator.MIN_BUDGET / n;
             
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, budget, id));
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
         }
         
         final SearchResult searchResult = 
@@ -285,7 +308,8 @@ abstract class DemandProblemGenerator {
     ) {
         final double baseValue = 50.0;
         final List<Agent> agents = new ArrayList<Agent>();
-        for (int i = 1; i <= n; i++) {
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
             List<Double> values = new ArrayList<Double>();
             for (int j = 1; j < n; j++) {
                 double newValue = 
@@ -300,8 +324,9 @@ abstract class DemandProblemGenerator {
                 MipGenerator.MIN_BUDGET 
                 + Math.random() * MipGenerator.MIN_BUDGET / n;
             
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, budget, id));
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
         }
         
         final SearchResult searchResult = 
@@ -326,7 +351,7 @@ abstract class DemandProblemGenerator {
             MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / n;
         
         final List<Double> prices = new ArrayList<Double>();
-        for (int i = 1; i <= n; i++) {
+        for (int i = 0; i < n; i++) {
             double newPrice = 
                 basePrice + Math.random() * priceRange - priceRange / 2.0;
             if (newPrice < 0) {
@@ -340,7 +365,8 @@ abstract class DemandProblemGenerator {
         
         
         final List<Agent> agents = new ArrayList<Agent>();
-        for (int i = 1; i <= n; i++) {
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
             List<Double> values = new ArrayList<Double>();
             final double baseValue = 50.0;
             for (int j = 1; j < n; j++) {
@@ -356,8 +382,9 @@ abstract class DemandProblemGenerator {
                 MipGenerator.MIN_BUDGET 
                 + Math.random() * MipGenerator.MIN_BUDGET / n;
             
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, budget, id));
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
         }
         
         final List<List<Integer>> demand = DemandGenerator.getAggregateDemand(

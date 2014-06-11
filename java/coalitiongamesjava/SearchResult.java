@@ -21,6 +21,7 @@ public final class SearchResult {
     private final List<Double> bestErrorValues;
     private final List<PriceUpdateSource> priceUpdateSources;
     private List<Integer> teamSizes;
+    private final int tabuSearchCalls;
     
     public SearchResult(
         final List<Double> aPrices,
@@ -33,12 +34,13 @@ public final class SearchResult {
         final long aDurationMillis,
         final List<Integer> aRsdOrder,
         final List<Double> aBestErrorValues,
-        final List<PriceUpdateSource> aPriceUpdateSources
+        final List<PriceUpdateSource> aPriceUpdateSources,
+        final int aTabuSearchCalls
     ) {
         assert aPrices.size() == aError.size();
         assert aTeamSizes != null && !aTeamSizes.isEmpty();
         assert aMaxBudget >= MipGenerator.MIN_BUDGET;
-        assert aDurationMillis > 0;
+        assert aDurationMillis >= 0;
         
         this.prices = new ArrayList<Double>();
         for (double aPrice: aPrices) {
@@ -61,6 +63,8 @@ public final class SearchResult {
             this.error.add(item);
         }
         this.errorSize = aErrorSize;
+        this.kMax = -1;
+        this.kMin = -1;
         this.teamSizes = new ArrayList<Integer>();
         for (Integer teamSize: aTeamSizes) {
             this.teamSizes.add(teamSize);
@@ -73,7 +77,10 @@ public final class SearchResult {
                 values.add(value);
             }
             Agent newAgent = 
-                new Agent(values, agent.getBudget(), agent.getId());
+                new Agent(
+                    values, agent.getAgentIdsForValues(),  
+                    agent.getBudget(), agent.getId(), agent.getUuid()
+                );
             this.agents.add(newAgent);
         }
         this.durationMillis = aDurationMillis;
@@ -94,6 +101,7 @@ public final class SearchResult {
         for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
             this.priceUpdateSources.add(priceUpdateSource);
         }
+        this.tabuSearchCalls = aTabuSearchCalls;
     }
     
     public SearchResult(
@@ -108,7 +116,8 @@ public final class SearchResult {
         final long aDurationMillis,
         final List<Integer> aRsdOrder,
         final List<Double> aBestErrorValues,
-        final List<PriceUpdateSource> aPriceUpdateSources
+        final List<PriceUpdateSource> aPriceUpdateSources,
+        final int aTabuSearchCalls
     ) {
         assert aPrices.size() == aError.size();
         assert aKMin <= aKMax;
@@ -146,7 +155,10 @@ public final class SearchResult {
                 values.add(value);
             }
             Agent newAgent = 
-                new Agent(values, agent.getBudget(), agent.getId());
+                new Agent(
+                    values, agent.getAgentIdsForValues(), agent.getBudget(), 
+                    agent.getId(), agent.getUuid()
+                );
             this.agents.add(newAgent);
         }
         this.durationMillis = aDurationMillis;
@@ -167,6 +179,7 @@ public final class SearchResult {
         for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
             this.priceUpdateSources.add(priceUpdateSource);
         }
+        this.tabuSearchCalls = aTabuSearchCalls;
     }
 
     public List<Double> getPrices() {
@@ -224,6 +237,10 @@ public final class SearchResult {
     public List<PriceUpdateSource> getPriceUpdateSources() {
         return this.priceUpdateSources;
     }
+    
+    public int getTabuSearchCalls() {
+        return tabuSearchCalls;
+    }
 
     @Override
     public String toString() {
@@ -256,6 +273,8 @@ public final class SearchResult {
         builder.append(bestErrorValues); 
         builder.append(", \npriceUpdateSources=");
         builder.append(priceUpdateSources); 
+        builder.append(", \ntabuSearchCalls=");
+        builder.append(tabuSearchCalls);
         builder.append("]");
         return builder.toString();
     }

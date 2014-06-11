@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 abstract class RsdAllLevelsTabuSearch {
 
@@ -76,6 +77,7 @@ abstract class RsdAllLevelsTabuSearch {
         // will get their allocations from this result.
         SearchResult currentSearchResult = TabuSearch.tabuSearchRanges(
             agents, gammaZ, initialFeasibleTeamSizes);
+        int tabuSearchCalls = 1;
         final SearchResult initialSearchResult = currentSearchResult;
         
         // an allocation. each player appears in exactly 1 List<Integer>, 
@@ -129,8 +131,25 @@ abstract class RsdAllLevelsTabuSearch {
              */
             // check if currentSearchResult demand 
             // for the current agent is feasible.
+            
+            final int indexInCurrentSearchResult = 
+                currentSearchResult.getAgents().indexOf(agents.get(agentIndex));
             final List<Integer> currentAgentDemand = 
-                currentSearchResult.getAllocation().get(agentIndex);
+                currentSearchResult.getAllocation().
+                    get(indexInCurrentSearchResult);
+            // add 0 demand for agents already on teams
+            if (currentAgentDemand.size() < agents.size()) {
+                Collections.sort(takenAgentIndexes);
+                for (int i = 0; i < agents.size(); i++) {
+                    final Agent agentToFind = agents.get(i);
+                    if (
+                        !currentSearchResult.getAgents().contains(agentToFind)
+                    ) {
+                        currentAgentDemand.add(i, 0);
+                    }
+                }
+            }
+            assert currentAgentDemand.size() == agents.size();
             
             // check if the demand tries to take a player already taken.
             boolean hasDemandConflict = false;
@@ -175,8 +194,61 @@ abstract class RsdAllLevelsTabuSearch {
                     }
                 }
             } else {
+                final List<Agent> remainingAgents = new ArrayList<Agent>();
+                for (int i = 0; i < agents.size(); i++) {
+                    if (!takenAgentIndexes.contains(i)) {
+                        final Agent agentToCopy = agents.get(i);
+                        // subset the "values" list, to include only those
+                        // other agents that are not in takenAgentIndexes
+                        // subset the "uuidsSubset" list in the same way,
+                        // to indicate which agents' values are left
+                        final List<Double> valuesSubset = 
+                            new ArrayList<Double>();
+                        final List<UUID> uuidsSubset = new ArrayList<UUID>();
+                        for (int j = 0; j < agents.size(); j++) {
+                            if (!takenAgentIndexes.contains(j) && i != j) {
+                                // this agent's value 
+                                // and uuid should be retained.
+                                final UUID uuidOfAgent = 
+                                    agents.get(j).getUuid();
+                                final int indexOfAgent = 
+                                    agentToCopy.getAgentIdsForValues().
+                                    indexOf(uuidOfAgent);
+                                if (indexOfAgent == -1) {
+                                    // if an agent other than the 
+                                    // self agent has not been
+                                    // taken yet, its value should 
+                                    // still be present.
+                                    throw new IllegalStateException();
+                                }
+                                valuesSubset.add(
+                                    agentToCopy.getValues().get(indexOfAgent)
+                                );
+                                uuidsSubset.add(uuidOfAgent);
+                            }
+                        }
+                        assert valuesSubset.size() == agents.size() 
+                            - takenAgentIndexes.size() - 1;
+                        final Agent copyOfAgent = new Agent(
+                            valuesSubset, 
+                            uuidsSubset,
+                            agentToCopy.getBudget(), 
+                            agentToCopy.getId(), 
+                            agentToCopy.getUuid()
+                        );
+                        remainingAgents.add(copyOfAgent);
+                    }
+                }
+                
+                // update prices for remaining agents
+                currentSearchResult = TabuSearch.tabuSearchRanges(
+                    remainingAgents, gammaZ, feasibleTeamSizes
+                );
+                tabuSearchCalls++;
+                
                 /* set up MIP over remaining agents, for the current agent
-                * -- prices and budgets are the same as in the initialSolution
+                * -- prices and budgets are now from currentSearchResult,
+                * NOT the initialSearchResult
                 * -- remove any agents already "taken" from the MIP
                 * number
                 * assign the given bundle to the agent and remove its 
@@ -186,7 +258,8 @@ abstract class RsdAllLevelsTabuSearch {
                 final List<Double> values = RsdUtil.getValueListWithout(
                     currentAgent.getValues(), agentIndex, takenAgentIndexes
                 );
-                final List<Double> prices = RsdUtil.getPriceListWithout(
+                // remove self agent from the price set
+                final List<Double> prices = getPriceListWithout(
                     currentSearchResult.getPrices(), 
                     agentIndex, takenAgentIndexes
                 );
@@ -216,6 +289,7 @@ abstract class RsdAllLevelsTabuSearch {
             // make this allocation.
             allocation.add(newAgentDemand);
             // indicate that all taken agents have been taken.
+            // ***** adding to takenAgentIndexes
             for (int i = 0; i < newAgentDemand.size(); i++) {
                 if (newAgentDemand.get(i) == 1) {
                     takenAgentIndexes.add(i);
@@ -239,8 +313,45 @@ abstract class RsdAllLevelsTabuSearch {
             initialSearchResult.getPrices(), resultAllocation, error, 
             errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
             rsdOrder, initialSearchResult.getBestErrorValues(),
-            initialSearchResult.getPriceUpdateSources()
+            initialSearchResult.getPriceUpdateSources(),
+            tabuSearchCalls
         );
         return result;
+    }
+    
+    
+    public static List<Double> getPriceListWithout(
+        final List<Double> partialPriceList, 
+        final int agentIndex, 
+        final List<Integer> takenAgentIndexes
+    ) {
+        // self index should not be in takenAgentIndexes, 
+        // because indexesToRemove
+        // should only include indexes of agents already assigned to teams,
+        // and the self agent is the next agent 
+        // to act as "captain," so it should not be on a team yet.
+        assert !takenAgentIndexes.contains(agentIndex);
+        
+        final List<Double> result = new ArrayList<Double>();
+        for (Double originalItem: partialPriceList) {
+            result.add(originalItem);
+        }
+        
+        final List<Integer> myTakenAgentIndexes = new ArrayList<Integer>();
+        for (final Integer takenAgentIndex: takenAgentIndexes) {
+            myTakenAgentIndexes.add(takenAgentIndex);
+        }
+        
+        // remove the self agent price also
+        myTakenAgentIndexes.add(agentIndex);
+        // sort the indexes increasing
+        Collections.sort(myTakenAgentIndexes);
+        
+        final int itemsRemovedBeforeAgentIndex = 
+            myTakenAgentIndexes.indexOf(agentIndex);
+        // index of agent in result is 
+        // (agentIndex - itemsRemovedBeforeAgentIndex).
+        result.remove(agentIndex - itemsRemovedBeforeAgentIndex);
+        return result; 
     }
 }

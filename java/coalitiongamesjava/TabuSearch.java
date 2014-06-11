@@ -57,12 +57,15 @@ abstract class TabuSearch {
     ) {
         final int defaultQueueLength = 100;
         final int defaultMaxSteps = 100;
+        final double maxPrice = 
+            MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / agents.size();
         return tabuSearchRanges(
             defaultQueueLength, 
             defaultMaxSteps, 
             agents, 
             gammaZ, 
-            teamSizes
+            teamSizes,
+            getInitialPriceWithError(teamSizes, agents, maxPrice, gammaZ)
         );
     }
     
@@ -86,11 +89,11 @@ abstract class TabuSearch {
         final int maxSteps,
         final List<Agent> agents,
         final GammaZ gammaZ,
-        final List<Integer> teamSizes
+        final List<Integer> teamSizes,
+        final PriceWithError initialPriceWithError
     ) {
         assert queueLength > 0;
-        final int minimumAgents = 4;
-        assert agents != null && agents.size() >= minimumAgents;
+        assert agents != null && agents.size() > 0;
         assert gammaZ != null;
         final int n = agents.size();
         assert teamSizes != null && !teamSizes.isEmpty();
@@ -101,8 +104,7 @@ abstract class TabuSearch {
             MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / n;
         final double maxBudget = maxPrice;
         
-        PriceWithError currentNode = 
-            getInitialPriceWithError(teamSizes, agents, maxPrice, gammaZ);
+        PriceWithError currentNode = initialPriceWithError;
         PriceWithError bestNode = currentNode;
         
         final List<Double> bestErrorValues = new ArrayList<Double>();
@@ -187,7 +189,8 @@ abstract class TabuSearch {
             searchDurationMillis,
             null,
             bestErrorValues,
-            priceUpdateSources
+            priceUpdateSources,
+            1
         );
         return result;
     }
@@ -315,7 +318,8 @@ abstract class TabuSearch {
             searchDurationMillis,
             null,
             bestErrorValues,
-            priceUpdateSources
+            priceUpdateSources,
+            1
         );
         return result;
     }

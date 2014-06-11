@@ -26,6 +26,7 @@ abstract class DemandGenerator {
         final List<Integer> teamSizes,
         final double maxPrice
     ) {
+        assert prices.size() == agents.size();
         final List<List<Integer>> result = new ArrayList<List<Integer>>();
         // process Agents in order they are listed
         for (int i = 0; i < agents.size(); i++) {
@@ -84,6 +85,7 @@ abstract class DemandGenerator {
         final int kMin,
         final double maxPrice
     ) {
+        assert prices.size() == agents.size();
         final List<List<Integer>> result = new ArrayList<List<Integer>>();
         // process Agents in order they are listed
         for (int i = 0; i < agents.size(); i++) {

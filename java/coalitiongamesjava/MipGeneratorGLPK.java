@@ -173,9 +173,27 @@ public final class MipGeneratorGLPK implements MipGenerator {
             }
             return result;
         } 
+        
+        if (ret == GLPKConstants.GLP_ENOPFS) {
+            System.out.println("no primal solution exists.");
+            System.out.println("values:");
+            System.out.println(values);
+            System.out.println("prices:");
+            System.out.println(prices);
+            System.out.println("budget: " + budget);
+            System.out.println("kMin: " + kMin);
+        }
           
         GLPK.glp_delete_prob(lp);
-        throw new IllegalStateException();
+        System.out.println("ebound: " + GLPKConstants.GLP_EBOUND);
+        System.out.println("eroot: " + GLPKConstants.GLP_EROOT);
+        System.out.println("enopfs: " + GLPKConstants.GLP_ENOPFS);
+        System.out.println("enodfs: " + GLPKConstants.GLP_ENODFS);
+        System.out.println("efail: " + GLPKConstants.GLP_EFAIL);
+        System.out.println("emipgap: " + GLPKConstants.GLP_EMIPGAP);
+        System.out.println("etmlim: " + GLPKConstants.GLP_ETMLIM);
+        System.out.println("estop: " + GLPKConstants.GLP_ESTOP);
+        throw new IllegalStateException("Result: " + ret);
     }
 
     /**

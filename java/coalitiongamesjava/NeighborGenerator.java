@@ -118,37 +118,6 @@ public abstract class NeighborGenerator {
         return result;
     }
     
-    /*
-    public static List<PriceWithError> sortedNeighbors(
-        final List<Double> prices,
-        final List<Double> z,
-        final List<Double> stepSizesUnilateral,
-        final List<Double> stepSizesGradient,
-        final double maxPrice,
-        final List<Agent> agents,
-        final GammaZ gammaZ,
-        final int kMax,
-        final int kMin
-    ) {
-        final List<PriceWithSource> neighborPrices = 
-            neighbors(
-                prices, 
-                z, 
-                stepSizesUnilateral, 
-                stepSizesGradient, 
-                maxPrice
-            );
-        return sortedNeighbors(
-            neighborPrices, 
-            agents, 
-            gammaZ, 
-            kMax, 
-            kMin, 
-            maxPrice
-        );
-    }
-    */
-    
     public static List<PriceWithError> sortedNeighbors(
         final List<Double> prices,
         final List<Double> z,

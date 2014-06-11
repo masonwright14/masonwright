@@ -209,7 +209,8 @@ abstract class RsdTabuSearch {
             initialResult.getPrices(), resultAllocation, error, 
             errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
             rsdOrder, initialResult.getBestErrorValues(),
-            initialResult.getPriceUpdateSources()
+            initialResult.getPriceUpdateSources(),
+            1
         );
         return result;
     }
