@@ -19,8 +19,9 @@ abstract class DemandProblemGenerator {
         // runSmallRsdAllLevelsTabuSearch();
         // runSmallRandomAllocation();
         // runSmallRandomOptimalSizeAllocation();
-        runSmallGreedyRsdAllocation();
-        runSmallOptimalRsdAllocation();
+        // runSmallGreedyRsdAllocation();
+        // runSmallOptimalRsdAllocation();
+        runSmallDraftAllocation();
     }
     
     @SuppressWarnings("unused")
@@ -136,6 +137,15 @@ abstract class DemandProblemGenerator {
         runRandomAllocation(agents, kMax, kMin, false);
     }
     
+    private static void runSmallDraftAllocation() {
+        final int agents = 20;
+        final int valueRange = 10;
+        final int kMax = 5;
+        final int kMin = 3;
+        runDraftAllocation(agents, valueRange, kMax, kMin);
+    }
+    
+    @SuppressWarnings("unused")
     private static void runSmallGreedyRsdAllocation() {
         final int agents = 20;
         final int valueRange = 10;
@@ -144,6 +154,7 @@ abstract class DemandProblemGenerator {
         runRsdAllocation(agents, valueRange, kMax, kMin, true);
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallOptimalRsdAllocation() {
         final int agents = 20;
         final int valueRange = 10;
@@ -254,6 +265,44 @@ abstract class DemandProblemGenerator {
                 rsdOrder
             );
         System.out.println(searchResult.toString());
+    }
+    
+    private static void runDraftAllocation(
+        final int n,
+        final double valueRange,
+        final int kMax,
+        final int kMin
+    ) {
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        final double baseValue = 50.0;
+        for (int i = 0; i < n; i++) {
+            List<Double> values = new ArrayList<Double>();
+            for (int j = 1; j < n; j++) {
+                double newValue = 
+                    baseValue + Math.random() * valueRange - valueRange / 2.0;
+                if (newValue < 0) {
+                    newValue = 0;
+                }
+                values.add(newValue);
+            }
+            
+            final double budget = 
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
+        }
+        
+        final List<Integer> rsdOrder = RsdUtil.getShuffledNumberList(n);
+        final SimpleSearchResult searchResult = 
+            DraftAllocation.draftAllocation(
+                agents, kMax, kMin, rsdOrder
+            );
+        System.out.println(searchResult.toString()); 
+
     }
     
     private static void runRsdAllocation(
