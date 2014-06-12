@@ -37,14 +37,18 @@ public final class SearchResult {
         final List<PriceUpdateSource> aPriceUpdateSources,
         final int aTabuSearchCalls
     ) {
-        assert aPrices.size() == aError.size();
+        if (aPrices != null) {
+            assert aPrices.size() == aError.size();
+        }
         assert aTeamSizes != null && !aTeamSizes.isEmpty();
         assert aMaxBudget >= MipGenerator.MIN_BUDGET;
         assert aDurationMillis >= 0;
         
         this.prices = new ArrayList<Double>();
-        for (double aPrice: aPrices) {
-            this.prices.add(aPrice);
+        if (aPrices != null) {
+            for (double aPrice: aPrices) {
+                this.prices.add(aPrice);
+            }
         }
         this.budgets = new ArrayList<Double>();
         for (Agent agent: aAgents) {
@@ -94,13 +98,18 @@ public final class SearchResult {
         }
         
         this.bestErrorValues = new ArrayList<Double>();
-        for (Double bestErrorValue: aBestErrorValues) {
-            this.bestErrorValues.add(bestErrorValue);
+        if (aBestErrorValues != null) {
+            for (Double bestErrorValue: aBestErrorValues) {
+                this.bestErrorValues.add(bestErrorValue);
+            }
         }
         this.priceUpdateSources = new ArrayList<PriceUpdateSource>();
-        for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
-            this.priceUpdateSources.add(priceUpdateSource);
+        if (aPriceUpdateSources != null) {
+            for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
+                this.priceUpdateSources.add(priceUpdateSource);
+            }
         }
+
         this.tabuSearchCalls = aTabuSearchCalls;
     }
     
@@ -119,14 +128,18 @@ public final class SearchResult {
         final List<PriceUpdateSource> aPriceUpdateSources,
         final int aTabuSearchCalls
     ) {
-        assert aPrices.size() == aError.size();
+        if (aPrices != null) {
+            assert aPrices.size() == aError.size();
+        }
         assert aKMin <= aKMax;
         assert aMaxBudget >= MipGenerator.MIN_BUDGET;
-        assert aDurationMillis > 0;
+        assert aDurationMillis >= 0;
         
         this.prices = new ArrayList<Double>();
-        for (double aPrice: aPrices) {
-            this.prices.add(aPrice);
+        if (aPrices != null) {
+            for (double aPrice: aPrices) {
+                this.prices.add(aPrice);
+            }
         }
         this.budgets = new ArrayList<Double>();
         for (Agent agent: aAgents) {
@@ -172,13 +185,19 @@ public final class SearchResult {
         }
         
         this.bestErrorValues = new ArrayList<Double>();
-        for (Double bestErrorValue: aBestErrorValues) {
-            this.bestErrorValues.add(bestErrorValue);
+        if (aBestErrorValues != null) {
+            for (Double bestErrorValue: aBestErrorValues) {
+                this.bestErrorValues.add(bestErrorValue);
+            }
         }
+
         this.priceUpdateSources = new ArrayList<PriceUpdateSource>();
-        for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
-            this.priceUpdateSources.add(priceUpdateSource);
+        if (aPriceUpdateSources != null) {
+            for (PriceUpdateSource priceUpdateSource: aPriceUpdateSources) {
+                this.priceUpdateSources.add(priceUpdateSource);
+            }
         }
+
         this.tabuSearchCalls = aTabuSearchCalls;
     }
 

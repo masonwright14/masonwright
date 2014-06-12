@@ -10,13 +10,24 @@ import java.util.Set;
 abstract class RsdTabuSearch {
     
     /**
-     * One-level RSD tabu search works as follows. An approximate CEEI
+     * One-level RSD tabu search works as follows. 
+     * 
+     * If the grand coalition has size <= kMax, this is returned.
+     * 
+     * If not, an approximate CEEI
      * is found by tabu search. If there is no market clearing error,
      * this result is returned. Else, the RSD order is used.
+     * 
      * The first agent chooses its favorite affordable bundle
      * of teammates that leaves a feasible number left, 
      * and all those teammates are "out" of consideration and
-     * finally allocated to this team. the next agent in RSD order chooses
+     * finally allocated to this team. 
+     * 
+     * If at any stage the remaining number of agents is <= kMax,
+     * all remaining agents are placed on the same team.
+     * 
+     * If the number of agents left is > kMax, 
+     * the next agent in RSD order chooses
      * its favorite affordable bundle of the remaining agents that leaves
      * a feasible number of remaining agents, and all those agents are "out"
      * and finally allocated to this team. this is repeated until all agents
@@ -50,12 +61,13 @@ abstract class RsdTabuSearch {
         final int n = agents.size();
         assert kMax <= n;
         
+        // if grand coalition is feasible, assign it and return
+        if (kMax >= agents.size()) {
+            return RsdUtil.getGrandCoalition(agents, kMax, rsdOrder);
+        }
+        
         // time the duration of the search to the millisecond
         final long searchStartMillis = new Date().getTime();
-        
-        // TODO
-        // check if kMax >= agents.size()
-        // if so, assign grand coalition and return early
         
         // initialResult sets the prices of all agents. if it has market
         // clearing error, not all agents 
@@ -100,9 +112,21 @@ abstract class RsdTabuSearch {
             final int agentsLeft = agents.size() - takenAgentIndexes.size();
             assert agentsLeft > 0;
             
-            // TODO check if agentsLeft.size() <= kMax
-            // if so, assign grand coalition of remaining agents and break
-            // out of for loop
+            // if it's feasible to assign all remaining agents to same team,
+            // do this, even if it would not be "affordable."
+            // then break out of the loop over all agents to return the results.
+            if (agentsLeft <= kMax) {
+                final List<Integer> demand = new ArrayList<Integer>();
+                for (int i = 0; i < agents.size(); i++) {
+                    if (takenAgentIndexes.contains(i)) {
+                        demand.add(0);
+                    } else {
+                        demand.add(1);
+                    }
+                }
+                allocation.add(demand);
+                break;
+            }
 
             /*
              * check if agent can be allocated its favorite 

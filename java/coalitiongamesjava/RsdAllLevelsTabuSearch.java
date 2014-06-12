@@ -11,7 +11,11 @@ import java.util.UUID;
 abstract class RsdAllLevelsTabuSearch {
 
     /**
-     * All-levels RSD tabu search works as follows. An approximate CEEI
+     * All-levels RSD tabu search works as follows. 
+     * 
+     * If the grand coalition has size <= kMax, this is returned.
+     * 
+     * An approximate CEEI
      * is found by tabu search, restricting the number of agents per team
      * to feasible numbers in {kMin, kMin + 1, . . ., kMax}, as given by
      * RsdUtil.getFeasibleNextTeamSizes(). 
@@ -24,12 +28,19 @@ abstract class RsdAllLevelsTabuSearch {
      * The first agent chooses its favorite affordable bundle
      * of teammates that leaves a feasible number left, 
      * and all those teammates are "out" of consideration and
-     * finally allocated to this team; there will always be such a bundle,
-     * because every agent is always allotted a bundle of a feasible size
-     * by the tabu search algorithm, and the first agent to choose will always
-     * have the agents of this bundle left to be taken.
+     * finally allocated to this team. There will always be such a bundle,
+     * because the tabu search algorithm will always assign at least the
+     * agent with greatest budget a team of feasible size (i.e., size at least
+     * kMin), and we require that earlier agents in RSD order have strictly
+     * greater budgets. The first agent will always have all the agents of
+     * its bundle still available to be taken, if it is just after a tabu
+     * search has been run.
      * 
-     * If the next agent remaining in RSD order still has all members of its
+     * If at any stage the remaining number of agents is <= kMax,
+     * all remaining agents are placed on the same team.
+     * 
+     * Else if the remaining number of agents is > kMax, then 
+     * if the next agent remaining in RSD order still has all members of its
      * favorite affordable, feasible bundle (from the tabu search) available, 
      * it takes that bundle, and so on.
      * 
@@ -72,9 +83,10 @@ abstract class RsdAllLevelsTabuSearch {
             throw new IllegalArgumentException();
         }
         
-        // TODO
-        // check if kMax >= agents.size()
-        // if so, assign grand coalition and return early
+        // if grand coalition is feasible, assign it and return
+        if (kMax >= agents.size()) {
+            return RsdUtil.getGrandCoalition(agents, kMax, rsdOrder);
+        }
         
         if (kMin > 1) {
             for (int i = 0; i < rsdOrder.size() - 1; i++) {
@@ -148,9 +160,21 @@ abstract class RsdAllLevelsTabuSearch {
                 throw new IllegalStateException();
             }
             
-            // TODO check if agentsLeft.size() <= kMax
-            // if so, assign grand coalition of remaining agents and break
-            // out of for loop
+            // if it's feasible to assign all remaining agents to same team,
+            // do this, even if it would not be "affordable."
+            // then break out of the loop over all agents to return the results.
+            if (agentsLeft <= kMax) {
+                final List<Integer> demand = new ArrayList<Integer>();
+                for (int i = 0; i < agents.size(); i++) {
+                    if (takenAgentIndexes.contains(i)) {
+                        demand.add(0);
+                    } else {
+                        demand.add(1);
+                    }
+                }
+                allocation.add(demand);
+                break;
+            }
             
             /*
              * check if agent can be allocated its favorite 

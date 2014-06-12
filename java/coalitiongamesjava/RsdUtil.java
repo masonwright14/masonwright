@@ -421,4 +421,38 @@ abstract class RsdUtil {
         
         return feasibleTeamSizes;
     }
+    
+    public static SearchResult getGrandCoalition(
+        final List<Agent> agents,
+        final int kMax,
+        final List<Integer> rsdOrder
+    ) {
+        final List<Double> error = new ArrayList<Double>();
+        for (int i = 0; i < agents.size(); i++) {
+            error.add(0.0);
+        }
+        final double errorSize = 0.0;
+        final double maxBudget = MipGenerator.MIN_BUDGET 
+            + MipGenerator.MIN_BUDGET / agents.size();
+        final long searchDurationMillis = 0L;
+        final List<List<Integer>> allocation = new ArrayList<List<Integer>>();
+        for (int i = 0; i < agents.size(); i++) {
+            final List<Integer> row = new ArrayList<Integer>();
+            for (int j = 0; j < agents.size(); j++) {
+                row.add(1);
+            }
+            allocation.add(row);
+        }
+        
+        final SearchResult result = new SearchResult(
+            null, // prices
+            allocation, error, 
+            errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
+            rsdOrder, 
+            null, // best error values
+            null,
+            0
+        );
+        return result;
+    }
 }

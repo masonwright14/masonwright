@@ -13,16 +13,18 @@ abstract class DemandProblemGenerator {
         // runVerySmallTabuSearch();
         // runSmallTabuSearch();
         // runVerySmallRsdTabuSearch();
-        // runSmallRsdTabuSearch();
+        runSmallRsdTabuSearch();
         // runVerySmallTabuSearchRanges();
         // runSmallTabuSearchRanges();
         // runVerySmallRsdAllLevelsTabuSearch();
-        runSmallRsdAllLevelsTabuSearch();
+        // runSmallRsdAllLevelsTabuSearch();
         // runSmallRandomAllocation();
         // runSmallRandomOptimalSizeAllocation();
         // runSmallGreedyRsdAllocation();
         // runSmallOptimalRsdAllocation();
         // runSmallDraftAllocation();
+        // runGrandCoalitionRsdTabuSearch();
+        // runGrandCoalitionRsdAllLevelsTabuSearch();
     }
     
     @SuppressWarnings("unused")
@@ -107,10 +109,28 @@ abstract class DemandProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallRsdAllLevelsTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
         final int kMax = 4;
+        final int kMin = 2;
+        final GammaZ gammaZ = new GammaZ2();
+        runRsdAllLevelsTabuSearch(
+            agents, 
+            valueRange, 
+            kMax, 
+            kMin,
+            gammaZ,
+            true
+        );
+    }
+    
+    @SuppressWarnings("unused")
+    private static void runGrandCoalitionRsdAllLevelsTabuSearch() {
+        final int agents = 10;
+        final int valueRange = 10;
+        final int kMax = 10;
         final int kMin = 2;
         final GammaZ gammaZ = new GammaZ2();
         runRsdAllLevelsTabuSearch(
@@ -165,8 +185,22 @@ abstract class DemandProblemGenerator {
         final int kMin = 3;
         runRsdAllocation(agents, valueRange, kMax, kMin, false);
     }
+
     
     @SuppressWarnings("unused")
+    private static void runGrandCoalitionRsdTabuSearch() {
+        final int agents = 20;
+        final int valueRange = 10;
+        final int kMax = 20;
+        final GammaZ gammaZ = new GammaZ2();
+        runRsdTabuSearch(
+            agents, 
+            valueRange, 
+            kMax, 
+            gammaZ
+        );
+    }
+    
     private static void runSmallRsdTabuSearch() {
         final int agents = 20;
         final int valueRange = 10;
