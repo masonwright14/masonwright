@@ -9,6 +9,22 @@ import java.util.Set;
 import java.util.UUID;
 
 abstract class RsdAllLevelsTabuSearch {
+    
+    public static SearchResult 
+        rsdTabuSearchAllLevelsOptimalSizes(
+        final List<Agent> agents,
+        final GammaZ gammaZ,
+        final int kMax,
+        final List<Integer> rsdOrder
+    ) {
+        final List<Integer> optimalTeamSizeRange =
+            RsdUtil.getOptimalTeamSizeRange(agents.size(), kMax);
+        final int optimalKMin = optimalTeamSizeRange.get(0);
+        final int optimalKMax = optimalTeamSizeRange.get(1);
+        return rsdTabuSearchAllLevels(
+            agents, gammaZ, optimalKMax, optimalKMin, rsdOrder
+        );
+    }
 
     /**
      * All-levels RSD tabu search works as follows. 
