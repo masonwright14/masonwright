@@ -52,6 +52,11 @@ abstract class RsdTabuSearch {
         
         // time the duration of the search to the millisecond
         final long searchStartMillis = new Date().getTime();
+        
+        // TODO
+        // check if kMax >= agents.size()
+        // if so, assign grand coalition and return early
+        
         // initialResult sets the prices of all agents. if it has market
         // clearing error, not all agents 
         // will get their allocations from this result.
@@ -94,6 +99,10 @@ abstract class RsdTabuSearch {
             // get count of agents that have not yet been assigned to a team.
             final int agentsLeft = agents.size() - takenAgentIndexes.size();
             assert agentsLeft > 0;
+            
+            // TODO check if agentsLeft.size() <= kMax
+            // if so, assign grand coalition of remaining agents and break
+            // out of for loop
 
             /*
              * check if agent can be allocated its favorite 

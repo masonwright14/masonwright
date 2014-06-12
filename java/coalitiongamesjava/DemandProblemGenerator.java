@@ -2,6 +2,7 @@ package coalitiongames;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,12 +17,12 @@ abstract class DemandProblemGenerator {
         // runVerySmallTabuSearchRanges();
         // runSmallTabuSearchRanges();
         // runVerySmallRsdAllLevelsTabuSearch();
-        // runSmallRsdAllLevelsTabuSearch();
+        runSmallRsdAllLevelsTabuSearch();
         // runSmallRandomAllocation();
         // runSmallRandomOptimalSizeAllocation();
         // runSmallGreedyRsdAllocation();
         // runSmallOptimalRsdAllocation();
-        runSmallDraftAllocation();
+        // runSmallDraftAllocation();
     }
     
     @SuppressWarnings("unused")
@@ -101,11 +102,11 @@ abstract class DemandProblemGenerator {
             valueRange, 
             kMax, 
             kMin,
-            gammaZ
+            gammaZ,
+            false
         );
     }
     
-    @SuppressWarnings("unused")
     private static void runSmallRsdAllLevelsTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -117,7 +118,8 @@ abstract class DemandProblemGenerator {
             valueRange, 
             kMax, 
             kMin,
-            gammaZ
+            gammaZ,
+            true
         );
     }
     
@@ -137,6 +139,7 @@ abstract class DemandProblemGenerator {
         runRandomAllocation(agents, kMax, kMin, false);
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallDraftAllocation() {
         final int agents = 20;
         final int valueRange = 10;
@@ -229,11 +232,36 @@ abstract class DemandProblemGenerator {
         final double valueRange,
         final int kMax,
         final int kMin,
-        final GammaZ gammaZ
+        final GammaZ gammaZ,
+        final boolean budgetsInRsdOrder
     ) {
+        final List<Integer> rsdOrder = 
+            RsdUtil.getShuffledNumberList(n);
         final double baseValue = 50.0;
         final List<Agent> agents = new ArrayList<Agent>();
         final List<UUID> uuids = getUuids(n);
+        final List<Double> budgets = new ArrayList<Double>();
+        for (int i = 0; i < n; i++) {
+            final double budget =
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            budgets.add(budget);
+        }
+        
+        // if budgets should be in rsdOrder, sort them first high to low,
+        // then iterate over the agents, picking out that agent's budget
+        // based on the agent's rsdOrder.
+        if (budgetsInRsdOrder) {
+            Collections.sort(budgets);
+            Collections.reverse(budgets);
+            final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
+            budgets.clear();
+            for (int i = 0; i < n; i++) {
+                final int rsdIndex = rsdOrder.indexOf(i);
+                budgets.add(sortedBudgets.get(rsdIndex));
+            }
+        }
+        
         for (int i = 0; i < n; i++) {
             List<Double> values = new ArrayList<Double>();
             for (int j = 1; j < n; j++) {
@@ -245,16 +273,12 @@ abstract class DemandProblemGenerator {
                 values.add(newValue);
             }
             
-            final double budget = 
-                MipGenerator.MIN_BUDGET 
-                + Math.random() * MipGenerator.MIN_BUDGET / n;
             final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
+            agents.add(
+                new Agent(values, subsetList, budgets.get(i), id, uuids.get(i))
+            );
         }
-        
-        final List<Integer> rsdOrder = 
-            RsdUtil.getShuffledNumberList(agents.size());
         
         final SearchResult searchResult = 
             RsdAllLevelsTabuSearch.rsdTabuSearchAllLevels(

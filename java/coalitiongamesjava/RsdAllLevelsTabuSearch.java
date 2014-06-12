@@ -40,7 +40,11 @@ abstract class RsdAllLevelsTabuSearch {
      * of agents per team to be chosen. Continue until all 
      * agents are assigned to teams.
      * 
-     * @param agents a list of all agents with their budgets and preferences
+     * @param agents a list of all agents with their budgets and preferences.
+     * if kMin > 1, then
+     * the agents' budgets must be strictly decreasing from early (preferred)
+     * to late (less preferred) RSD order, or the market may not clear, because
+     * the first RSD order agent may not be able to afford kMin items.
      * @param gammaZ an error function to use for updating prices
      * @param kMax maximum agents per team, including self
      * @param kMin minimum agents per team, including self
@@ -50,7 +54,8 @@ abstract class RsdAllLevelsTabuSearch {
      * @return a SearchResult, including an allocation, price vector,
      * and other data
      */   
-    public static SearchResult rsdTabuSearchAllLevels(
+    public static SearchResult 
+        rsdTabuSearchAllLevels(
         final List<Agent> agents,
         final GammaZ gammaZ,
         final int kMax,
@@ -65,6 +70,25 @@ abstract class RsdAllLevelsTabuSearch {
         assert kMax <= n;
         if (!TabuSearch.checkKRange(n, kMin, kMax)) {
             throw new IllegalArgumentException();
+        }
+        
+        // TODO
+        // check if kMax >= agents.size()
+        // if so, assign grand coalition and return early
+        
+        if (kMin > 1) {
+            for (int i = 0; i < rsdOrder.size() - 1; i++) {
+                final double previousBudget = 
+                    agents.get(rsdOrder.get(i)).getBudget();
+                final double nextBudget = 
+                    agents.get(rsdOrder.get(i + 1)).getBudget();
+                if (nextBudget > previousBudget) {
+                    throw new IllegalStateException(
+                        "later rsdOrder agent has " 
+                        + "higher budget; market may not clear"
+                    );
+                }
+            }
         }
         
         // time the duration of the search to the millisecond
@@ -124,6 +148,10 @@ abstract class RsdAllLevelsTabuSearch {
                 throw new IllegalStateException();
             }
             
+            // TODO check if agentsLeft.size() <= kMax
+            // if so, assign grand coalition of remaining agents and break
+            // out of for loop
+            
             /*
              * check if agent can be allocated its favorite 
              * affordable bundle from currentSearchResult.
@@ -164,7 +192,10 @@ abstract class RsdAllLevelsTabuSearch {
                 }
             }
             if (!hasDemandConflict) {
-                // check if the demanded team size is feasible
+                // check if the demanded team size is feasible.
+                // this also stops an agent who didn't get kMin agents
+                // in the last tabuSearch result from being given too few
+                // agents.
                 final int teamSize = RsdUtil.getTeamSize(currentAgentDemand);
                 if (feasibleTeamSizes.contains(teamSize)) {
                     // the allocation is feasible. make this allocation.
@@ -286,10 +317,11 @@ abstract class RsdAllLevelsTabuSearch {
             }
 
             assert newAgentDemand.size() == agents.size();
+            assert RsdUtil.getTeamSize(newAgentDemand) >= kMin;
+            
             // make this allocation.
             allocation.add(newAgentDemand);
             // indicate that all taken agents have been taken.
-            // ***** adding to takenAgentIndexes
             for (int i = 0; i < newAgentDemand.size(); i++) {
                 if (newAgentDemand.get(i) == 1) {
                     takenAgentIndexes.add(i);
