@@ -11,9 +11,9 @@ abstract class DemandProblemGenerator {
     public static void main(final String[] args) {
         // runSmallProblem();
         // runVerySmallTabuSearch();
-        // runSmallTabuSearch();
+        runSmallTabuSearch();
         // runVerySmallRsdTabuSearch();
-        runSmallRsdTabuSearch();
+        // runSmallRsdTabuSearch();
         // runVerySmallTabuSearchRanges();
         // runSmallTabuSearchRanges();
         // runVerySmallRsdAllLevelsTabuSearch();
@@ -60,7 +60,6 @@ abstract class DemandProblemGenerator {
         );
     }
     
-    @SuppressWarnings("unused")
     private static void runSmallTabuSearch() {
         final int agents = 20;
         final int valueRange = 10;
@@ -97,7 +96,7 @@ abstract class DemandProblemGenerator {
         final int agents = 10;
         final int valueRange = 10;
         final int kMax = 4;
-        final int kMin = 0;
+        final int kMin = 1;
         final GammaZ gammaZ = new GammaZ2();
         runRsdAllLevelsTabuSearch(
             agents, 
@@ -201,6 +200,7 @@ abstract class DemandProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallRsdTabuSearch() {
         final int agents = 20;
         final int valueRange = 10;

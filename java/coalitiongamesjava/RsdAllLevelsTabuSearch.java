@@ -318,7 +318,8 @@ abstract class RsdAllLevelsTabuSearch {
                     currentSearchResult.getPrices(), 
                     agentIndex, takenAgentIndexes
                 );
-                final MipGenerator mipGenerator = new MipGeneratorGLPK();
+                // final MipGenerator mipGenerator = new MipGeneratorGLPK();
+                final MipGenerator mipGenerator = new MipGeneratorCPLEX();
                 final double maxPrice = MipGenerator.MIN_BUDGET 
                     + MipGenerator.MIN_BUDGET / agents.size();
                 final MipResult mipResult = mipGenerator.getLpSolution(

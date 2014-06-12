@@ -11,6 +11,9 @@ import coalitiongames.PriceWithError.PriceUpdateSource;
 
 abstract class TabuSearch {
     
+    // public static final int DEFAULT_TABU_STEPS = 100;
+    public static final int DEFAULT_TABU_STEPS = 10; // for quick testing
+    
     public static void main(final String[] args) {
         final Integer[] myArr = {7, 2, 1, 11, 12, 13};
         List<Integer> testList = Arrays.asList(myArr);
@@ -38,8 +41,8 @@ abstract class TabuSearch {
         final int kMax,
         final int kMin
     ) {
-        final int defaultQueueLength = 100;
-        final int defaultMaxSteps = 100;
+        final int defaultQueueLength = DEFAULT_TABU_STEPS;
+        final int defaultMaxSteps = DEFAULT_TABU_STEPS;
         return tabuSearch(
             defaultQueueLength, 
             defaultMaxSteps, 
@@ -55,8 +58,8 @@ abstract class TabuSearch {
         final GammaZ gammaZ,
         final List<Integer> teamSizes
     ) {
-        final int defaultQueueLength = 100;
-        final int defaultMaxSteps = 100;
+        final int defaultQueueLength = DEFAULT_TABU_STEPS;
+        final int defaultMaxSteps = DEFAULT_TABU_STEPS;
         final double maxPrice = 
             MipGenerator.MIN_BUDGET + MipGenerator.MIN_BUDGET / agents.size();
         return tabuSearchRanges(

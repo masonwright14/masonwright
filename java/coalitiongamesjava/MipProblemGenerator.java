@@ -6,14 +6,13 @@ import java.util.List;
 abstract class MipProblemGenerator {
     
     public static void main(final String[] args) {
-       runSmallProblem();
-       System.out.println("\n\n");
-       runSmallProblemKMin();
-       // runLargeProblem();
-       // repeatLargeProblem();
+       // runSmallProblem();
+       // System.out.println("\n\n");
+       // runSmallProblemKMin();
+       runLargeProblem();
+       repeatLargeProblem();
     }
     
-    @SuppressWarnings("unused")
     private static void repeatLargeProblem() {
         final int iterations = 100;
         for (int i = 0; i < iterations; i++) {
@@ -37,6 +36,7 @@ abstract class MipProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallProblemKMin() {
         final int otherAgents = 21;
         final int valueRange = 10;
@@ -52,6 +52,7 @@ abstract class MipProblemGenerator {
         );       
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallProblem() {
         final int otherAgents = 20;
         final int valueRange = 10;
@@ -113,7 +114,8 @@ abstract class MipProblemGenerator {
         System.out.println(budget);
         System.out.println();
         
-        final MipGenerator mipGen = new MipGeneratorGLPK();
+        // final MipGenerator mipGen = new MipGeneratorGLPK();
+        final MipGenerator mipGen = new MipGeneratorCPLEX();
         final MipResult result = mipGen.getLpSolution(
             values, 
             prices, 

@@ -1,9 +1,36 @@
 package coalitiongames;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 abstract class MipChecker {
+    
+    public static boolean isFeasible(
+        final List<Double> prices,
+        final double budget,
+        final int kMin
+    ) {
+        // prices excludes the self agent,
+        // so kMin can be 1 greater than its length
+        if (kMin > prices.size() + 1) {
+            return false;
+        }
+        if (kMin <= 1) {
+            return true;
+        }
+        
+        final List<Double> myPrices = new ArrayList<Double>(prices);
+        Collections.sort(myPrices);
+        double minTotal = 0.0;
+        // take cheapest (kMin - 1) other agents
+        for (int i = 0; i < kMin - 1; i++) {
+            minTotal += prices.get(i);
+        }
+        
+        return budget >= minTotal;
+    }
 
     public static boolean checkLpSolution(
         final MipResult solution,

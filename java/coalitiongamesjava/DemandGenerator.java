@@ -43,7 +43,8 @@ abstract class DemandGenerator {
                 }
             }
             
-            final MipGenerator mipGen = new MipGeneratorGLPK();
+            // final MipGenerator mipGen = new MipGeneratorGLPK();
+            final MipGenerator mipGen = new MipGeneratorCPLEX();
             final MipResult mipResult = mipGen.getLpSolution(
                 agent.getValues(), // values for (N - 1) other agents
                 iPrices, // prices of (N - 1) other agents
@@ -102,7 +103,8 @@ abstract class DemandGenerator {
                 }
             }
             
-            final MipGenerator mipGen = new MipGeneratorGLPK();
+            // final MipGenerator mipGen = new MipGeneratorGLPK();
+            final MipGenerator mipGen = new MipGeneratorCPLEX();
             final MipResult mipResult = mipGen.getLpSolution(
                 agent.getValues(), // values for (N - 1) other agents
                 iPrices, // prices of (N - 1) other agents
