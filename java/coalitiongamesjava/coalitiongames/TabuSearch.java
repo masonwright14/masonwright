@@ -9,7 +9,7 @@ import java.util.Queue;
 
 import coalitiongames.PriceWithError.PriceUpdateSource;
 
-abstract class TabuSearch {
+public abstract class TabuSearch {
     
     // public static final int DEFAULT_TABU_STEPS = 100;
     public static final int DEFAULT_TABU_STEPS = 10; // for quick testing

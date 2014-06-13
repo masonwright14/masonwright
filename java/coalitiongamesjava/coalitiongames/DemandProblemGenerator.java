@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-abstract class DemandProblemGenerator {
+public abstract class DemandProblemGenerator {
     
     public static void main(final String[] args) {
         // runSmallProblem();
@@ -300,8 +300,8 @@ abstract class DemandProblemGenerator {
         final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
         budgets.clear();
         for (int i = 0; i < n; i++) {
-            final int rsdIndex = rsdOrder.indexOf(i);
-            budgets.add(sortedBudgets.get(rsdIndex));
+            final int rsdIndexOfPlayerI = rsdOrder.get(i);
+            budgets.add(sortedBudgets.get(rsdIndexOfPlayerI));
         }
         
         for (int i = 0; i < n; i++) {
@@ -362,8 +362,8 @@ abstract class DemandProblemGenerator {
             final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
             budgets.clear();
             for (int i = 0; i < n; i++) {
-                final int rsdIndex = rsdOrder.indexOf(i);
-                budgets.add(sortedBudgets.get(rsdIndex));
+                final int rsdIndexOfPlayerI = rsdOrder.get(i);
+                budgets.add(sortedBudgets.get(rsdIndexOfPlayerI));
             }
         }
         

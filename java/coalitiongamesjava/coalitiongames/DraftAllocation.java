@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-abstract class DraftAllocation {
+public abstract class DraftAllocation {
 
     public static SimpleSearchResult draftAllocation(
         final List<Agent> agents,

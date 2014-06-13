@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-abstract class MipChecker {
+public abstract class MipChecker {
     
     public static boolean isFeasible(
         final List<Double> prices,
@@ -127,7 +127,7 @@ abstract class MipChecker {
                 for (int i = 0; i < demand.length; i++) {
                     iterValue += demand[i] * values.get(i);
                 }
-                if (iterValue > referenceValue) {
+                if (iterValue - overBudgetTolerance > referenceValue) {
                     System.out.println(
                         "Preferred set: " + Arrays.toString(demand)
                     );

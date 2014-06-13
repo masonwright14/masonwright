@@ -2,7 +2,7 @@ package coalitiongames;
 
 import java.util.List;
 
-abstract class Util {
+public abstract class Util {
     
     public static String demandAsMatrix(
         final List<List<Integer>> demand

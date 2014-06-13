@@ -3,7 +3,7 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class DemandAnalyzer {
+public abstract class DemandAnalyzer {
     
     /**
      * 

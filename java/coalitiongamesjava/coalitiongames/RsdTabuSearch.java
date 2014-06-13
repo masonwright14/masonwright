@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-abstract class RsdTabuSearch {
+public abstract class RsdTabuSearch {
     
     /**
      * One-level RSD tabu search works as follows. 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-abstract class RsdAllLevelsTabuSearch {
+public abstract class RsdAllLevelsTabuSearch {
     
     public static SearchResult 
         rsdTabuSearchAllLevelsOptimalSizes(
@@ -105,16 +105,17 @@ abstract class RsdAllLevelsTabuSearch {
         }
         
         if (kMin > 1) {
-            for (int i = 0; i < rsdOrder.size() - 1; i++) {
-                final double previousBudget = 
-                    agents.get(rsdOrder.get(i)).getBudget();
-                final double nextBudget = 
-                    agents.get(rsdOrder.get(i + 1)).getBudget();
-                if (nextBudget > previousBudget) {
+            for (int i = 0; i < agents.size() - 1; i++) {
+                int ithPlayer = rsdOrder.indexOf(i);
+                int ithPlusOnePlayer = rsdOrder.indexOf(i + 1);
+                if (
+                    agents.get(ithPlayer).getBudget() 
+                    < agents.get(ithPlusOnePlayer).getBudget()
+                ) {
                     throw new IllegalStateException(
                         "later rsdOrder agent has " 
                         + "higher budget; market may not clear"
-                    );
+                    );                
                 }
             }
         }

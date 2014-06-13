@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-abstract class RsdUtil {
+public abstract class RsdUtil {
     
     public static void main(final String[] args) {
         System.out.println(getOptimalTeamSizeRange(10, 5));

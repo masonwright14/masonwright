@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-abstract class RsdAllocation {
+public abstract class RsdAllocation {
     
     public static SimpleSearchResult rsdOptimalSizesAllocation(
         final List<Agent> agents,

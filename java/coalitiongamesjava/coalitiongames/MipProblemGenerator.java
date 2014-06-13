@@ -3,7 +3,7 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class MipProblemGenerator {
+public abstract class MipProblemGenerator {
     
     public static void main(final String[] args) {
        // runSmallProblem();

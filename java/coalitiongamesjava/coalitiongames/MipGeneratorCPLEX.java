@@ -136,7 +136,7 @@ public final class MipGeneratorCPLEX implements MipGenerator {
                 if (DEBUGGING) {
                     final int testIterations = 10000;
                     boolean testResult = MipChecker.checkLpSolution(
-                        result, values, prices,  budget, 
+                        result, values, prices, budget, 
                         kMax, kMin, testIterations
                     );
                     if (!testResult) {

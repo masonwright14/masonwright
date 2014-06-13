@@ -2,7 +2,7 @@ package coalitiongames;
 
 import org.gnu.glpk.GLPK;
 
-abstract class Driver {
+public abstract class Driver {
     
     /**
      * @param args  

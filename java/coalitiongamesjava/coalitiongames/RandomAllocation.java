@@ -3,7 +3,7 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class RandomAllocation {
+public abstract class RandomAllocation {
     
     public static SimpleSearchResult randomOptimalSizesAllocation(
         final List<Agent> agents,
