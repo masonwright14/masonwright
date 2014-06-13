@@ -11,9 +11,9 @@ public abstract class SampleInputGenerator {
 
     
     public static void main(final String[] args) {
-        final int runCount = 20;
+        // final int runCount = 20;
         // generateInputFiles("bkfrat_cleaned.txt", "bkfrat", runCount);
-        generateAllInputFiles(runCount);
+        // generateAllInputFiles(runCount);
     }
     
     public static void generateAllInputFiles(

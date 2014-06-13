@@ -4,12 +4,12 @@ import java.util.List;
 
 public abstract class Util {
     
-    public static String demandAsMatrix(
-        final List<List<Integer>> demand
+    public static <T> String demandAsMatrix(
+        final List<List<T>> demand
     ) {
         final StringBuilder builder = new StringBuilder();
-        for (final List<Integer> row: demand) {
-            for (final Integer cur: row) {
+        for (final List<T> row: demand) {
+            for (final T cur: row) {
                 builder.append(cur).append(' ');
             }
             builder.append('\n');
@@ -18,12 +18,12 @@ public abstract class Util {
         return builder.toString();
     }
     
-    public static void printDemandAsMatrix(
-        final List<List<Integer>> demand
+    public static <T> void printDemandAsMatrix(
+        final List<List<T>> demand
     ) {   
-        for (final List<Integer> row: demand) {
+        for (final List<T> row: demand) {
             final StringBuilder builder = new StringBuilder();
-            for (final Integer cur: row) {
+            for (final T cur: row) {
                 builder.append(cur).append(' ');
             }
             System.out.println(builder.toString());

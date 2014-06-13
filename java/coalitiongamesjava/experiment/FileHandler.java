@@ -100,11 +100,36 @@ public abstract class FileHandler {
         }
     }
     
+    public static List<Integer> getSpaceSeparatedIntegerRow(
+        final String line
+    ) {
+        final String[] tokens = line.trim().split("\\s+");
+        final List<Integer> row = new ArrayList<Integer>();
+        for (int i = 0; i < tokens.length; i++) {
+            row.add(Integer.parseInt(tokens[i]));
+        }
+        return row;
+    }
+    
+    public static List<Double> getSpaceSeparatedDoubleRow(
+        final String line
+    ) {
+        final String[] tokens = line.trim().split("\\s+");
+        final List<Double> row = new ArrayList<Double>();
+        for (int i = 0; i < tokens.length; i++) {
+            row.add(Double.parseDouble(tokens[i]));
+        }
+        return row;
+    }
+    
     public static List<List<Integer>> getSpaceSeparatedIntegerRows(
         final List<String> lines
     ) {
         final List<List<Integer>> result = new ArrayList<List<Integer>>();
         for (final String line: lines) {
+            if (line.isEmpty()) {
+                continue;
+            }
             final String[] tokens = line.trim().split("\\s+");
             final List<Integer> row = new ArrayList<Integer>();
             for (int i = 0; i < tokens.length; i++) {
@@ -121,11 +146,15 @@ public abstract class FileHandler {
     ) {
         final List<List<Double>> result = new ArrayList<List<Double>>();
         for (final String line: lines) {
+            if (line.isEmpty()) {
+                continue;
+            }
             final String[] tokens = line.trim().split("\\s+");
             List<Double> row = new ArrayList<Double>();
             for (int i = 0; i < tokens.length; i++) {
                 row.add(Double.parseDouble(tokens[i]));
             }
+            result.add(row);
         }
         
         return result;
