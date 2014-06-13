@@ -12,6 +12,8 @@ import java.util.List;
 
 public abstract class FileHandler {
     
+    public static final String TEXT_EXTENSION = ".txt";
+    
     private static File getFileAndCreateIfNeeded(
         final String fileName
     ) {

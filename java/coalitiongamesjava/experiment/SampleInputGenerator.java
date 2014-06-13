@@ -9,11 +9,34 @@ import coalitiongames.RsdUtil;
 
 public abstract class SampleInputGenerator {
 
-    private static final String TEXT_EXTENSION = ".txt";
     
     public static void main(final String[] args) {
         final int runCount = 20;
-        generateInputFiles("bkfrat_cleaned.txt", "bkfrat", runCount);
+        // generateInputFiles("bkfrat_cleaned.txt", "bkfrat", runCount);
+        generateAllInputFiles(runCount);
+    }
+    
+    public static void generateAllInputFiles(
+        final int runCount
+    ) {
+        final String[] inputFileNames = {
+            "bkfrat_cleaned.txt", "bkoffice_cleaned.txt", 
+            "crossParker_cleaned.txt", 
+            "freeman_cleaned.txt", "newfrat_cleaned.txt",
+            "radoslawEmail_cleaned.txt", "vandebunt_t5_cleaned.txt", 
+            "webster_res_cleaned.txt"
+        };
+        final String[] inputPrefixes = {
+            "bkfrat", "bkoff", 
+            "cross",
+            "free", "newfrat",
+            "rados", "vand",
+            "webster"
+        };
+        for (int i = 0; i < inputFileNames.length; i++) {
+            generateInputFiles(inputFileNames[i], inputPrefixes[i], runCount);
+            System.out.println("Done with: " + inputFileNames[i]);
+        }
     }
     
     public static void generateInputFiles(
@@ -27,7 +50,8 @@ public abstract class SampleInputGenerator {
         
         for (int runNumber = 1; runNumber <= runCount; runNumber++) {
             final String outFileName = 
-                outFilePrefix + "_" + runNumber + TEXT_EXTENSION;
+                "inputFiles/" + outFilePrefix 
+                + "_" + runNumber + FileHandler.TEXT_EXTENSION;
             final List<Integer> rsdOrder = 
                 RsdUtil.getShuffledNumberList(numPlayers);
             final List<Double> budgets = getBudgets(numPlayers, rsdOrder);
@@ -70,7 +94,7 @@ public abstract class SampleInputGenerator {
      * Report budgets such that the first player in rsdOrder has the highest
      * budget, and so on.
      */
-    private static List<Double> getBudgets(
+    public static List<Double> getBudgets(
         final int numPlayers,
         final List<Integer> rsdOrder
     ) {
