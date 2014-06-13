@@ -178,8 +178,7 @@ public abstract class DemandProblemGenerator {
         final int agents = 20;
         final int valueRange = 10;
         final int kMax = 5;
-        final int kMin = 3;
-        runDraftAllocation(agents, valueRange, kMax, kMin);
+        runDraftAllocation(agents, valueRange, kMax);
     }
     
     @SuppressWarnings("unused")
@@ -399,8 +398,7 @@ public abstract class DemandProblemGenerator {
     private static void runDraftAllocation(
         final int n,
         final double valueRange,
-        final int kMax,
-        final int kMin
+        final int kMax
     ) {
         final List<Agent> agents = new ArrayList<Agent>();
         final List<UUID> uuids = getUuids(n);
@@ -428,10 +426,9 @@ public abstract class DemandProblemGenerator {
         final List<Integer> rsdOrder = RsdUtil.getShuffledNumberList(n);
         final SimpleSearchResult searchResult = 
             DraftAllocation.draftAllocation(
-                agents, kMax, kMin, rsdOrder
+                agents, kMax, rsdOrder
             );
         System.out.println(searchResult.toString()); 
-
     }
     
     private static void runRsdAllocation(

@@ -10,7 +10,6 @@ public abstract class DraftAllocation {
     public static SimpleSearchResult draftAllocation(
         final List<Agent> agents,
         final int kMax,
-        final int kMin,
         final List<Integer> rsdOrder
     ) {
         final int minimumAgents = 4;
@@ -103,6 +102,7 @@ public abstract class DraftAllocation {
                 agents.size(), 
                 allocationAsLists
             );
+        final int kMin = teamSizes.get(0);
         return new SimpleSearchResult(allocation, kMin, kMax, agents, rsdOrder);
     }
     

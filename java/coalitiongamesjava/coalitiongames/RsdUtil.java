@@ -404,18 +404,29 @@ public abstract class RsdUtil {
         assert n >= 1;
         assert kMin >= 0;
         assert kMin <= kMax;
+        assert kMax > 0;
         // this method should not be called from a state that
         // already has no feasible split. it would always return the empty list.
         assert TabuSearch.checkKRange(n, kMin, kMax);
         
         final List<Integer> feasibleTeamSizes = new ArrayList<Integer>();
         // team size must be in {kMin, kMin + 1, . . ., kMax}
-        for (int teamSize = kMin; teamSize <= kMax; teamSize++) {
+        
+        // never add 0 as a next team size, or more than n
+        for (
+            int teamSize = Math.max(kMin, 1); 
+            teamSize <= Math.min(kMax, n); 
+            teamSize++
+        ) {
             // check if the remaining problem of 
             // assigning (n - teamSize) agents
             // to teams of sizes in {kMin, kMin + 1, . . . kMax} is feasible.
-            if (TabuSearch.checkKRange(n - teamSize, kMin, kMax)) {
+            if (n == teamSize) {
                 feasibleTeamSizes.add(teamSize);
+            } else if (n > teamSize) {
+                if (TabuSearch.checkKRange(n - teamSize, kMin, kMax)) {
+                    feasibleTeamSizes.add(teamSize);
+                }
             }
         }
         

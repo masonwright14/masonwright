@@ -351,6 +351,9 @@ public abstract class TabuSearch {
             }
             throw new IllegalArgumentException();
         }
+        if (n <= 0) {
+            throw new IllegalArgumentException("n must be positive");
+        }
         
         return (kMin < 2) || (n % kMin == 0) 
             || (n % kMax == 0) || (n / kMin != n / kMax);
