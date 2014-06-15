@@ -1,5 +1,6 @@
 package coalitiongames;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -178,32 +179,6 @@ public class SimpleSearchResult {
         return result;
     }
     
-    private List<Double> getTotalUtilities() {
-        final List<Double> result = new ArrayList<Double>();
-        for (Agent agent: this.agents) {
-            double total = 0.0;
-            for (final Double value: agent.getValues()) {
-                total += value;
-            }
-            result.add(total);
-        }
-        
-        return result;
-    }
-    
-    private List<Integer> getTotalUtilitiesNoJitter() {
-        final List<Integer> result = new ArrayList<Integer>();
-        for (Agent agent: this.agents) {
-            int total = 0;
-            for (final Double value: agent.getValues()) {
-                total += (int) Math.floor(value);
-            }
-            result.add(total);
-        }
-        
-        return result;
-    }
-    
     public final List<Double> getMeanTeammateUtilities() {
         final List<Double> result = new ArrayList<Double>();
         final List<Double> totalTeamUtilities = getTeamUtilities();
@@ -339,76 +314,6 @@ public class SimpleSearchResult {
         return result;
     }
     
-    public final List<Integer> leastFavTeammateRanks() {
-        final List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < this.agents.size(); i++) {
-            final Agent agent = this.agents.get(i);
-            final List<Integer> team = this.allocation.get(i);
-            
-            final List<Double> sortedValues = 
-                new ArrayList<Double>(agent.getValues());
-            Collections.sort(sortedValues);
-            Collections.reverse(sortedValues);
-            
-            int worstRank = 0;
-            for (int j = 0; j < this.agents.size(); j++) {
-                if (i != j && team.get(j) == 1) {
-                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
-                    final double otherAgentValue = 
-                        agent.getValueByUUID(otherAgenUuid);
-                    // ranks should be 1-based, not 0-based, so add 1.
-                    final int otherAgentRank = 
-                        1 + sortedValues.indexOf(otherAgentValue);
-                    if (otherAgentRank > worstRank) {
-                        worstRank = otherAgentRank;
-                    }
-                }
-            }
-            
-            if (worstRank == 0) {
-                result.add(-1);
-            } else {
-                result.add(worstRank);
-            }
-        }
-        return result;
-    }
-    
-    public final List<Integer> favTeammateRanks() {
-        final List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < this.agents.size(); i++) {
-            final Agent agent = this.agents.get(i);
-            final List<Integer> team = this.allocation.get(i);
-            
-            final List<Double> sortedValues = 
-                new ArrayList<Double>(agent.getValues());
-            Collections.sort(sortedValues);
-            Collections.reverse(sortedValues);
-            
-            int bestRank = Integer.MAX_VALUE;
-            for (int j = 0; j < this.agents.size(); j++) {
-                if (i != j && team.get(j) == 1) {
-                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
-                    final double otherAgentValue = 
-                        agent.getValueByUUID(otherAgenUuid);
-                    // ranks should be 1-based, not 0-based, so add 1.
-                    final int otherAgentRank = 
-                        1 + sortedValues.indexOf(otherAgentValue);
-                    if (otherAgentRank < bestRank) {
-                        bestRank = otherAgentRank;
-                    }
-                }
-            }
-            
-            if (bestRank == Integer.MAX_VALUE) {
-                result.add(-1);
-            } else {
-                result.add(bestRank);
-            }
-        }
-        return result;
-    }
-    
     public final List<Double> meanTeammateRanks() {
         final List<Double> result = new ArrayList<Double>();
         for (int i = 0; i < this.agents.size(); i++) {
@@ -442,94 +347,6 @@ public class SimpleSearchResult {
             }   
         }
         
-        return result;
-    }
-    
-    public final List<Double> leastFavTeammateRanksNoJitter() {
-        final List<Double> result = new ArrayList<Double>();
-        for (int i = 0; i < this.agents.size(); i++) {
-            final Agent agent = this.agents.get(i);
-            final List<Integer> team = this.allocation.get(i);
-            
-            final List<Integer> sortedValues = new ArrayList<Integer>();
-            for (final Double item: agent.getValues()) {
-                sortedValues.add((int) Math.floor(item));
-            }
-            Collections.sort(sortedValues);
-            Collections.reverse(sortedValues);
-            
-            double worstRank = 0.0;
-            for (int j = 0; j < this.agents.size(); j++) {
-                if (i != j && team.get(j) == 1) {
-                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
-                    final double otherAgentValue = 
-                        agent.getValueByUUID(otherAgenUuid);
-                    final int otherAgentValueFloor = 
-                        (int) Math.floor(otherAgentValue);
-                    // ranks should be 1-based, not 0-based, so add 1.
-                    final int otherAgentFirstRank = 
-                        1 + sortedValues.indexOf(otherAgentValueFloor);
-                    final int otherAgentLastRank = 
-                        1 + sortedValues.lastIndexOf(otherAgentValueFloor);
-                    final double otherAgentRank = 
-                        (otherAgentFirstRank + otherAgentLastRank) / 2.0;
-                    if (otherAgentRank > worstRank) {
-                        worstRank = otherAgentRank;
-                    }
-                }
-            }
-            
-            final double testLessThanOne = 0.5;
-            if (worstRank < testLessThanOne) {
-                result.add(-1.0);
-            } else {
-                result.add(worstRank);
-            }
-        }
-        return result;
-    }
-    
-    public final List<Double> favTeammateRanksNoJitter() {
-        final List<Double> result = new ArrayList<Double>();
-        for (int i = 0; i < this.agents.size(); i++) {
-            final Agent agent = this.agents.get(i);
-            final List<Integer> team = this.allocation.get(i);
-            
-            final List<Integer> sortedValues = new ArrayList<Integer>();
-            for (final Double item: agent.getValues()) {
-                sortedValues.add((int) Math.floor(item));
-            }
-            Collections.sort(sortedValues);
-            Collections.reverse(sortedValues);
-            
-            double bestRank = Double.MAX_VALUE;
-            for (int j = 0; j < this.agents.size(); j++) {
-                if (i != j && team.get(j) == 1) {
-                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
-                    final double otherAgentValue = 
-                        agent.getValueByUUID(otherAgenUuid);
-                    final int otherAgentValueFloor = 
-                        (int) Math.floor(otherAgentValue);
-                    // ranks should be 1-based, not 0-based, so add 1.
-                    final int otherAgentFirstRank = 
-                        1 + sortedValues.indexOf(otherAgentValueFloor);
-                    final int otherAgentLastRank = 
-                        1 + sortedValues.lastIndexOf(otherAgentValueFloor);
-                    final double otherAgentRank = 
-                        (otherAgentFirstRank + otherAgentLastRank) / 2.0;
-                    if (otherAgentRank < bestRank) {
-                        bestRank = otherAgentRank;
-                    }
-                }
-            }
-            
-            final double tolerance = 0.1;
-            if (Double.MAX_VALUE - tolerance > bestRank) {
-                result.add(-1.0);
-            } else {
-                result.add(bestRank);
-            }
-        }
         return result;
     }
     
@@ -579,6 +396,165 @@ public class SimpleSearchResult {
         return result;
     }
     
+    public final List<Integer> favTeammateRanks() {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < this.agents.size(); i++) {
+            final Agent agent = this.agents.get(i);
+            final List<Integer> team = this.allocation.get(i);
+            
+            final List<Double> sortedValues = 
+                new ArrayList<Double>(agent.getValues());
+            Collections.sort(sortedValues);
+            Collections.reverse(sortedValues);
+            
+            int bestRank = Integer.MAX_VALUE;
+            for (int j = 0; j < this.agents.size(); j++) {
+                if (i != j && team.get(j) == 1) {
+                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
+                    final double otherAgentValue = 
+                        agent.getValueByUUID(otherAgenUuid);
+                    // ranks should be 1-based, not 0-based, so add 1.
+                    final int otherAgentRank = 
+                        1 + sortedValues.indexOf(otherAgentValue);
+                    if (otherAgentRank < bestRank) {
+                        bestRank = otherAgentRank;
+                    }
+                }
+            }
+            
+            if (bestRank == Integer.MAX_VALUE) {
+                result.add(-1);
+            } else {
+                result.add(bestRank);
+            }
+        }
+        return result;
+    }
+    
+    public final List<Double> favTeammateRanksNoJitter() {
+        final List<Double> result = new ArrayList<Double>();
+        for (int i = 0; i < this.agents.size(); i++) {
+            final Agent agent = this.agents.get(i);
+            final List<Integer> team = this.allocation.get(i);
+            
+            final List<Integer> sortedValues = new ArrayList<Integer>();
+            for (final Double item: agent.getValues()) {
+                sortedValues.add((int) Math.floor(item));
+            }
+            Collections.sort(sortedValues);
+            Collections.reverse(sortedValues);
+            
+            double bestRank = Double.MAX_VALUE;
+            for (int j = 0; j < this.agents.size(); j++) {
+                if (i != j && team.get(j) == 1) {
+                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
+                    final double otherAgentValue = 
+                        agent.getValueByUUID(otherAgenUuid);
+                    final int otherAgentValueFloor = 
+                        (int) Math.floor(otherAgentValue);
+                    // ranks should be 1-based, not 0-based, so add 1.
+                    final int otherAgentFirstRank = 
+                        1 + sortedValues.indexOf(otherAgentValueFloor);
+                    final int otherAgentLastRank = 
+                        1 + sortedValues.lastIndexOf(otherAgentValueFloor);
+                    final double otherAgentRank = 
+                        (otherAgentFirstRank + otherAgentLastRank) / 2.0;
+                    if (otherAgentRank < bestRank) {
+                        bestRank = otherAgentRank;
+                    }
+                }
+            }
+            
+            // if greater than max value / 2, assume it's uninitialized.
+            // do instead of testing for equality to MAX_VALUE
+            if (bestRank > Double.MAX_VALUE / 2.0) {
+                result.add(-1.0);
+            } else {
+                result.add(bestRank);
+            }
+        }
+        return result;
+    }
+    
+    public final List<Integer> leastFavTeammateRanks() {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < this.agents.size(); i++) {
+            final Agent agent = this.agents.get(i);
+            final List<Integer> team = this.allocation.get(i);
+            
+            final List<Double> sortedValues = 
+                new ArrayList<Double>(agent.getValues());
+            Collections.sort(sortedValues);
+            Collections.reverse(sortedValues);
+            
+            int worstRank = 0;
+            for (int j = 0; j < this.agents.size(); j++) {
+                if (i != j && team.get(j) == 1) {
+                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
+                    final double otherAgentValue = 
+                        agent.getValueByUUID(otherAgenUuid);
+                    // ranks should be 1-based, not 0-based, so add 1.
+                    final int otherAgentRank = 
+                        1 + sortedValues.indexOf(otherAgentValue);
+                    if (otherAgentRank > worstRank) {
+                        worstRank = otherAgentRank;
+                    }
+                }
+            }
+            
+            if (worstRank == 0) {
+                result.add(-1);
+            } else {
+                result.add(worstRank);
+            }
+        }
+        return result;
+    }
+    
+    public final List<Double> leastFavTeammateRanksNoJitter() {
+        final List<Double> result = new ArrayList<Double>();
+        for (int i = 0; i < this.agents.size(); i++) {
+            final Agent agent = this.agents.get(i);
+            final List<Integer> team = this.allocation.get(i);
+            
+            final List<Integer> sortedValues = new ArrayList<Integer>();
+            for (final Double item: agent.getValues()) {
+                sortedValues.add((int) Math.floor(item));
+            }
+            Collections.sort(sortedValues);
+            Collections.reverse(sortedValues);
+            
+            double worstRank = 0.0;
+            for (int j = 0; j < this.agents.size(); j++) {
+                if (i != j && team.get(j) == 1) {
+                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
+                    final double otherAgentValue = 
+                        agent.getValueByUUID(otherAgenUuid);
+                    final int otherAgentValueFloor = 
+                        (int) Math.floor(otherAgentValue);
+                    // ranks should be 1-based, not 0-based, so add 1.
+                    final int otherAgentFirstRank = 
+                        1 + sortedValues.indexOf(otherAgentValueFloor);
+                    final int otherAgentLastRank = 
+                        1 + sortedValues.lastIndexOf(otherAgentValueFloor);
+                    final double otherAgentRank = 
+                        (otherAgentFirstRank + otherAgentLastRank) / 2.0;
+                    if (otherAgentRank > worstRank) {
+                        worstRank = otherAgentRank;
+                    }
+                }
+            }
+            
+            final double testLessThanOne = 0.5;
+            if (worstRank < testLessThanOne) {
+                result.add(-1.0);
+            } else {
+                result.add(worstRank);
+            }
+        }
+        return result;
+    }
+    
     public final List<Integer> isCaptain() {
         final List<Integer> result = new ArrayList<Integer>();
         if (captainIndexes.isEmpty()) {
@@ -595,6 +571,41 @@ public class SimpleSearchResult {
             }
         }
 
+        return result;
+    }
+    
+    public final List<Double> getEnvyAmounts() {
+        final List<Double> result = new ArrayList<Double>();
+        final List<Double> teamUtilities = getTeamUtilities();
+        for (int i = 0; i < getAgents().size(); i++) {
+            final double bestOtherTeamUtility = 
+                getBestOtherTeamUtility(i);
+            final double envy = bestOtherTeamUtility - teamUtilities.get(i);
+            if (envy < 0) {
+                result.add(0.0);
+            } else {
+                result.add(envy);
+            }
+        }
+        
+        return result;
+    }
+    
+    public final List<Integer> getEnvyAmountsNoJitter() {
+        final List<Integer> result = new ArrayList<Integer>();
+        final List<Integer> teamUtilitiesNoJitter = getTeamUtilitiesNoJitter();
+        for (int i = 0; i < getAgents().size(); i++) {
+            final int bestOtherTeamUtilityNoJitter =
+                getBestOtherTeamUtilityNoJitter(i);
+            final int envy = 
+                bestOtherTeamUtilityNoJitter - teamUtilitiesNoJitter.get(i);
+            if (envy < 0) {
+                result.add(0);
+            } else {
+                result.add(envy);
+            }
+        }
+        
         return result;
     }
     
@@ -635,87 +646,79 @@ public class SimpleSearchResult {
         return result;        
     }
     
-    public final List<Integer> getEnvyAmountsNoJitter() {
-        final List<Integer> result = new ArrayList<Integer>();
-        final List<Integer> teamUtilitiesNoJitter = getTeamUtilitiesNoJitter();
-        for (int i = 0; i < getAgents().size(); i++) {
-            final int bestOtherTeamUtilityNoJitter =
-                getBestOtherTeamUtilityNoJitter(i);
-            final int envy = 
-                bestOtherTeamUtilityNoJitter - teamUtilitiesNoJitter.get(i);
-            if (envy < 0) {
-                result.add(0);
-            } else {
-                result.add(envy);
-            }
-        }
-        
-        return result;
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SimpleSearchResult [allocation=\n");
+        builder.append(Util.demandAsMatrix(allocation));
+        builder.append("\n, kMin=");
+        builder.append(kMin);
+        builder.append(", kMax=");
+        builder.append(kMax);
+        builder.append(", agents=");
+        builder.append(agents);
+        builder.append(", rsdOrder=");
+        builder.append(rsdOrder);
+        builder.append(", \ndurationMillis=");
+        builder.append(durationMillis);
+        builder.append(", \nisCaptain=");
+        builder.append(isCaptain());
+        builder.append("]");
+        return builder.toString();
     }
     
-    public final List<Double> getEnvyAmounts() {
-        final List<Double> result = new ArrayList<Double>();
-        final List<Double> teamUtilities = getTeamUtilities();
-        for (int i = 0; i < getAgents().size(); i++) {
-            final double bestOtherTeamUtility = 
-                getBestOtherTeamUtility(i);
-            final double envy = bestOtherTeamUtility - teamUtilities.get(i);
-            if (envy < 0) {
-                result.add(0.0);
-            } else {
-                result.add(envy);
-            }
-        }
-        
-        return result;
-    }
-    
-    private int getBestOtherTeamUtilityMinusSingleGoodNoJitter(
-        final int agentIndex
-    ) {
+    /**
+     * @param agentIndex index in this.agents of the Agent to
+     * consider
+     * @return the sum of values, based on the Agent's values
+     * parameter, of the agents included on the team of
+     * highest value for this agent from this.allocation,
+     * excluding the Agent's own team; but any team in this.allocation
+     * of size kMax has its lowest-utility member excluded from the
+     * total, based on the idea that the Agent cannot demand a
+     * team of size (kMax + 1).
+     */
+    private double getBestOtherTeamUtility(final int agentIndex) {
         final Agent agent = getAgents().get(agentIndex);
-        int maxTeamUtility = 0;
+        double maxTeamUtility = 0.0;
         // examine every team
         for (final List<Integer> team: getAllocation()) {
             // only consider teams that don't include this Agent.
             if (team.get(agentIndex) == 0) {
                 
-                final List<Integer> values = new ArrayList<Integer>();
+                double currentTeamUtility = 0.0;
+                // keep track of the utility of the least valued
+                // agent on the other team, in case the team's
+                // size is kMax and this agent must be excluded.
+                double lowestAgentUtility = Double.MAX_VALUE;
                 for (int i = 0; i < team.size(); i++) {
                     // only add value for agents on the team.
                     if (team.get(i) == 1) {
                         final UUID agentId = getAgents().get(i).getUuid();
-                        final int currentAgentUtility = (int) Math.floor(
-                            agent.getValueByUUID(agentId));
-                        values.add(currentAgentUtility);
+                        final double currentAgentUtility = 
+                            agent.getValueByUUID(agentId);
+                        currentTeamUtility += currentAgentUtility;
+                        if (currentAgentUtility < lowestAgentUtility) {
+                            lowestAgentUtility = currentAgentUtility;
+                        }
                     }
                 }
-                
-                // sorted from low to high.
-                Collections.sort(values);
                 
                 final int teamSize = getTeamSize(team);
                 // if the team size is kMax and the team has some agent,
                 // then take back the value of the least valued agent.
                 if (teamSize == getkMax()) {
-                    values.remove(0);
+                    currentTeamUtility -= lowestAgentUtility;
                 } 
                 
-                // remove most valued agent
-                values.remove(values.size() - 1);
-                
-                int total = 0;
-                for (Integer value: values) {
-                    total += value;
-                }
-                
-                if (total > maxTeamUtility) {
-                    maxTeamUtility = total;
+                // keep track of the best team's utility.
+                if (currentTeamUtility > maxTeamUtility) {
+                    maxTeamUtility = currentTeamUtility;
                 }
             }
         }
         
-        return maxTeamUtility;        
+        return maxTeamUtility;
     }
     
     private int getBestOtherTeamUtilityNoJitter(final int agentIndex) {
@@ -817,58 +820,52 @@ public class SimpleSearchResult {
         return maxTeamUtility;
     }
     
-    /**
-     * @param agentIndex index in this.agents of the Agent to
-     * consider
-     * @return the sum of values, based on the Agent's values
-     * parameter, of the agents included on the team of
-     * highest value for this agent from this.allocation,
-     * excluding the Agent's own team; but any team in this.allocation
-     * of size kMax has its lowest-utility member excluded from the
-     * total, based on the idea that the Agent cannot demand a
-     * team of size (kMax + 1).
-     */
-    private double getBestOtherTeamUtility(final int agentIndex) {
+    private int getBestOtherTeamUtilityMinusSingleGoodNoJitter(
+        final int agentIndex
+    ) {
         final Agent agent = getAgents().get(agentIndex);
-        double maxTeamUtility = 0.0;
+        int maxTeamUtility = 0;
         // examine every team
         for (final List<Integer> team: getAllocation()) {
             // only consider teams that don't include this Agent.
             if (team.get(agentIndex) == 0) {
                 
-                double currentTeamUtility = 0.0;
-                // keep track of the utility of the least valued
-                // agent on the other team, in case the team's
-                // size is kMax and this agent must be excluded.
-                double lowestAgentUtility = Double.MAX_VALUE;
+                final List<Integer> values = new ArrayList<Integer>();
                 for (int i = 0; i < team.size(); i++) {
                     // only add value for agents on the team.
                     if (team.get(i) == 1) {
                         final UUID agentId = getAgents().get(i).getUuid();
-                        final double currentAgentUtility = 
-                            agent.getValueByUUID(agentId);
-                        currentTeamUtility += currentAgentUtility;
-                        if (currentAgentUtility < lowestAgentUtility) {
-                            lowestAgentUtility = currentAgentUtility;
-                        }
+                        final int currentAgentUtility = (int) Math.floor(
+                            agent.getValueByUUID(agentId));
+                        values.add(currentAgentUtility);
                     }
                 }
+                
+                // sorted from low to high.
+                Collections.sort(values);
                 
                 final int teamSize = getTeamSize(team);
                 // if the team size is kMax and the team has some agent,
                 // then take back the value of the least valued agent.
                 if (teamSize == getkMax()) {
-                    currentTeamUtility -= lowestAgentUtility;
+                    values.remove(0);
                 } 
                 
-                // keep track of the best team's utility.
-                if (currentTeamUtility > maxTeamUtility) {
-                    maxTeamUtility = currentTeamUtility;
+                // remove most valued agent
+                values.remove(values.size() - 1);
+                
+                int total = 0;
+                for (Integer value: values) {
+                    total += value;
+                }
+                
+                if (total > maxTeamUtility) {
+                    maxTeamUtility = total;
                 }
             }
         }
         
-        return maxTeamUtility;
+        return maxTeamUtility;        
     }
     
     private int getTeamSize(final List<Integer> team) {
@@ -878,25 +875,308 @@ public class SimpleSearchResult {
         }
         return result;
     }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SimpleSearchResult [allocation=\n");
-        builder.append(Util.demandAsMatrix(allocation));
-        builder.append("\n, kMin=");
-        builder.append(kMin);
-        builder.append(", kMax=");
-        builder.append(kMax);
-        builder.append(", agents=");
-        builder.append(agents);
-        builder.append(", rsdOrder=");
-        builder.append(rsdOrder);
-        builder.append(", \ndurationMillis=");
-        builder.append(durationMillis);
-        builder.append(", \nisCaptain=");
-        builder.append(isCaptain());
-        builder.append("]");
-        return builder.toString();
+    
+    private List<Double> getTotalUtilities() {
+        final List<Double> result = new ArrayList<Double>();
+        for (Agent agent: this.agents) {
+            double total = 0.0;
+            for (final Double value: agent.getValues()) {
+                total += value;
+            }
+            result.add(total);
+        }
+        
+        return result;
+    }
+    
+    private List<Integer> getTotalUtilitiesNoJitter() {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (Agent agent: this.agents) {
+            int total = 0;
+            for (final Double value: agent.getValues()) {
+                total += (int) Math.floor(value);
+            }
+            result.add(total);
+        }
+        
+        return result;
+    }
+    
+    /*****************************************************************
+     * TESTING
+     */
+    
+    public static void main(final String[] args) {
+        testNumberOfTeamsAndTeamSizes();
+        testRsdIndexes();
+        testFractionsOfTotalUtility();
+        testTeammateRanks();
+    }
+    
+    private static void testNumberOfTeamsAndTeamSizes() {
+        final int n = 5;
+        List<Agent> agents = new ArrayList<Agent>();
+        List<Double> values = new ArrayList<Double>();
+        List<UUID> uuids = new ArrayList<UUID>();
+        for (int i = 0; i < n; i++) {
+            Agent agent = new Agent(values, uuids, 0, 0, null);
+            agents.add(agent);
+        }
+        
+        List<List<Integer>> allocation = new ArrayList<List<Integer>>();
+        Integer[] arr1 = {1, 0, 0, 0, 0};
+        List<Integer> t1 = Arrays.asList(arr1);
+        Integer[] arr2 = {0, 1, 1, 0, 0};
+        List<Integer> t2 = Arrays.asList(arr2);
+        List<Integer> t3 = Arrays.asList(arr2);
+        Integer[] arr4 = {0, 0, 0, 1, 1};
+        List<Integer> t4 = Arrays.asList(arr4);
+        List<Integer> t5 = Arrays.asList(arr4);
+        allocation.add(t1);
+        allocation.add(t2);
+        allocation.add(t3);
+        allocation.add(t4);
+        allocation.add(t5);
+        
+        SimpleSearchResult ssr = new SimpleSearchResult(
+            allocation, 
+            1, 
+            n, 
+            agents, 
+            null, 
+            0,
+            null
+        );
+        // should be 3
+        System.out.println(ssr.getNumberOfTeams());
+        
+        // should be 1, 2, 2, 2, 2
+        System.out.println(ssr.getTeamSizesWithSelf());
+    }
+    
+    private static void testRsdIndexes() {
+        final int n = 5;
+        List<Agent> agents = new ArrayList<Agent>();
+        List<Double> values = new ArrayList<Double>();
+        List<UUID> uuids = new ArrayList<UUID>();
+        for (int i = 0; i < n; i++) {
+            Agent agent = new Agent(values, uuids, 0, 0, null);
+            agents.add(agent);
+        }
+        
+        List<List<Integer>> allocation = new ArrayList<List<Integer>>();
+        final Integer[] rsdOrderArr = {3, 1, 0, 2, 4};
+        List<Integer> rsdOrder = Arrays.asList(rsdOrderArr);
+        
+        SimpleSearchResult ssr = new SimpleSearchResult(
+            allocation, 
+            1, 
+            n, 
+            agents, 
+            rsdOrder, 
+            0,
+            null
+        );
+        // should be: 2, 1, 3, 0, 4
+        System.out.println(ssr.getRsdIndexes());
+    }
+    
+    private static void testFractionsOfTotalUtility() {
+        final int n = 6;
+        List<Agent> agents = new ArrayList<Agent>();
+        
+        final Double[] valuesArr = {0.5, 1.5, 2.5, 3.5, 4.5, 5.5};
+        List<Double> values = Arrays.asList(valuesArr);
+        List<UUID> uuids = new ArrayList<UUID>();
+        
+        for (int i = 0; i < n; i++) {
+            uuids.add(UUID.randomUUID());
+        }
+        
+        for (int i = 0; i < n; i++) {
+            List<Double> myValues = new ArrayList<Double>(values);
+            myValues.remove(i);
+            List<UUID> myUuids = new ArrayList<UUID>(uuids);
+            myUuids.remove(i);
+            Agent agent = new Agent(myValues, myUuids, 0, 0, uuids.get(i));
+            agents.add(agent);
+        }
+        
+        List<List<Integer>> allocation = new ArrayList<List<Integer>>();
+        Integer[] arr1 = {1, 0, 0, 0, 0, 0};
+        List<Integer> t1 = Arrays.asList(arr1);
+        Integer[] arr2 = {0, 1, 1, 0, 0, 0};
+        List<Integer> t2 = Arrays.asList(arr2);
+        List<Integer> t3 = Arrays.asList(arr2);
+        Integer[] arr4 = {0, 0, 0, 1, 1, 1};
+        List<Integer> t4 = Arrays.asList(arr4);
+        List<Integer> t5 = Arrays.asList(arr4);
+        List<Integer> t6 = Arrays.asList(arr4);
+        allocation.add(t1);
+        allocation.add(t2);
+        allocation.add(t3);
+        allocation.add(t4);
+        allocation.add(t5);
+        allocation.add(t6);
+        
+        SimpleSearchResult ssr = new SimpleSearchResult(
+            allocation, 
+            1, 
+            n, 
+            agents, 
+            null, 
+            0,
+            null
+        );
+        // original utilities: 0.5 1.5 2.5 3.5 4.5 5.5
+        // original utilities no jitter: 0 1 2 3 4 5
+        // should be 0 2.5 1.5 10.0 9.0 8.0
+        System.out.println("team utilities: " + ssr.getTeamUtilities());
+        // should be 0 2 1 9 8 7
+        System.out.println(
+            "team utilities no jitter: " + ssr.getTeamUtilitiesNoJitter()
+        );
+        // should be 17.5 16.5 15.5 14.5 13.5 12.5
+        System.out.println("total utilities: " + ssr.getTotalUtilities());
+        // should be 15 14 13 12 11 10
+        System.out.println(
+            "total utilities no jitter: " + ssr.getTotalUtilitiesNoJitter()
+        );
+        // should be 0/17.5 2.5/16.5 1.5/15.5 10.0/14.5 9.0/13.5 8.0/12.5
+        System.out.println(
+            "fractions of total utility: " + ssr.getFractionsOfTotalUtility()
+        );
+        // should be 0/15 2/14 1/13 9/12 8/11 7/10
+        System.out.println(
+            "fractions of total utility no jitter: " 
+            + ssr.getFractionsOfTotalUtilityNoJitter()
+        );
+        // should be -1 2.5 1.5 5.0 4.5 4.0
+        System.out.println(
+            "mean teammate utilities: " + ssr.getMeanTeammateUtilities()
+        );
+        // should be -1 2 1 4.5 4 3.5
+        System.out.println(
+            "mean teammate utilities no jitter: " 
+            + ssr.getMeanTeammateUtilitiesNoJitter()
+        );
+        // should be 13.5
+        System.out.println(
+            "best other team utility: " + ssr.getBestOtherTeamUtility(0)
+        );
+        // should be 12
+        System.out.println(
+            "best other team utility: " + ssr.getBestOtherTeamUtilityNoJitter(0)
+        );
+        // should be 8.0
+        System.out.println(
+            "best other team utility minus single good: " 
+            + ssr.getBestOtherTeamUtilityMinusSingleGood(0)
+        );
+        // should be 7
+        System.out.println(
+            "best other team utility minus single good no jitter: " 
+            + ssr.getBestOtherTeamUtilityMinusSingleGoodNoJitter(0)
+        );
+        // should be 13.5 11 12 0 0 0
+        System.out.println("envy amount: " + ssr.getEnvyAmounts());
+        // should be 12 10 11 0 0 0
+        System.out.println(
+            "envy amount no jitter: " + ssr.getEnvyAmountsNoJitter()
+        );
+        // should be 8 5.5 6.5 0 0 0
+        System.out.println(
+            "envy amount minus single good: " 
+            + ssr.getEnvyAmountsMinusSingleGood()
+        );
+        // should be 7 5 6 0 0 0
+        System.out.println(
+            "envy amount minus single good no jitter: " 
+            + ssr.getEnvyAmountsMinusSingleGoodNoJitter()
+        );
+    }
+    
+    private static void testTeammateRanks() {
+        final int n = 6;
+        final List<Agent> myAgents = new ArrayList<Agent>();
+        
+        final Double[] valuesArr = {0.5, 1.5, 4.1, 4.2, 4.3, 4.5};
+        List<Double> values = Arrays.asList(valuesArr);
+        List<UUID> uuids = new ArrayList<UUID>();
+        
+        for (int i = 0; i < n; i++) {
+            uuids.add(UUID.randomUUID());
+        }
+        
+        for (int i = 0; i < n; i++) {
+            List<Double> myValues = new ArrayList<Double>(values);
+            myValues.remove(i);
+            List<UUID> myUuids = new ArrayList<UUID>(uuids);
+            myUuids.remove(i);
+            Agent agent = new Agent(myValues, myUuids, 0, 0, uuids.get(i));
+            myAgents.add(agent);
+        }
+        
+        List<List<Integer>> myAllocation = new ArrayList<List<Integer>>();
+        Integer[] arr1 = {1, 0, 0, 0, 0, 0};
+        List<Integer> t1 = Arrays.asList(arr1);
+        Integer[] arr2 = {0, 1, 1, 0, 0, 0};
+        List<Integer> t2 = Arrays.asList(arr2);
+        List<Integer> t3 = Arrays.asList(arr2);
+        Integer[] arr4 = {0, 0, 0, 1, 1, 1};
+        List<Integer> t4 = Arrays.asList(arr4);
+        List<Integer> t5 = Arrays.asList(arr4);
+        List<Integer> t6 = Arrays.asList(arr4);
+        myAllocation.add(t1);
+        myAllocation.add(t2);
+        myAllocation.add(t3);
+        myAllocation.add(t4);
+        myAllocation.add(t5);
+        myAllocation.add(t6);
+        
+        final SimpleSearchResult ssr = new SimpleSearchResult(
+            myAllocation, 
+            1, 
+            n, 
+            myAgents, 
+            null, 
+            0,
+            null
+        );
+        // ranks: 6 5 4 3 2 1
+        // ranks no jitter: 6 5 2.5 2.5 2.5 2.5
+        // should be: -1 4 4 1.5 1.5 1.5
+        System.out.println("mean teammate ranks: " + ssr.meanTeammateRanks());
+        // should be: -1 2.5 4 2.0 2.0 2.0
+        System.out.println(
+            "mean teammate ranks no jitter: " + ssr.meanTeammateRanksNoJitter()
+        );
+        // should be: -1 4 4 1 1 1
+        System.out.println(
+            "favorite teammate ranks: " + ssr.favTeammateRanks()
+        );
+        // should be: -1 2.5 4 2 2 2
+        System.out.println(
+            "favorite teammate ranks no jitter: " 
+            + ssr.favTeammateRanksNoJitter()
+        );
+        // should be: -1 2.5 4 2 2 2
+        System.out.println(
+            "least favorite teammate ranks: " + ssr.leastFavTeammateRanks()
+        );
+        // should be: -1 2.5 4 2 2 2
+        System.out.println(
+            "least favorite teammate ranks no jitter: " 
+            + ssr.leastFavTeammateRanksNoJitter()
+        );
+        // should be: 0 2 2 9 9 9
+        System.out.println(
+            "sum of reversed ranks: " + ssr.sumsOfReversedRanks()
+        );
+        // should be: 0 3.5 2 8 8 8
+        System.out.println(
+            "sum of reversed ranks no jitter: " 
+            + ssr.sumsOfReversedRanksNoJitter()
+        );
     }
 }

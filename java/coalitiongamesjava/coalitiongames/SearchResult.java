@@ -3,6 +3,7 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import coalitiongames.PriceWithError.PriceUpdateSource;
 
@@ -248,5 +249,65 @@ public final class SearchResult extends SimpleSearchResult {
         builder.append(isCaptain());
         builder.append("]");
         return builder.toString();
+    }
+    
+    /*****************************************************************
+     * TESTING
+     */
+    
+    public static void main(final String[] args) {
+        testBudgetRanks();
+    }
+    
+    private static void testBudgetRanks() {
+        final int n = 5;
+        List<Double> prices = new ArrayList<Double>();
+        List<List<Integer>> allocation = new ArrayList<List<Integer>>();
+        List<Double> error = new ArrayList<Double>();
+        List<Agent> agents = new ArrayList<Agent>();
+        List<Double> values = new ArrayList<Double>();
+        List<UUID> uuids = new ArrayList<UUID>();
+        final double[] budgets = {3, 1, 2, 5, 4};
+        for (int i = 0; i < n; i++) {
+            Agent agent = new Agent(values, uuids, budgets[i], 0, null);
+            agents.add(agent);
+        }
+        
+        /*
+         *         final List<Double> aPrices,
+        final List<List<Integer>> aAllocation,
+        final List<Double> aError,
+        final double aErrorSize,
+        final int aKMin,
+        final int aKMax,
+        final double aMaxBudget,
+        final List<Agent> aAgents,
+        final long aDurationMillis,
+        final List<Integer> aRsdOrder,
+        final List<Double> aBestErrorValues,
+        final List<PriceUpdateSource> aPriceUpdateSources,
+        final int aTabuSearchCalls,
+        final List<Integer> aCaptainIndexes
+         */
+        
+        final int maxBudget = 200;
+        SearchResult sr = new SearchResult(
+            prices,
+            allocation, 
+            error,
+            0,
+            1, 
+            n, 
+            maxBudget,
+            agents, 
+            0,
+            null,
+            null,
+            null,
+            0,
+            null
+        );
+        // should be: 2 4 3 0 1
+        System.out.println(sr.getBudgetRanks());
     }
 }
