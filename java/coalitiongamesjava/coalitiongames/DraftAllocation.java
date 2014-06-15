@@ -43,10 +43,8 @@ public abstract class DraftAllocation {
                 
         // pick team captains:
         // 1. pick next team captain, based on RSD order of remaining players
-        // 2. the new team captain selects its favorite remaining player to join
-        // its team, if this will not exceed the team's size.
         // repeat until all captains are selected.
-        for (final Integer teamSize: teamSizes) {
+        for (int i = 0; i < teamSizes.size(); i++) {
             int captainIndex = -1;
             for (Integer indexRsd: rsdOrder) {
                 if (!takenAgentIndexes.contains(indexRsd)) {
@@ -62,13 +60,9 @@ public abstract class DraftAllocation {
             team.add(captainIndex);
             takenAgentIndexes.add(captainIndex);
             captainIndexes.add(captainIndex);
-            final Agent captain = agents.get(captainIndex);
-            addAgentToTeamAndTakenAgentsIfRoom(
-                team, teamSize, captain, agents, takenAgentIndexes
-            );
         }
         
-        boolean isReverse = true;
+        boolean isReverse = false;
         // while not all agents allocated
         while (
             allocationAsLists.get(allocationAsLists.size() - 1).size() 

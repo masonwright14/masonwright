@@ -911,6 +911,7 @@ public class SimpleSearchResult {
         testRsdIndexes();
         testFractionsOfTotalUtility();
         testTeammateRanks();
+        testIsCaptain();
     }
     
     private static void testNumberOfTeamsAndTeamSizes() {
@@ -1094,6 +1095,47 @@ public class SimpleSearchResult {
             "envy amount minus single good no jitter: " 
             + ssr.getEnvyAmountsMinusSingleGoodNoJitter()
         );
+    }
+    
+    private static void testIsCaptain() {
+        final int n = 5;
+        List<Agent> agents = new ArrayList<Agent>();
+        List<Double> values = new ArrayList<Double>();
+        List<UUID> uuids = new ArrayList<UUID>();
+        for (int i = 0; i < n; i++) {
+            Agent agent = new Agent(values, uuids, 0, 0, null);
+            agents.add(agent);
+        }
+        
+        List<List<Integer>> allocation = new ArrayList<List<Integer>>();
+        Integer[] arr1 = {1, 0, 0, 0, 0};
+        List<Integer> t1 = Arrays.asList(arr1);
+        Integer[] arr2 = {0, 1, 1, 0, 0};
+        List<Integer> t2 = Arrays.asList(arr2);
+        List<Integer> t3 = Arrays.asList(arr2);
+        Integer[] arr4 = {0, 0, 0, 1, 1};
+        List<Integer> t4 = Arrays.asList(arr4);
+        List<Integer> t5 = Arrays.asList(arr4);
+        allocation.add(t1);
+        allocation.add(t2);
+        allocation.add(t3);
+        allocation.add(t4);
+        allocation.add(t5);
+        
+        final Integer[] captainsArr = {1, 3};
+        List<Integer> captains = Arrays.asList(captainsArr);
+        
+        SimpleSearchResult ssr = new SimpleSearchResult(
+            allocation, 
+            1, 
+            n, 
+            agents, 
+            null, 
+            0,
+            captains
+        );
+        // should be: 0 1 0 1 0
+        System.out.println("is captain: " + ssr.isCaptain());
     }
     
     private static void testTeammateRanks() {
