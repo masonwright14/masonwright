@@ -185,15 +185,15 @@ public abstract class TabuSearch {
             bestNode.getPrices(), 
             bestNode.getDemand(), 
             bestNode.getError(), 
-            bestNode.getErrorValue(), 
-            teamSizes,
+            bestNode.getErrorValue(),
             maxBudget, 
             agents,
             searchDurationMillis,
             null,
             bestErrorValues,
             priceUpdateSources,
-            1
+            1,
+            null
         );
         return result;
     }
@@ -322,7 +322,8 @@ public abstract class TabuSearch {
             null,
             bestErrorValues,
             priceUpdateSources,
-            1
+            1,
+            null
         );
         return result;
     }

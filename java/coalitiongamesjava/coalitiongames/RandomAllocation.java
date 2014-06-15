@@ -1,6 +1,7 @@
 package coalitiongames;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public abstract class RandomAllocation {
@@ -28,12 +29,15 @@ public abstract class RandomAllocation {
         final int n = agents.size();
         assert kMax <= n;
         
+        // time the duration of the search to the millisecond
+        final long searchStartMillis = new Date().getTime();
+        
         // each list holds the indexes of agents on 1 team.
         final List<List<Integer>> allocationAsLists =
             new ArrayList<List<Integer>>();
         final List<Integer> teamSizes = 
             RsdUtil.getRandomTeamSizeList(agents.size(), kMax, kMin);
-        
+                
         final List<Integer> shuffledIndexes = 
             RsdUtil.getShuffledNumberList(agents.size());
         int nextAgentIndex = 0;
@@ -58,7 +62,11 @@ public abstract class RandomAllocation {
         
         final List<List<Integer>> allocation = 
             getAllocationFromLists(agents.size(), allocationAsLists);
-        return new SimpleSearchResult(allocation, kMin, kMax, agents, null);
+        final long searchDurationMillis = 
+            new Date().getTime() - searchStartMillis;
+        return new SimpleSearchResult(
+            allocation, kMin, kMax, agents, null, searchDurationMillis, null
+        );
     }
     
     public static List<List<Integer>> getAllocationFromLists(

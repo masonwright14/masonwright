@@ -2,11 +2,18 @@ package coalitiongames;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public abstract class DraftAllocation {
 
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SimpleSearchResult draftAllocation(
         final List<Agent> agents,
         final int kMax,
@@ -23,6 +30,9 @@ public abstract class DraftAllocation {
         // make it so first agent to pick has the smaller team size, etc.
         Collections.reverse(teamSizes);
         assert teamSizes.get(0) <= teamSizes.get(teamSizes.size() - 1);
+        
+        // time the duration of the search to the millisecond
+        final long searchStartMillis = new Date().getTime();
 
         // each list holds the indexes of agents on 1 team.
         final List<List<Integer>> allocationAsLists =
@@ -30,7 +40,7 @@ public abstract class DraftAllocation {
         // holds the index of the captain of each team, in order.
         final List<Integer> captainIndexes = new ArrayList<Integer>();
         final List<Integer> takenAgentIndexes = new ArrayList<Integer>();
-        
+                
         // pick team captains:
         // 1. pick next team captain, based on RSD order of remaining players
         // 2. the new team captain selects its favorite remaining player to join
@@ -103,7 +113,12 @@ public abstract class DraftAllocation {
                 allocationAsLists
             );
         final int kMin = teamSizes.get(0);
-        return new SimpleSearchResult(allocation, kMin, kMax, agents, rsdOrder);
+        final long searchDurationMillis = 
+            new Date().getTime() - searchStartMillis;
+        return new SimpleSearchResult(
+            allocation, kMin, kMax, agents, 
+            rsdOrder, searchDurationMillis, captainIndexes
+        );
     }
     
     private static void addAgentToTeamAndTakenAgentsIfRoom(

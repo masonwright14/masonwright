@@ -10,6 +10,12 @@ import java.util.UUID;
 
 public abstract class RsdAllLevelsTabuSearch {
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SearchResult 
         rsdTabuSearchAllLevelsOptimalSizes(
         final List<Agent> agents,
@@ -77,7 +83,11 @@ public abstract class RsdAllLevelsTabuSearch {
      * @param kMin minimum agents per team, including self
      * @param rsdOrder shuffled list of numbers from {0, 1, . . . (n - 1)}, 
      * indicating the random serial dictatorship order to use, based on
-     * indexes of Agents in "agents" list
+     * indexes of Agents in "agents" list.
+     * first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
      * @return a SearchResult, including an allocation, price vector,
      * and other data
      */   
@@ -124,6 +134,9 @@ public abstract class RsdAllLevelsTabuSearch {
         final long searchStartMillis = new Date().getTime();
         final List<Integer> initialFeasibleTeamSizes = 
             RsdUtil.getFeasibleNextTeamSizes(n, kMin, kMax);
+        
+        // holds the index of the captain of each team, in order.
+        final List<Integer> captainIndexes = new ArrayList<Integer>();
 
         // currentSearchResult sets the prices of all agents. if it has market
         // clearing error, not all agents 
@@ -147,6 +160,9 @@ public abstract class RsdAllLevelsTabuSearch {
             if (takenAgentIndexes.contains(agentIndex)) {
                 continue;
             }
+            
+            captainIndexes.add(agentIndex);
+            
             if (MipGenerator.DEBUGGING) {
                 // check for duplicates in takenAgentIndexes.
                 Set<Integer> takenAgentIndexSet = new HashSet<Integer>();
@@ -388,7 +404,7 @@ public abstract class RsdAllLevelsTabuSearch {
             errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
             rsdOrder, initialSearchResult.getBestErrorValues(),
             initialSearchResult.getPriceUpdateSources(),
-            tabuSearchCalls
+            tabuSearchCalls, captainIndexes
         );
         return result;
     }

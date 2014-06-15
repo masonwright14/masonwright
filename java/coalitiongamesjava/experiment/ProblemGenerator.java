@@ -77,6 +77,12 @@ public abstract class ProblemGenerator {
         );
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SearchResult getSearchResult(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -95,7 +101,13 @@ public abstract class ProblemGenerator {
             throw new IllegalArgumentException();
         }
     }
-        
+    
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.    
+     */
     public static SimpleSearchResult getSimpleSearchResult(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -119,6 +131,12 @@ public abstract class ProblemGenerator {
         }
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SearchResult runTabuAllOptAllocation(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -148,6 +166,12 @@ public abstract class ProblemGenerator {
         return searchResult;
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SearchResult runTabuAllAllocation(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -178,6 +202,12 @@ public abstract class ProblemGenerator {
         return searchResult;
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SearchResult runTabuOneAllocation(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -207,6 +237,12 @@ public abstract class ProblemGenerator {
         return searchResult;
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SimpleSearchResult runRsdOptAllocation(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -236,6 +272,12 @@ public abstract class ProblemGenerator {
         return searchResult;
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SimpleSearchResult runRsdGreedyAllocation(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
@@ -320,6 +362,12 @@ public abstract class ProblemGenerator {
         return searchResult;
     }
 
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SimpleSearchResult runDraftAllocation(
         final List<Integer> rsdOrder,
         final List<Double> budgets,

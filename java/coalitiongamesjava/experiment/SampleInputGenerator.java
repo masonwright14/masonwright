@@ -93,6 +93,11 @@ public abstract class SampleInputGenerator {
     /*
      * Report budgets such that the first player in rsdOrder has the highest
      * budget, and so on.
+     * 
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
      */
     public static List<Double> getBudgets(
         final int numPlayers,

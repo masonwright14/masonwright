@@ -45,6 +45,10 @@ public abstract class RsdTabuSearch {
      * @param rsdOrder shuffled list of numbers from {0, 1, . . . (n - 1)}, 
      * indicating the random serial dictatorship order to use, based on
      * indexes of Agents in "agents" list
+     * first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
      * @return a SearchResult, including an allocation, price vector,
      * and other data
      */
@@ -81,6 +85,9 @@ public abstract class RsdTabuSearch {
         // in initialResult.
         final List<List<Integer>> allocation = new ArrayList<List<Integer>>();
         
+        // holds the index of the captain of each team, in order.
+        final List<Integer> captainIndexes = new ArrayList<Integer>();
+        
         // indexes in initialResult of players already allocated to a team.
         final List<Integer> takenAgentIndexes = new ArrayList<Integer>();
         // iterate over players in RSD order, by their index in initialResult
@@ -89,6 +96,9 @@ public abstract class RsdTabuSearch {
             if (takenAgentIndexes.contains(agentIndex)) {
                 continue;
             }
+            
+            captainIndexes.add(agentIndex);
+            
             if (MipGenerator.DEBUGGING) {
                 // check for duplicates in takenAgentIndexes.
                 Set<Integer> takenAgentIndexSet = new HashSet<Integer>();
@@ -244,7 +254,7 @@ public abstract class RsdTabuSearch {
             errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
             rsdOrder, initialResult.getBestErrorValues(),
             initialResult.getPriceUpdateSources(),
-            1
+            1, captainIndexes
         );
         return result;
     }

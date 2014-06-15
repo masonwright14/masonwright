@@ -2,11 +2,18 @@ package coalitiongames;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public abstract class RsdAllocation {
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SimpleSearchResult rsdOptimalSizesAllocation(
         final List<Agent> agents,
         final int kMax,
@@ -28,6 +35,12 @@ public abstract class RsdAllocation {
         return rsdHelper(agents, kMax, kMin, rsdOrder, teamSizes);
     }
 
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     public static SimpleSearchResult rsdGreedySizesAllocation(
         final List<Agent> agents,
         final int kMax,
@@ -47,6 +60,12 @@ public abstract class RsdAllocation {
         return rsdHelper(agents, kMax, kMin, rsdOrder, teamSizes);
     }
     
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
     private static SimpleSearchResult rsdHelper(
         final List<Agent> agents,
         final int kMax,
@@ -54,10 +73,14 @@ public abstract class RsdAllocation {
         final List<Integer> rsdOrder,
         final List<Integer> teamSizes
     ) {
+        // time the duration of the search to the millisecond
+        final long searchStartMillis = new Date().getTime();
+        
         // each list holds the indexes of agents on 1 team.
         final List<List<Integer>> allocationAsLists =
             new ArrayList<List<Integer>>();
         final List<Integer> takenAgentIndexes = new ArrayList<Integer>();
+        final List<Integer> captainIndexes = new ArrayList<Integer>();
         for (final Integer teamSize: teamSizes) {
             int captainIndex = -1;
             for (Integer indexRsd: rsdOrder) {
@@ -69,6 +92,7 @@ public abstract class RsdAllocation {
             if (captainIndex == -1) {
                 throw new IllegalStateException();
             }
+            captainIndexes.add(captainIndex);
             final List<Integer> team = new ArrayList<Integer>();
             team.add(captainIndex);
             takenAgentIndexes.add(captainIndex);
@@ -116,6 +140,11 @@ public abstract class RsdAllocation {
                 agents.size(), 
                 allocationAsLists
             );
-        return new SimpleSearchResult(allocation, kMin, kMax, agents, rsdOrder);
+        final long searchDurationMillis = 
+            new Date().getTime() - searchStartMillis;
+        return new SimpleSearchResult(
+            allocation, kMin, kMax, agents, 
+            rsdOrder, searchDurationMillis, captainIndexes
+        );
     }
 }
