@@ -17,11 +17,15 @@ import coalitiongames.SimpleSearchResult;
 
 public abstract class ProblemGenerator {
     
-    public static enum SimpleSearchAlgorithm {
+    public interface SearchAlgorithm {
+        // empty tag interface
+    }
+    
+    public static enum SimpleSearchAlgorithm implements SearchAlgorithm {
         RANDOM_ANY, RANDOM_OPT, RSD_GREEDY, RSD_OPT, DRAFT
     }
     
-    public static enum TabuSearchAlgorithm {
+    public static enum TabuSearchAlgorithm implements SearchAlgorithm {
         TABU_ONE, TABU_ALL, TABU_ALL_OPT
     }
     

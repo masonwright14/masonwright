@@ -14,7 +14,9 @@ public abstract class FileHandler {
     
     public static final String TEXT_EXTENSION = ".txt";
     
-    private static File getFileAndCreateIfNeeded(
+    public static final String CSV_EXTENSION = ".csv";
+    
+    public static File getFileAndCreateIfNeeded(
         final String fileName
     ) {
         final File outputFile = new File(fileName);
