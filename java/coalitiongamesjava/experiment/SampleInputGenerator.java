@@ -112,18 +112,19 @@ public abstract class SampleInputGenerator {
             budgets.add(budget);
         }
         
+        // arrange budgets high to low
         Collections.sort(budgets);
         Collections.reverse(budgets);
         final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
         budgets.clear();
         for (int i = 0; i < numPlayers; i++) {
-            final int rsdIndexOfPlayerI = rsdOrder.get(i);
+            final int rsdIndexOfPlayerI = rsdOrder.indexOf(i);
             budgets.add(sortedBudgets.get(rsdIndexOfPlayerI));
         }
         
         for (int i = 0; i < numPlayers - 1; i++) {
-            int ithPlayer = rsdOrder.indexOf(i);
-            int ithPlusOnePlayer = rsdOrder.indexOf(i + 1);
+            int ithPlayer = rsdOrder.get(i);
+            int ithPlusOnePlayer = rsdOrder.get(i + 1);
             if (budgets.get(ithPlayer) < budgets.get(ithPlusOnePlayer)) {
                 throw new IllegalStateException();
             }

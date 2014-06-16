@@ -108,6 +108,7 @@ public abstract class ProblemGenerator {
     ) {
         final List<Integer> rsdOrder = SampleInputLoader.getRsdOrder(fileName);
         final List<Double> budgets = SampleInputLoader.getBudgets(fileName);
+        assert checkRsdBudgets(budgets, rsdOrder);
         final List<List<Double>> values = SampleInputLoader.getMatrix(fileName);
         final int kMax = (int) Math.ceil(Math.sqrt(rsdOrder.size()));
         return getSimpleSearchResult(
@@ -119,12 +120,35 @@ public abstract class ProblemGenerator {
         );
     }
     
+    private static boolean checkRsdBudgets(
+        final List<Double> budgets,
+        final List<Integer> rsdOrder
+    ) {
+        for (int i = 0; i < rsdOrder.size() - 1; i++) {
+            int earlyIndex = rsdOrder.get(i);
+            int lateIndex = rsdOrder.get(i + 1);
+            if (budgets.get(earlyIndex) < budgets.get(lateIndex)) {
+                System.out.println("out of order budgets:");
+                System.out.println("early index: " + earlyIndex);
+                System.out.println("late index: " + lateIndex);
+                System.out.println("early budget: " + budgets.get(earlyIndex));
+                System.out.println("late budget: " + budgets.get(lateIndex));
+                System.out.println(rsdOrder);
+                System.out.println(budgets);
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     public static SearchResult getSearchResult(
         final String fileName,
         final TabuSearchAlgorithm algorithm
     ) {
         final List<Integer> rsdOrder = SampleInputLoader.getRsdOrder(fileName);
         final List<Double> budgets = SampleInputLoader.getBudgets(fileName);
+        assert checkRsdBudgets(budgets, rsdOrder);
         final List<List<Double>> values = SampleInputLoader.getMatrix(fileName);
         final int kMax = (int) Math.ceil(Math.sqrt(rsdOrder.size()));
         return getSearchResult(

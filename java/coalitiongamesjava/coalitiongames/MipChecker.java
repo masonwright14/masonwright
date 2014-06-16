@@ -32,12 +32,13 @@ public abstract class MipChecker {
         }
         
         final List<Double> myPrices = new ArrayList<Double>(prices);
+        // sorted from lowest to highest
         Collections.sort(myPrices);
         assert myPrices.get(0) <= myPrices.get(myPrices.size() - 1);
         double minTotal = 0.0;
         // take cheapest (kMin - 1) other agents
         for (int i = 0; i < kMin - 1; i++) {
-            minTotal += prices.get(i);
+            minTotal += myPrices.get(i);
         }
         
         final double overBudgetTolerance = 0.01;

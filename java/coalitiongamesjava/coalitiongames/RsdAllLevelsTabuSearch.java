@@ -113,20 +113,16 @@ public abstract class RsdAllLevelsTabuSearch {
         if (kMax >= agents.size()) {
             return RsdUtil.getGrandCoalition(agents, kMax, rsdOrder);
         }
-        
-        if (kMin > 1) {
-            for (int i = 0; i < agents.size() - 1; i++) {
-                int ithPlayer = rsdOrder.indexOf(i);
-                int ithPlusOnePlayer = rsdOrder.indexOf(i + 1);
-                if (
-                    agents.get(ithPlayer).getBudget() 
-                    < agents.get(ithPlusOnePlayer).getBudget()
-                ) {
-                    throw new IllegalStateException(
-                        "later rsdOrder agent has " 
-                        + "higher budget; market may not clear"
-                    );                
-                }
+
+        for (int i = 0; i < agents.size() - 1; i++) {
+            if (
+                agents.get(rsdOrder.get(i)).getBudget() 
+                < agents.get(rsdOrder.get(i + 1)).getBudget()
+            ) {
+                throw new IllegalStateException(
+                    "later rsdOrder agent has " 
+                    + "higher budget; market may not clear"
+                );                
             }
         }
         
@@ -334,17 +330,6 @@ public abstract class RsdAllLevelsTabuSearch {
                 currentSearchResult = TabuSearch.tabuSearchRanges(
                     remainingAgents, gammaZ, feasibleTeamSizes
                 );
-                double currentAgentBudget = agents.get(agentIndex).getBudget();
-                for (Agent agent: remainingAgents) {
-                    if (agent.getBudget() > currentAgentBudget) {
-                        System.out.println("other agent budget: " + agent.getBudget());
-                        System.out.println("current agent budget: " + currentAgentBudget);
-                        throw new IllegalStateException();
-                    }
-                }
-                
-                // FIXME
-                // possible bug -- not taking agents in RSD order?
                 
                 tabuSearchCalls++;
                 
@@ -360,10 +345,12 @@ public abstract class RsdAllLevelsTabuSearch {
                 final List<Double> values = RsdUtil.getValueListWithout(
                     currentAgent.getValues(), agentIndex, takenAgentIndexes
                 );
-                // remove self agent from the price set
+                final List<Integer> emptyList = new ArrayList<Integer>();
+                final int agentIndexInRemainingAgents = 
+                    remainingAgents.indexOf(currentAgent);
                 final List<Double> prices = getPriceListWithout(
                     currentSearchResult.getPrices(), 
-                    agentIndex, takenAgentIndexes
+                    agentIndexInRemainingAgents, emptyList
                 );
                 // final MipGenerator mipGenerator = new MipGeneratorGLPK();
                 final MipGenerator mipGenerator = new MipGeneratorCPLEX();

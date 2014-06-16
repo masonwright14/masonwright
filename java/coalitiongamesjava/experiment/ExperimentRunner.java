@@ -72,9 +72,6 @@ public abstract class ExperimentRunner {
         for (int runNumber = 1; runNumber <= runCount; runNumber++) {
             // FIXME
             // for testing only
-            if (runNumber < 2) {
-                continue;
-            }
             if (runNumber > 2) {
                 break;
             }
