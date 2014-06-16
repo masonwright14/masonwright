@@ -18,16 +18,36 @@ public abstract class ExperimentRunner {
     private static final String SOLVER_NAME = "cplex";
     
     public static void main(final String[] args) {
+        /*
         final SearchAlgorithm algorithm = TabuSearchAlgorithm.TABU_ALL_OPT;
         final String inputFilePrefix = "newfrat";
         runExperiment(algorithm, SOLVER_NAME, inputFilePrefix);
+        */
+        
+        // runAllExperimentsOfType(false);
+        
+        runExperiment(TabuSearchAlgorithm.TABU_ONE, SOLVER_NAME, "bkfrat");
+    }
+    
+    public static void runAllExperimentsOfType(final boolean isTabu) {
+        // time the duration of the search to the millisecond
+        final long experimentStartMillis = new Date().getTime();
+        for (final String inputPrefix: ProblemGenerator.INPUT_PREFIX_ARRAY) {
+            runExperimentsForInputFilePrefixOfType(
+                SOLVER_NAME, inputPrefix, isTabu
+            );
+        }
+        final long experimentDurationMillis = 
+            new Date().getTime() - experimentStartMillis;
+        System.out.println(
+            "Ran all experiments: " + experimentDurationMillis + " millis"
+        );
     }
     
     public static void runAllExperiments() {
        // time the duration of the search to the millisecond
        final long experimentStartMillis = new Date().getTime();
        for (final String inputPrefix: ProblemGenerator.INPUT_PREFIX_ARRAY) {
-
            runExperimentsForInputFilePrefix(SOLVER_NAME, inputPrefix);
        }
        final long experimentDurationMillis = 
@@ -35,6 +55,28 @@ public abstract class ExperimentRunner {
        System.out.println(
            "Ran all experiments: " + experimentDurationMillis + " millis"
        );
+    }
+    
+    private static void runExperimentsForInputFilePrefixOfType(
+        final String solverName,
+        final String inputFilePrefix,
+        final boolean isTabu
+    ) {
+        final long inputStartMillis = new Date().getTime();
+        for (
+            final SearchAlgorithm algorithm
+            : ProblemGenerator.ALGORITHM_ARRAY
+        ) {
+            if (algorithm instanceof TabuSearchAlgorithm == isTabu) {
+                runExperiment(algorithm, solverName, inputFilePrefix);
+            }
+        }
+        final long inputDurationMillis = 
+            new Date().getTime() - inputStartMillis;
+        System.out.println(
+            "\tRan all experiments for input: " + inputFilePrefix + " in " 
+            + inputDurationMillis + " millis"
+        );
     }
     
     private static void runExperimentsForInputFilePrefix(
@@ -70,12 +112,6 @@ public abstract class ExperimentRunner {
             new ArrayList<SimpleSearchResult>();
         final long experimentStartMillis = new Date().getTime();
         for (int runNumber = 1; runNumber <= runCount; runNumber++) {
-            // FIXME
-            // for testing only
-            if (runNumber > 2) {
-                break;
-            }
-            
             final String inputFileName = INPUT_FOLDER_NAME + "/" 
                 + inputFilePrefix + "_" 
                 + runNumber + FileHandler.TEXT_EXTENSION;
