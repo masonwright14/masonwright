@@ -44,6 +44,8 @@ public abstract class OutputPrinter {
     
     private static final char NEWLINE = '\n';
     
+    private static final char UNDERBAR = '_';
+    
     public static void main(final String[] args) {
         final List<SimpleSearchResult> searchResults = 
             new ArrayList<SimpleSearchResult>();
@@ -84,7 +86,7 @@ public abstract class OutputPrinter {
         final String inputFilePrefix
     ) {
         final String descriptionFileName = 
-            OUTPUT_FILE + algorithmName + "_" + inputFilePrefix + "_" 
+            OUTPUT_FILE + algorithmName + UNDERBAR + inputFilePrefix + UNDERBAR 
             + DESCRIPTION_STRING + FileHandler.CSV_EXTENSION;
         final StringBuilder builder = new StringBuilder();
         builder.append(DESCRIPTION_HEADER);
@@ -105,7 +107,7 @@ public abstract class OutputPrinter {
         final String inputFilePrefix
     ) {
         final String summaryFileName = 
-            OUTPUT_FILE + algorithmName + "_" + inputFilePrefix + "_" 
+            OUTPUT_FILE + algorithmName + UNDERBAR + inputFilePrefix + UNDERBAR 
             + SUMMARY_STRING + FileHandler.CSV_EXTENSION;
         final StringBuilder builder = new StringBuilder();
         builder.append(SUMMARY_HEADER);
@@ -128,7 +130,7 @@ public abstract class OutputPrinter {
         final String inputFilePrefix
     ) {
         final String resultsFileName = 
-            OUTPUT_FILE + algorithmName + "_" + inputFilePrefix + "_" 
+            OUTPUT_FILE + algorithmName + UNDERBAR + inputFilePrefix + UNDERBAR 
             + RESULT_STRING + FileHandler.CSV_EXTENSION;
         Writer output = null;
         try {
@@ -189,7 +191,7 @@ public abstract class OutputPrinter {
                     result.leastFavTeammateRanks();
                 final List<Double> leastFavTeammateRanksNoJitter =
                     result.leastFavTeammateRanksNoJitter();
-                    
+                
                 for (int j = 0; j < agents.size(); j++) {
                     final Agent agent = agents.get(j);
                     final StringBuilder sb = new StringBuilder();
@@ -202,7 +204,12 @@ public abstract class OutputPrinter {
                     } else {
                         budgetRank = budgetRanks.get(j);
                     }
-                    final int rsdOrderIndex = rsdOrderIndexes.get(j);
+                    int rsdOrderIndex;
+                    if (rsdOrderIndexes == null) {
+                        rsdOrderIndex = -1;
+                    } else {
+                        rsdOrderIndex = rsdOrderIndexes.get(j);
+                    }
                     final int teamSize = teamSizes.get(j);
                     final double teamUtility = teamUtilities.get(j);
                     final int teamUtilityNoJitter = 
@@ -233,7 +240,6 @@ public abstract class OutputPrinter {
                         leastFavTeammateRanks.get(j);
                     final double leastFavTeammateRankNoJitter =
                         leastFavTeammateRanksNoJitter.get(j);                  
-                    
                     sb.append(runNumber).append(COMMA).
                         append(playerId).append(COMMA).
                         append(isCaptain).append(COMMA).
@@ -263,7 +269,7 @@ public abstract class OutputPrinter {
                     output.write(sb.toString());
                 }
             }
-            output.write('\n');
+            output.write(NEWLINE);
             output.flush();
             output.close();
         } catch (IOException e) {

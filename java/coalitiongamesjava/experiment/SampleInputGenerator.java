@@ -9,6 +9,7 @@ import coalitiongames.RsdUtil;
 
 public abstract class SampleInputGenerator {
 
+    public static final String INPUT_FOLDER = "inputFiles/";
     
     public static void main(final String[] args) {
         // final int runCount = 20;
@@ -50,7 +51,7 @@ public abstract class SampleInputGenerator {
         
         for (int runNumber = 1; runNumber <= runCount; runNumber++) {
             final String outFileName = 
-                "inputFiles/" + outFilePrefix 
+                INPUT_FOLDER + outFilePrefix 
                 + "_" + runNumber + FileHandler.TEXT_EXTENSION;
             final List<Integer> rsdOrder = 
                 RsdUtil.getShuffledNumberList(numPlayers);

@@ -21,12 +21,67 @@ public abstract class ProblemGenerator {
         // empty tag interface
     }
     
+    
     public static enum SimpleSearchAlgorithm implements SearchAlgorithm {
         RANDOM_ANY, RANDOM_OPT, RSD_GREEDY, RSD_OPT, DRAFT
     }
     
     public static enum TabuSearchAlgorithm implements SearchAlgorithm {
         TABU_ONE, TABU_ALL, TABU_ALL_OPT
+    }
+    
+    static final String[] INPUT_PREFIX_ARRAY = {
+        "bkfrat", "bkoff", "cross", "free", "newfrat",
+        "rados", "vand", "webster",
+        "random_20_agents", "random_30_agents",
+        "random_50_agents", "random_200_agents"
+    };
+    
+    static final SearchAlgorithm[] ALGORITHM_ARRAY = {
+        SimpleSearchAlgorithm.RANDOM_ANY,
+        SimpleSearchAlgorithm.RANDOM_OPT,
+        SimpleSearchAlgorithm.RSD_GREEDY,
+        SimpleSearchAlgorithm.RSD_OPT,
+        SimpleSearchAlgorithm.DRAFT,
+        TabuSearchAlgorithm.TABU_ONE,
+        TabuSearchAlgorithm.TABU_ALL,
+        TabuSearchAlgorithm.TABU_ALL_OPT
+    };
+    
+    public static String getAlgorithmName(
+        final SearchAlgorithm algorithm
+    ) {
+        if (algorithm instanceof SimpleSearchAlgorithm) {
+            SimpleSearchAlgorithm ssa = (SimpleSearchAlgorithm) algorithm;
+            switch (ssa) {
+            case DRAFT:
+                return "draft";
+            case RANDOM_ANY:
+                return "randomAny";
+            case RANDOM_OPT:
+                return "randomOpt";
+            case RSD_GREEDY:
+                return "rsdGreedy";
+            case RSD_OPT:
+                return "rsdOpt";
+            default:
+                throw new IllegalArgumentException();                
+            }
+        }
+        if (algorithm instanceof TabuSearchAlgorithm) {
+            TabuSearchAlgorithm tsa = (TabuSearchAlgorithm) algorithm;
+            switch (tsa) {
+            case TABU_ALL:
+                return "tabuAll";
+            case TABU_ALL_OPT:
+                return "tabuAllOpt";
+            case TABU_ONE:
+                return "tabuOne";
+            default:
+                throw new IllegalArgumentException(); 
+            }
+        }
+        throw new IllegalArgumentException();
     }
     
     public static void main(final String[] args) {

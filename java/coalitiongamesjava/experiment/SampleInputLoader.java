@@ -23,7 +23,7 @@ public abstract class SampleInputLoader {
         final int runNumber
     ) {
         return
-            "inputFiles/" + prefix 
+            SampleInputGenerator.INPUT_FOLDER + prefix 
             + "_" + runNumber + FileHandler.TEXT_EXTENSION;
     }
     

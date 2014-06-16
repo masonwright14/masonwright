@@ -16,6 +16,10 @@ public abstract class FileHandler {
     
     public static final String CSV_EXTENSION = ".csv";
     
+    public static final char NEWLINE = '\n';
+    
+    public static final String SOME_SPACES = "\\s+";
+    
     public static File getFileAndCreateIfNeeded(
         final String fileName
     ) {
@@ -38,7 +42,7 @@ public abstract class FileHandler {
         try {
             output = new BufferedWriter(
                 new FileWriter(getFileAndCreateIfNeeded(fileName)));
-            output.write(text + "\n");
+            output.write(text + NEWLINE);
             output.close();
         } catch (IOException e) {
             if (output != null) {
@@ -80,12 +84,12 @@ public abstract class FileHandler {
         try {
             output = new BufferedWriter(
                 new FileWriter(getFileAndCreateIfNeeded(fileName)));
-            output.write(getSeparatedList(rsdOrder, ' ') + '\n');
-            output.write(getSeparatedList(budgets, ' ') + '\n');
+            output.write(getSeparatedList(rsdOrder, ' ') + NEWLINE);
+            output.write(getSeparatedList(budgets, ' ') + NEWLINE);
             for (List<Double> row: valueMatrix) {
-                output.write(getSeparatedList(row, ' ') + '\n');
+                output.write(getSeparatedList(row, ' ') + NEWLINE);
             }
-            output.write('\n');
+            output.write(NEWLINE);
             output.flush();
             output.close();
         } catch (IOException e) {
@@ -105,7 +109,7 @@ public abstract class FileHandler {
     public static List<Integer> getSpaceSeparatedIntegerRow(
         final String line
     ) {
-        final String[] tokens = line.trim().split("\\s+");
+        final String[] tokens = line.trim().split(SOME_SPACES);
         final List<Integer> row = new ArrayList<Integer>();
         for (int i = 0; i < tokens.length; i++) {
             row.add(Integer.parseInt(tokens[i]));
@@ -116,7 +120,7 @@ public abstract class FileHandler {
     public static List<Double> getSpaceSeparatedDoubleRow(
         final String line
     ) {
-        final String[] tokens = line.trim().split("\\s+");
+        final String[] tokens = line.trim().split(SOME_SPACES);
         final List<Double> row = new ArrayList<Double>();
         for (int i = 0; i < tokens.length; i++) {
             row.add(Double.parseDouble(tokens[i]));
@@ -132,7 +136,7 @@ public abstract class FileHandler {
             if (line.isEmpty()) {
                 continue;
             }
-            final String[] tokens = line.trim().split("\\s+");
+            final String[] tokens = line.trim().split(SOME_SPACES);
             final List<Integer> row = new ArrayList<Integer>();
             for (int i = 0; i < tokens.length; i++) {
                 row.add(Integer.parseInt(tokens[i]));
@@ -151,7 +155,7 @@ public abstract class FileHandler {
             if (line.isEmpty()) {
                 continue;
             }
-            final String[] tokens = line.trim().split("\\s+");
+            final String[] tokens = line.trim().split(SOME_SPACES);
             List<Double> row = new ArrayList<Double>();
             for (int i = 0; i < tokens.length; i++) {
                 row.add(Double.parseDouble(tokens[i]));

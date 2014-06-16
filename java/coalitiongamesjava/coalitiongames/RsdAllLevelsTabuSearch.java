@@ -282,6 +282,8 @@ public abstract class RsdAllLevelsTabuSearch {
                     }
                 }
             } else {
+                // former demand of this agent no longer feasible.
+                // must run a new tabu search.
                 final List<Agent> remainingAgents = new ArrayList<Agent>();
                 for (int i = 0; i < agents.size(); i++) {
                     if (!takenAgentIndexes.contains(i)) {
@@ -332,6 +334,18 @@ public abstract class RsdAllLevelsTabuSearch {
                 currentSearchResult = TabuSearch.tabuSearchRanges(
                     remainingAgents, gammaZ, feasibleTeamSizes
                 );
+                double currentAgentBudget = agents.get(agentIndex).getBudget();
+                for (Agent agent: remainingAgents) {
+                    if (agent.getBudget() > currentAgentBudget) {
+                        System.out.println("other agent budget: " + agent.getBudget());
+                        System.out.println("current agent budget: " + currentAgentBudget);
+                        throw new IllegalStateException();
+                    }
+                }
+                
+                // FIXME
+                // possible bug -- not taking agents in RSD order?
+                
                 tabuSearchCalls++;
                 
                 /* set up MIP over remaining agents, for the current agent
@@ -360,7 +374,7 @@ public abstract class RsdAllLevelsTabuSearch {
                     feasibleTeamSizes, maxPrice
                 );
                 newAgentDemand.addAll(mipResult.getRoundedColumnValues());
-
+                
                 // add 0 demand for agents already on teams,
                 // and 1 demand for the self agent
                 Collections.sort(takenAgentIndexes);

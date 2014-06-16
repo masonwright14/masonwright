@@ -662,6 +662,8 @@ public class SimpleSearchResult {
         builder.append(", \ndurationMillis=");
         builder.append(durationMillis);
         builder.append(", \nisCaptain=");
+        builder.append(", \nrsdIndexes=");
+        builder.append(getRsdIndexes());
         builder.append(isCaptain());
         builder.append("]");
         return builder.toString();

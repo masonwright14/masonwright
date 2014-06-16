@@ -7,6 +7,16 @@ import java.util.List;
 
 public abstract class MipChecker {
     
+    /**
+     * 
+     * @param prices price of each agent, other than the self agent
+     * @param budget budget of the self agent
+     * @param kMin minimum number of agents per team, including
+     * the self agent
+     * @return whether any bundle of size kMin (including the self
+     * agent, which has no cost, so (kMin - 1) other agents) is
+     * affordable given the budget.
+     */
     public static boolean isFeasible(
         final List<Double> prices,
         final double budget,
@@ -23,13 +33,15 @@ public abstract class MipChecker {
         
         final List<Double> myPrices = new ArrayList<Double>(prices);
         Collections.sort(myPrices);
+        assert myPrices.get(0) <= myPrices.get(myPrices.size() - 1);
         double minTotal = 0.0;
         // take cheapest (kMin - 1) other agents
         for (int i = 0; i < kMin - 1; i++) {
             minTotal += prices.get(i);
         }
         
-        return budget >= minTotal;
+        final double overBudgetTolerance = 0.01;
+        return budget + overBudgetTolerance >= minTotal;
     }
 
     public static boolean checkLpSolution(
