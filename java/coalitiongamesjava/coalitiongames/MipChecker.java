@@ -41,8 +41,8 @@ public abstract class MipChecker {
             minTotal += myPrices.get(i);
         }
         
-        final double overBudgetTolerance = 0.01;
-        return budget + overBudgetTolerance >= minTotal;
+        final double tolerance = 0.001;
+        return budget - tolerance >= minTotal;
     }
 
     public static boolean checkLpSolution(

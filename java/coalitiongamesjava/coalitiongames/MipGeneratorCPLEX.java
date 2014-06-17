@@ -157,11 +157,11 @@ public final class MipGeneratorCPLEX implements MipGenerator {
                 return result;
             }
             
+            final IloCplex.Status status = lp.getStatus();
             lp.end();
             throw new IllegalStateException(
-                "No solution found: " + lp.getStatus()
-            );
-            
+                "No solution found: " + status
+            );  
         } catch (final IloException e) {
             e.printStackTrace();
             throw new IllegalStateException("Error building model");
