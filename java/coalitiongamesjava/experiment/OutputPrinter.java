@@ -264,7 +264,7 @@ public abstract class OutputPrinter {
                         append(favTeammateRank).append(COMMA).
                         append(favTeammateRankNoJitter).append(COMMA).
                         append(leastFavTeammateRank).append(COMMA).
-                        append(leastFavTeammateRankNoJitter).append(COMMA);
+                        append(leastFavTeammateRankNoJitter);
                     sb.append(NEWLINE);
                     output.write(sb.toString());
                 }
