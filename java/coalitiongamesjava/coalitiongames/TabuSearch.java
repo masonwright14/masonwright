@@ -11,7 +11,7 @@ import coalitiongames.PriceWithError.PriceUpdateSource;
 
 public abstract class TabuSearch {
     
-    public static final int DEFAULT_TABU_STEPS = 100;
+    public static final int DEFAULT_TABU_STEPS = 20;
     // public static final int DEFAULT_TABU_STEPS = 10; // for quick testing
     
     public static void main(final String[] args) {
@@ -463,8 +463,10 @@ public abstract class TabuSearch {
         for (int i = 1; i <= agents.size(); i++) {
             prices.add(basePrice);
         }
+        final DemandGenerator demandGen = 
+            DemandGeneratorMultiCore.getDemandGenerator();
         final List<List<Integer>> aggregateDemand = 
-            DemandGenerator.getAggregateDemand(
+            demandGen.getAggregateDemand(
                 agents, 
                 prices, 
                 teamSizes, 
@@ -511,8 +513,10 @@ public abstract class TabuSearch {
         for (int i = 1; i <= agents.size(); i++) {
             prices.add(basePrice);
         }
+        final DemandGenerator demandGen = 
+            DemandGeneratorMultiCore.getDemandGenerator();
         final List<List<Integer>> aggregateDemand = 
-            DemandGenerator.getAggregateDemand(
+            demandGen.getAggregateDemand(
                 agents, 
                 prices, 
                 kMax, 

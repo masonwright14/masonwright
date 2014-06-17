@@ -26,7 +26,13 @@ public abstract class ExperimentRunner {
         
         // runAllExperimentsOfType(false);
         
-        runExperiment(TabuSearchAlgorithm.TABU_ONE, SOLVER_NAME, "bkfrat");
+        /*
+        runExperiment(TabuSearchAlgorithm.TABU_ALL_OPT, SOLVER_NAME, "random_20_agents");
+        runExperiment(TabuSearchAlgorithm.TABU_ALL, SOLVER_NAME, "random_20_agents");
+        runExperiment(TabuSearchAlgorithm.TABU_ONE, SOLVER_NAME, "random_20_agents");
+        */
+        
+        runExperiment(TabuSearchAlgorithm.TABU_ALL_OPT, SOLVER_NAME, "random_20_agents");
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {

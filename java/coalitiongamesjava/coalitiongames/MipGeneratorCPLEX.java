@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class MipGeneratorCPLEX implements MipGenerator {
+    
+    private static final boolean IS_PARALLEL = true;
 
     /**
      * 
@@ -73,6 +75,14 @@ public final class MipGeneratorCPLEX implements MipGenerator {
         
         try {
             final IloCplex lp = new IloCplex();
+            
+            if (IS_PARALLEL) {
+                // set these parameters if using parallel processing
+                lp.setParam(IloCplex.IntParam.Threads, 1);
+                final double sizeInMb = 400.0;
+                lp.setParam(IloCplex.DoubleParam.WorkMem, sizeInMb);
+            }
+            
             lp.setOut(null);
             int[] xLowerBounds = new int[otherAgentCount];
             int[] xUpperBounds = new int[otherAgentCount];
@@ -134,7 +144,8 @@ public final class MipGeneratorCPLEX implements MipGenerator {
                 lp.end();
                 
                 if (DEBUGGING) {
-                    final int testIterations = 10000;
+                    // final int testIterations = 10000;
+                    final int testIterations = 100;
                     boolean testResult = MipChecker.checkLpSolution(
                         result, values, prices, budget, 
                         kMax, kMin, testIterations

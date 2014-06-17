@@ -21,8 +21,10 @@ public abstract class NeighborGenerator {
             final PriceWithSource neighborPriceWithSource
             : neighborPricesWithSource
         ) {
+            final DemandGenerator demandGen = 
+                DemandGeneratorMultiCore.getDemandGenerator();
             final List<List<Integer>> neighborDemand = 
-                DemandGenerator.getAggregateDemand(
+                demandGen.getAggregateDemand(
                     agents, 
                     neighborPriceWithSource.getPrice(), 
                     teamSizes,
@@ -78,8 +80,10 @@ public abstract class NeighborGenerator {
             final PriceWithSource neighborPriceWithSource
             : neighborPricesWithSource
         ) {
+            final DemandGenerator demandGen = 
+                DemandGeneratorMultiCore.getDemandGenerator();
             final List<List<Integer>> neighborDemand = 
-                DemandGenerator.getAggregateDemand(
+                demandGen.getAggregateDemand(
                     agents, 
                     neighborPriceWithSource.getPrice(), 
                     kMax, 

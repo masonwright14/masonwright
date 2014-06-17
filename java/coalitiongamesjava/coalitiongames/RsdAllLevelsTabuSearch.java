@@ -376,6 +376,29 @@ public abstract class RsdAllLevelsTabuSearch {
             }
 
             assert newAgentDemand.size() == agents.size();
+            
+            // if the current agent received the empty bundle,
+            // which can occasionally happen when an A-CEEI is found by
+            // tabu search, even though current agent has the strictly
+            // greatest budget.
+            // let current agent pick its favorite bundle from
+            // remaining agents.
+            if (RsdUtil.getTeamSize(newAgentDemand) < kMin) {
+                assert RsdUtil.getTeamSize(newAgentDemand) == 1;
+                final List<Integer> rsdDemand = 
+                    getRsdChoices(agentIndex, agents, 
+                    takenAgentIndexes, Collections.min(feasibleTeamSizes)
+                );
+                allocation.add(rsdDemand);
+                for (int i = 0; i < rsdDemand.size(); i++) {
+                    if (rsdDemand.get(i) == 1) {
+                        takenAgentIndexes.add(i);
+                    }
+                }
+                assert takenAgentIndexes.contains(agentIndex);                
+                continue;
+            }
+            
             assert RsdUtil.getTeamSize(newAgentDemand) >= kMin;
             
             // make this allocation.
@@ -410,7 +433,6 @@ public abstract class RsdAllLevelsTabuSearch {
         return result;
     }
     
-    
     public static List<Double> getPriceListWithout(
         final List<Double> partialPriceList, 
         final int agentIndex, 
@@ -444,5 +466,63 @@ public abstract class RsdAllLevelsTabuSearch {
         // (agentIndex - itemsRemovedBeforeAgentIndex).
         result.remove(agentIndex - itemsRemovedBeforeAgentIndex);
         return result; 
+    }
+    
+    /**
+     * 
+     * @param captainIndex index of "team captain" in agents list
+     * @param agents list of all agents
+     * @param takenAgentIndexes indexes in agents list of already taken agents
+     * @param teamSize size of the team to choose, including the captain
+     * @return a list of 0's and 1's of length same as agents list,
+     * where 1 indicates the player is on the team. there should be
+     * teamSize number of 1's, including a 1 at item captainIndex
+     */
+    private static List<Integer> getRsdChoices(
+        final int captainIndex,
+        final List<Agent> agents,
+        final List<Integer> takenAgentIndexes,
+        final int teamSize
+    ) {
+        List<Integer> team = new ArrayList<Integer>();
+        team.add(captainIndex);
+        final Agent captain = agents.get(captainIndex);
+        for (final UUID aUuid: captain.getAgentIdsHighValueToLow()) {
+            boolean isTaken = false;
+            for (final Integer takenAgentIndex: takenAgentIndexes) {
+                if (agents.get(takenAgentIndex).getUuid().equals(aUuid)) {
+                    isTaken = true;
+                    break;
+                }
+            }
+            if (!isTaken) {
+                int index = -1;
+                for (int i = 0; i < agents.size(); i++) {
+                    if (agents.get(i).getUuid().equals(aUuid)) {
+                        index = i;
+                        break;
+                    }
+                }
+                assert index != -1;
+                team.add(index);
+                if (team.size() == teamSize) {
+                    break;
+                }
+            }
+        }
+        
+        assert team.contains(captainIndex);
+        assert team.size() == teamSize;
+        
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < agents.size(); i++) {
+            if (team.contains(i)) {
+                result.add(1);
+            } else {
+                result.add(0);
+            }
+        }
+        
+        return result;
     }
 }

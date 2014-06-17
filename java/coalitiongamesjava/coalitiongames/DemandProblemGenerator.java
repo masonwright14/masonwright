@@ -10,7 +10,7 @@ public abstract class DemandProblemGenerator {
     
     public static void main(final String[] args) {
         // runSmallProblem();
-        // runVerySmallTabuSearch();
+        runVerySmallTabuSearch();
         // runSmallTabuSearch();
         // runVerySmallRsdTabuSearch();
         // runSmallRsdTabuSearch();
@@ -25,7 +25,7 @@ public abstract class DemandProblemGenerator {
         // runSmallDraftAllocation();
         // runGrandCoalitionRsdTabuSearch();
         // runGrandCoalitionRsdAllLevelsTabuSearch();
-        runSmallRsdAllLevelsOptimalSizesTabuSearch();
+        // runSmallRsdAllLevelsOptimalSizesTabuSearch();
     }
     
     @SuppressWarnings("unused")
@@ -77,7 +77,6 @@ public abstract class DemandProblemGenerator {
         );
     }
     
-    @SuppressWarnings("unused")
     private static void runVerySmallTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -127,6 +126,7 @@ public abstract class DemandProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallRsdAllLevelsOptimalSizesTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -679,7 +679,9 @@ public abstract class DemandProblemGenerator {
             agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
         }
         
-        final List<List<Integer>> demand = DemandGenerator.getAggregateDemand(
+        final DemandGenerator demandGen = 
+            DemandGeneratorMultiCore.getDemandGenerator();
+        final List<List<Integer>> demand = demandGen.getAggregateDemand(
             agents, 
             prices, 
             kMax, 
