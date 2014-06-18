@@ -38,9 +38,20 @@ public abstract class ExperimentRunner {
         );
         */
         
+        /*
         runExperiment(
-            TabuSearchAlgorithm.TABU_ALL_OPT, SOLVER_NAME, "random_20_agents"
+            TabuSearchAlgorithm.TABU_ALL_OPT, SOLVER_NAME, "vand"
         );
+        */
+        
+        /*
+        final String fileName = "rndUncor_200_agents";
+        runExperiment(SimpleSearchAlgorithm.DRAFT, SOLVER_NAME, fileName);
+        runExperiment(SimpleSearchAlgorithm.RANDOM_ANY, SOLVER_NAME, fileName);
+        runExperiment(SimpleSearchAlgorithm.RANDOM_OPT, SOLVER_NAME, fileName);
+        runExperiment(SimpleSearchAlgorithm.RSD_GREEDY, SOLVER_NAME, fileName);
+        runExperiment(SimpleSearchAlgorithm.RSD_OPT, SOLVER_NAME, fileName);
+        */
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {
