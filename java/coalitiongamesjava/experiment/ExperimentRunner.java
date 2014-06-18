@@ -52,6 +52,8 @@ public abstract class ExperimentRunner {
         runExperiment(SimpleSearchAlgorithm.RSD_GREEDY, SOLVER_NAME, fileName);
         runExperiment(SimpleSearchAlgorithm.RSD_OPT, SOLVER_NAME, fileName);
         */
+        
+        // runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT);
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {
@@ -61,6 +63,21 @@ public abstract class ExperimentRunner {
             runExperimentsForInputFilePrefixOfType(
                 SOLVER_NAME, inputPrefix, isTabu
             );
+        }
+        final long experimentDurationMillis = 
+            new Date().getTime() - experimentStartMillis;
+        System.out.println(
+            "Ran all experiments: " + experimentDurationMillis + " millis"
+        );
+    }
+    
+    public static void runAllExperimentsOfSubtype(
+        final SearchAlgorithm algorithm
+    ) {
+        // time the duration of the search to the millisecond
+        final long experimentStartMillis = new Date().getTime();
+        for (final String inputPrefix: ProblemGenerator.INPUT_PREFIX_ARRAY) {
+            runExperiment(algorithm, SOLVER_NAME, inputPrefix);
         }
         final long experimentDurationMillis = 
             new Date().getTime() - experimentStartMillis;
