@@ -30,7 +30,8 @@ public final class SearchResult extends SimpleSearchResult {
         final List<Double> aBestErrorValues,
         final List<PriceUpdateSource> aPriceUpdateSources,
         final int aTabuSearchCalls,
-        final List<Integer> aCaptainIndexes
+        final List<Integer> aCaptainIndexes,
+        final double aMeanPairwiseCosineSimilarity
     ) {
         super(
             aAllocation,
@@ -39,7 +40,8 @@ public final class SearchResult extends SimpleSearchResult {
             aAgents,
             aRsdOrder,
             aDurationMillis,
-            aCaptainIndexes
+            aCaptainIndexes,
+            aMeanPairwiseCosineSimilarity
         );
         
         if (aPrices != null) {
@@ -96,7 +98,8 @@ public final class SearchResult extends SimpleSearchResult {
         final List<Double> aBestErrorValues,
         final List<PriceUpdateSource> aPriceUpdateSources,
         final int aTabuSearchCalls,
-        final List<Integer> aCaptainIndexes
+        final List<Integer> aCaptainIndexes,
+        final double aMeanPairwiseCosineSimilarity
     ) {
         super(
             aAllocation,
@@ -105,7 +108,8 @@ public final class SearchResult extends SimpleSearchResult {
             aAgents,
             aRsdOrder,
             aDurationMillis,
-            aCaptainIndexes
+            aCaptainIndexes,
+            aMeanPairwiseCosineSimilarity
         );
         
         if (aPrices != null) {
@@ -305,7 +309,8 @@ public final class SearchResult extends SimpleSearchResult {
             null,
             null,
             0,
-            null
+            null,
+            0.0
         );
         // should be: 2 4 3 0 1
         System.out.println(sr.getBudgetRanks());

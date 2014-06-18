@@ -109,9 +109,12 @@ public abstract class DraftAllocation {
         final int kMin = teamSizes.get(0);
         final long searchDurationMillis = 
             new Date().getTime() - searchStartMillis;
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
         return new SimpleSearchResult(
             allocation, kMin, kMax, agents, 
-            rsdOrder, searchDurationMillis, captainIndexes
+            rsdOrder, searchDurationMillis, captainIndexes,
+            similarity
         );
     }
     

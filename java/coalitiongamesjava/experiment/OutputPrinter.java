@@ -24,7 +24,7 @@ public abstract class OutputPrinter {
     private static final String SUMMARY_STRING = "summary";
     
     private static final String SUMMARY_HEADER = 
-        "runNumber,runTimeInMillis,numberOfTeams\n";
+        "runNumber,runTimeInMillis,numberOfTeams,meanCosineSimilarity\n";
     
     private static final String RESULT_STRING = "results";
     
@@ -116,9 +116,12 @@ public abstract class OutputPrinter {
             final int runNumber = i + 1;
             final long runTimeInMillis = searchResult.getDurationMillis();
             final int numTeams = searchResult.getNumberOfTeams();
+            final double meanCosineSimilarity = 
+                searchResult.getMeanPairwiseCosineSimilarity();
             builder.append(runNumber).append(COMMA).
                 append(runTimeInMillis).append(COMMA).
-                append(numTeams).append(NEWLINE);
+                append(numTeams).append(COMMA).
+                append(meanCosineSimilarity).append(NEWLINE);
         }
         
         FileHandler.writeToFile(summaryFileName, builder.toString());

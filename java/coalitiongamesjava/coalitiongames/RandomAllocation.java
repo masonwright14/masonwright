@@ -64,8 +64,11 @@ public abstract class RandomAllocation {
             getAllocationFromLists(agents.size(), allocationAsLists);
         final long searchDurationMillis = 
             new Date().getTime() - searchStartMillis;
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
         return new SimpleSearchResult(
-            allocation, kMin, kMax, agents, null, searchDurationMillis, null
+            allocation, kMin, kMax, agents, null, searchDurationMillis, null,
+            similarity
         );
     }
     

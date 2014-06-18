@@ -458,6 +458,9 @@ public abstract class RsdUtil {
         final List<Integer> captainIndexes = new ArrayList<Integer>();
         captainIndexes.add(0);
         
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
+        
         final SearchResult result = new SearchResult(
             null, // prices
             allocation, error, 
@@ -466,7 +469,8 @@ public abstract class RsdUtil {
             null, // best error values
             null,
             0,
-            captainIndexes
+            captainIndexes,
+            similarity
         );
         return result;
     }

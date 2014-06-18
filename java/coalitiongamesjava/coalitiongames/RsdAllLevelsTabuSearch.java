@@ -423,12 +423,14 @@ public abstract class RsdAllLevelsTabuSearch {
             new Date().getTime() - searchStartMillis;
         final List<List<Integer>> resultAllocation = 
             RsdUtil.getAllocation(allocation);
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
         final SearchResult result = new SearchResult(
             initialSearchResult.getPrices(), resultAllocation, error, 
             errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
             rsdOrder, initialSearchResult.getBestErrorValues(),
             initialSearchResult.getPriceUpdateSources(),
-            tabuSearchCalls, captainIndexes
+            tabuSearchCalls, captainIndexes, similarity
         );
         return result;
     }

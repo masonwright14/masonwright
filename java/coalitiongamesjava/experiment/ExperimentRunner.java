@@ -1,6 +1,7 @@
 package experiment;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,8 @@ public abstract class ExperimentRunner {
         */
         
         // runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT);
+        
+        printMeanCosineSimilarities();
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {
@@ -227,5 +230,28 @@ public abstract class ExperimentRunner {
         }
         
         return allInputFileNames;
+    }
+    
+    public static void printMeanCosineSimilarities() {
+        for (String inputFilePrefix: ProblemGenerator.INPUT_PREFIX_ARRAY) {
+            double total = 0.0;
+            final int numRuns = 20;
+            for (int runNumber = 1; runNumber <= numRuns; runNumber++) {
+                final String inputFileName = INPUT_FOLDER_NAME + "/" 
+                    + inputFilePrefix + "_" 
+                    + runNumber + FileHandler.TEXT_EXTENSION;
+                
+                SimpleSearchResult result = 
+                    ProblemGenerator.getSimpleSearchResult(
+                    inputFileName, SimpleSearchAlgorithm.RANDOM_OPT
+                );
+                total += result.getMeanPairwiseCosineSimilarity();
+            }
+            final double meanSimilarity = total / numRuns;
+            final DecimalFormat df = new DecimalFormat("#.###");
+            System.out.println(
+                inputFilePrefix + "," + df.format(meanSimilarity)
+            );
+        }
     }
 }

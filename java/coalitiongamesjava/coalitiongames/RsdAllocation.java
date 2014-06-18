@@ -142,9 +142,11 @@ public abstract class RsdAllocation {
             );
         final long searchDurationMillis = 
             new Date().getTime() - searchStartMillis;
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
         return new SimpleSearchResult(
             allocation, kMin, kMax, agents, 
-            rsdOrder, searchDurationMillis, captainIndexes
+            rsdOrder, searchDurationMillis, captainIndexes, similarity
         );
     }
 }

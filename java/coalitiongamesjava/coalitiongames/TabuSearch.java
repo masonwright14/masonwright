@@ -179,6 +179,9 @@ public abstract class TabuSearch {
         
         // search complete. return best node.
         
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
+        
         final long searchDurationMillis = 
             new Date().getTime() - searchStartMillis;
         final SearchResult result = new SearchResult(
@@ -193,7 +196,8 @@ public abstract class TabuSearch {
             bestErrorValues,
             priceUpdateSources,
             1,
-            null
+            null,
+            similarity
         );
         return result;
     }
@@ -307,6 +311,9 @@ public abstract class TabuSearch {
         
         // search complete. return best node.
         
+        final double similarity = 
+            PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
+        
         final long searchDurationMillis = 
             new Date().getTime() - searchStartMillis;
         final SearchResult result = new SearchResult(
@@ -323,7 +330,8 @@ public abstract class TabuSearch {
             bestErrorValues,
             priceUpdateSources,
             1,
-            null
+            null,
+            similarity
         );
         return result;
     }

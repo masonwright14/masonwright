@@ -21,7 +21,9 @@ public class SimpleSearchResult {
     private final List<Integer> rsdOrder; // can be null
     private final long durationMillis;
     private final List<Integer> captainIndexes;
-
+    
+    private final double meanPairwiseCosineSimilarity;
+    
     public SimpleSearchResult(
         final List<List<Integer>> aAllocation,
         final int aKMin,
@@ -29,7 +31,8 @@ public class SimpleSearchResult {
         final List<Agent> aAgents,
         final List<Integer> aRsdOrder,
         final long aDurationMillis,
-        final List<Integer> aCaptainIndexes
+        final List<Integer> aCaptainIndexes,
+        final double aMeanPairwiseCosineSimilarity
     ) {
         this.allocation = new ArrayList<List<Integer>>();
         for (List<Integer> row: aAllocation) {
@@ -68,6 +71,7 @@ public class SimpleSearchResult {
         if (aCaptainIndexes != null) {
             this.captainIndexes.addAll(aCaptainIndexes);
         }
+        this.meanPairwiseCosineSimilarity = aMeanPairwiseCosineSimilarity;
     }
 
     public final List<List<Integer>> getAllocation() {
@@ -80,6 +84,10 @@ public class SimpleSearchResult {
 
     public final int getkMax() {
         return kMax;
+    }
+    
+    public final double getMeanPairwiseCosineSimilarity() {
+        return this.meanPairwiseCosineSimilarity;
     }
 
     public final List<Agent> getAgents() {
@@ -948,7 +956,8 @@ public class SimpleSearchResult {
             agents, 
             null, 
             0,
-            null
+            null,
+            0.0
         );
         // should be 3
         System.out.println(ssr.getNumberOfTeams());
@@ -978,7 +987,8 @@ public class SimpleSearchResult {
             agents, 
             rsdOrder, 
             0,
-            null
+            null,
+            0.0
         );
         // should be: 2, 1, 3, 0, 4
         System.out.println(ssr.getRsdIndexes());
@@ -1029,7 +1039,8 @@ public class SimpleSearchResult {
             agents, 
             null, 
             0,
-            null
+            null,
+            0.0
         );
         // original utilities: 0.5 1.5 2.5 3.5 4.5 5.5
         // original utilities no jitter: 0 1 2 3 4 5
@@ -1134,7 +1145,8 @@ public class SimpleSearchResult {
             agents, 
             null, 
             0,
-            captains
+            captains,
+            0.0
         );
         // should be: 0 1 0 1 0
         System.out.println("is captain: " + ssr.isCaptain());
@@ -1185,7 +1197,8 @@ public class SimpleSearchResult {
             myAgents, 
             null, 
             0,
-            null
+            null,
+            0.0
         );
         // ranks: 6 5 4 3 2 1
         // ranks no jitter: 6 5 2.5 2.5 2.5 2.5
