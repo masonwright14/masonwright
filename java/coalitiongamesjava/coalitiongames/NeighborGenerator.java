@@ -31,10 +31,11 @@ public abstract class NeighborGenerator {
                     maxPrice
                 );
             final int kMax = TabuSearch.getKMax(teamSizes);
+            final int kMin = TabuSearch.getKMin(teamSizes);
             final List<Double> neighborZ = 
                 gammaZ.z(
                     neighborDemand, neighborPriceWithSource.getPrice(), 
-                    kMax, maxPrice
+                    kMax, kMin, maxPrice
                 );
             final double neighborError = 
                 DemandAnalyzer.errorSizeDouble(neighborZ);
@@ -93,7 +94,7 @@ public abstract class NeighborGenerator {
             final List<Double> neighborZ = 
                 gammaZ.z(
                     neighborDemand, neighborPriceWithSource.getPrice(), 
-                    kMax, maxPrice
+                    kMax, kMin, maxPrice
                 );
             final double neighborError = 
                 DemandAnalyzer.errorSizeDouble(neighborZ);

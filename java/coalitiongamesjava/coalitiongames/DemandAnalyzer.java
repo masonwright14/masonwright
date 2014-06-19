@@ -81,12 +81,57 @@ public abstract class DemandAnalyzer {
     }
     
     /**
+     * @param demand a list of lists of integers in {0, 1}.
+     * each row (list of integers) is a single agent's demand,
+     * with 0 for agents not in its team, and 1 for others including
+     * itself.
+     * @return a list of integers in {0, 1, 2, . . ., kMin - 1}. an entry
+     * of size "p" means that p fewer than (kMin - 1) other agents demand
+     * the agent.
+     */
+    public static List<Integer> getIntegerUnderDemand(
+        final List<List<Integer>> demand,
+        final int kMin
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        
+        if (kMin <= 1) {
+            for (int i = 0; i < demand.size(); i++) {
+                result.add(0);
+            }
+            return result;
+        }
+        
+        final int minDemand = kMin - 1;
+        for (int i = 0; i < demand.size(); i++) {
+            // if not demanded by any other agent, under-demand is (kMin - 1)
+            int underDemand = minDemand;
+            for (int j = 0; j < demand.size(); j++) {
+                if (i != j && demand.get(j).get(i) == 1) {
+                    // demanded by other agent j
+                    // reduce under-demand by 1
+                    underDemand--;
+                    if (underDemand == 0) {
+                        // don't let under-demand become negative
+                        break;
+                    }
+                }
+            }
+            
+            assert underDemand >= 0;
+            result.add(underDemand);
+        }
+        
+        return result;       
+    }
+    
+    /**
      * 
      * @param demand a list of lists of integers in {0, 1}.
      * each row (list of integers) is a single agent's demand,
      * with 0 for agents not in its team, and 1 for others including
      * itself.
-     * @return a list of integers in {0, 1}. a 0 indicates that an
+     * @return a list of integers in {0, 1}. a 1 indicates that an
      * agent is not demanded by any other agent.
      * Under-demand can be 1 even if an agent's price is 0, but under-demand
      * is acceptable for an agent with price of 0.

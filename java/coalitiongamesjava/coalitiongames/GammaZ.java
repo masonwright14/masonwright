@@ -28,6 +28,7 @@ public interface GammaZ {
         List<List<Integer>> demand, 
         List<Double> prices,
         int kMax,
+        int kMin,
         double maxPrice
     );
     
@@ -35,6 +36,7 @@ public interface GammaZ {
         List<List<Integer>> demand, 
         List<Double> prices,
         int kMax,
+        int kMin,
         double maxPrice
     );
     

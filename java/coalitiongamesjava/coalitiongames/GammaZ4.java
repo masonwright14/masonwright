@@ -3,13 +3,17 @@ package coalitiongames;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class GammaZ2 implements GammaZ {
+public final class GammaZ4 implements GammaZ {
 
-    private static final double EPSILON = 0.01;
-    
     /*
-     * z2(p)_j = theta_iurq(p_j) IURQ_j - UND_j
-     * theta_iurq(p_j) = 1 + epsilon - (epsilon / maxPrice) p_j
+     * z_j = IURQ_j - kMin * UND_j
+     * 
+     * UND_j is in {0, 1, . . ., kMin - 1}.
+     * UND_j = (kMin - 1) - # of other agents that demand j,
+     * or 0 if the difference would be negative.
+     * 
+     * IURQ_j is in {0, 1, . . ., N - 1}, where N = # of agents.
+     * IURQ_j = # agents that demand j, but j does not demand.
      */
     @Override
     public List<Double> z(
@@ -29,24 +33,20 @@ public final class GammaZ2 implements GammaZ {
         
         final List<Integer> incomingUnrequitedDemand = 
             DemandAnalyzer.getIncomingUnrequitedDemand(demand);
-        final List<Integer> underDemand = 
-            DemandAnalyzer.getUnderDemand(demand);
+        final List<Integer> integerUnderDemand = 
+            DemandAnalyzer.getIntegerUnderDemand(demand, kMin);
         
         final List<Double> result = new ArrayList<Double>();
         for (int i = 0; i < demand.size(); i++) {
-            final double thetaIurq = thetaIurq(prices.get(i), maxPrice);
-            final double z2 = 
-                thetaIurq * incomingUnrequitedDemand.get(i) 
-                - underDemand.get(i);
-            result.add(z2);
+            final double z4 = 
+                incomingUnrequitedDemand.get(i) 
+                - kMin * integerUnderDemand.get(i);
+            result.add(z4);
         }
         
         return result;
     }
 
-    /*
-     * gammaZ2 = 1 / N
-     */
     @Override
     public List<Double> gammaZ(
         final List<List<Integer>> demand, 
@@ -56,30 +56,18 @@ public final class GammaZ2 implements GammaZ {
         final double maxPrice
     ) {
         final int n = demand.size();
-        final double gamma2 = 1.0 / n;
+        final double gamma4 = 1.0 / n;
         final List<Double> z = z(demand, prices, kMax, kMin, maxPrice);
         for (int i = 0; i < z.size(); i++) {
-            z.set(i, z.get(i) * gamma2);
+            z.set(i, z.get(i) * gamma4);
         }
         return z;
     }
 
     @Override
-    public double worstCaseError(
-        final int kMax, 
-        final int n
-    ) {
-        // FIXME
-        return Double.MAX_VALUE;
+    public double worstCaseError(final int kMax, final int n) {
+        // TODO
+        return 0;
     }
 
-    /*
-     * theta_iurq(p_j) = 1 + epsilon - (epsilon / maxPrice) p_j
-     */
-    private double thetaIurq(
-        final double price,
-        final double maxPrice
-    ) {
-        return 1.0 + EPSILON - (EPSILON / maxPrice) * price;
-    }
 }

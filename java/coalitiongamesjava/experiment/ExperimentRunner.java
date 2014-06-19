@@ -54,9 +54,9 @@ public abstract class ExperimentRunner {
         runExperiment(SimpleSearchAlgorithm.RSD_OPT, SOLVER_NAME, fileName);
         */
         
-        runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT_CC);
+        // runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT_CC);
         
-        // printMeanCosineSimilarities();
+        printMeanCosineSimilarities();
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {

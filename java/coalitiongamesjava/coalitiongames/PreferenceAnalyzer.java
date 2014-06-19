@@ -2,6 +2,7 @@ package coalitiongames;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class PreferenceAnalyzer {
@@ -39,6 +40,34 @@ public abstract class PreferenceAnalyzer {
         return getMeanPairwiseCosineSimilarityFromDemands(agentDemands);
     }
     
+    public static double getMeanPairwiseCosineSimilarityMedianBias(
+        final List<Agent> agents
+    ) {
+        final List<List<Double>> agentDemands = new ArrayList<List<Double>>();
+        for (final Agent agent: agents) {
+            final double median = getMedian(agent.getValues());
+            final List<Double> row = new ArrayList<Double>();
+            for (Double value: agent.getValues()) {
+                row.add(value - median);
+            }
+            agentDemands.add(row);
+        }
+        
+        return getMeanPairwiseCosineSimilarityFromDemands(agentDemands);
+    }
+    
+    private static double getMedian(final List<Double> values) {
+        final List<Double> copyList = new ArrayList<Double>(values);
+        Collections.sort(copyList);
+        if (copyList.size() % 2 == 0) {
+            final double item1 = copyList.get((copyList.size() / 2) - 1);
+            final double item2 = copyList.get(copyList.size() / 2);
+            return (item1 + item2) / 2.0;
+        }
+        
+        return copyList.get(copyList.size() / 2);
+    }
+    
     /**
      * @param agents a list of agents with their cardinal preferences, 
      * which presumably have jitter added in (0, 1) to each item.
@@ -47,7 +76,7 @@ public abstract class PreferenceAnalyzer {
      * the agents in the pair. all values are floored before taking the
      * similarity measure, to remove the effect of jitter.
      */
-    public static double getMeanPairwiseCosineSimilarityFromDemands(
+    private static double getMeanPairwiseCosineSimilarityFromDemands(
         final List<List<Double>> agentDemands
     ) {
         assert agentDemands.size() > 1;
@@ -113,7 +142,7 @@ public abstract class PreferenceAnalyzer {
         |A| = sqrt of sum of squares in A
         |B| = sqrt of sum of squares in B
      */
-    public static double getCosineSimilarity(
+    private static double getCosineSimilarity(
         final List<Double> a,
         final List<Double> b
     ) {

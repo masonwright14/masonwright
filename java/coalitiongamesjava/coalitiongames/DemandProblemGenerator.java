@@ -25,9 +25,9 @@ public abstract class DemandProblemGenerator {
         // runSmallDraftAllocation();
         // runGrandCoalitionRsdTabuSearch();
         // runGrandCoalitionRsdAllLevelsTabuSearch();
-        // runSmallRsdAllLevelsOptimalSizesTabuSearch();
-        runSmallEachAgentDraftAllocation();
-        runSmallEachDraftCaptainsChoice();
+        runSmallRsdAllLevelsOptimalSizesTabuSearch();
+        // runSmallEachAgentDraftAllocation();
+        // runSmallEachDraftCaptainsChoice();
     }
     
     @SuppressWarnings("unused")
@@ -107,8 +107,7 @@ public abstract class DemandProblemGenerator {
             valueRange, 
             kMax, 
             kMin,
-            gammaZ,
-            false
+            gammaZ
         );
     }
     
@@ -124,12 +123,10 @@ public abstract class DemandProblemGenerator {
             valueRange, 
             kMax, 
             kMin,
-            gammaZ,
-            true
+            gammaZ
         );
     }
     
-    @SuppressWarnings("unused")
     private static void runSmallRsdAllLevelsOptimalSizesTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -155,8 +152,7 @@ public abstract class DemandProblemGenerator {
             valueRange, 
             kMax, 
             kMin,
-            gammaZ,
-            true
+            gammaZ
         );
     }
     
@@ -184,6 +180,7 @@ public abstract class DemandProblemGenerator {
         runDraftAllocation(agents, valueRange, kMax);
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallEachDraftCaptainsChoice() {
         final int agents = 20;
         final int valueRange = 10;
@@ -191,6 +188,7 @@ public abstract class DemandProblemGenerator {
         runEachAgentDraftAllocation(agents, valueRange, kMax, true);
     }
     
+    @SuppressWarnings("unused")
     private static void runSmallEachAgentDraftAllocation() {
         final int agents = 20;
         final int valueRange = 10;
@@ -316,8 +314,7 @@ public abstract class DemandProblemGenerator {
         final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
         budgets.clear();
         for (int i = 0; i < n; i++) {
-            final int rsdIndexOfPlayerI = rsdOrder.get(i);
-            budgets.add(sortedBudgets.get(rsdIndexOfPlayerI));
+            budgets.add(sortedBudgets.get(rsdOrder.indexOf(i)));
         }
         
         for (int i = 0; i < n; i++) {
@@ -353,8 +350,7 @@ public abstract class DemandProblemGenerator {
         final double valueRange,
         final int kMax,
         final int kMin,
-        final GammaZ gammaZ,
-        final boolean budgetsInRsdOrder
+        final GammaZ gammaZ
     ) {
         final List<Integer> rsdOrder = 
             RsdUtil.getShuffledNumberList(n);
@@ -372,15 +368,12 @@ public abstract class DemandProblemGenerator {
         // if budgets should be in rsdOrder, sort them first high to low,
         // then iterate over the agents, picking out that agent's budget
         // based on the agent's rsdOrder.
-        if (budgetsInRsdOrder) {
-            Collections.sort(budgets);
-            Collections.reverse(budgets);
-            final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
-            budgets.clear();
-            for (int i = 0; i < n; i++) {
-                final int rsdIndexOfPlayerI = rsdOrder.get(i);
-                budgets.add(sortedBudgets.get(rsdIndexOfPlayerI));
-            }
+        Collections.sort(budgets);
+        Collections.reverse(budgets);
+        final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
+        budgets.clear();
+        for (int i = 0; i < n; i++) {
+            budgets.add(sortedBudgets.get(rsdOrder.indexOf(i)));
         }
         
         for (int i = 0; i < n; i++) {
@@ -763,7 +756,7 @@ public abstract class DemandProblemGenerator {
         
         GammaZ gammaZ = new GammaZ1();
         final List<Double> z1 = 
-            gammaZ.z(demand, prices, kMax, maxPrice);
+            gammaZ.z(demand, prices, kMax, 1, maxPrice);
         System.out.println("Z1:\n" + z1);
         double errorSize = DemandAnalyzer.errorSizeDouble(z1);
         System.out.println("Error size: " + errorSize);
@@ -772,14 +765,14 @@ public abstract class DemandProblemGenerator {
         
         gammaZ = new GammaZ2();
         final List<Double> z2 =
-            gammaZ.z(demand, prices, kMax, maxPrice);
+            gammaZ.z(demand, prices, kMax, 1, maxPrice);
         System.out.println("Z2:\n" + z2);
         errorSize = DemandAnalyzer.errorSizeDouble(z2);
         System.out.println("Error size: " + errorSize);
         
         gammaZ = new GammaZ3();
         final List<Double> z3 =
-            gammaZ.z(demand, prices, kMax, maxPrice);
+            gammaZ.z(demand, prices, kMax, 1, maxPrice);
         System.out.println("Z3:\n" + z3);
         errorSize = DemandAnalyzer.errorSizeDouble(z3);
         System.out.println("Error size: " + errorSize);

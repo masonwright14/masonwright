@@ -16,6 +16,7 @@ public final class GammaZ3 implements GammaZ {
         final List<List<Integer>> demand, 
         final List<Double> prices,
         final int kMax, 
+        final int kMin,
         final double maxPrice
     ) {
         if (MipGenerator.DEBUGGING) {
@@ -48,11 +49,12 @@ public final class GammaZ3 implements GammaZ {
         final  List<List<Integer>> demand, 
         final List<Double> prices,
         final int kMax, 
+        final int kMin,
         final double maxPrice
     ) {
         final int n = demand.size();
         final double gamma1 = 1.0 / n;
-        final List<Double> z = z(demand, prices, kMax, maxPrice);
+        final List<Double> z = z(demand, prices, kMax, kMin, maxPrice);
         for (int i = 0; i < z.size(); i++) {
             z.set(i, z.get(i) * gamma1);
         }

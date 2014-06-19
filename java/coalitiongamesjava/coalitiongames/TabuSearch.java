@@ -466,6 +466,7 @@ public abstract class TabuSearch {
         final GammaZ gammaZ
     ) {
         int kMax = getKMax(teamSizes);
+        int kMin = getKMin(teamSizes);
         final List<Double> prices = new ArrayList<Double>();
         final double basePrice = MipGenerator.MIN_BUDGET / kMax;
         for (int i = 1; i <= agents.size(); i++) {
@@ -481,12 +482,22 @@ public abstract class TabuSearch {
                 maxPrice
             );
         final List<Double> errorDemand = 
-            gammaZ.z(aggregateDemand, prices, kMax, maxPrice);
+            gammaZ.z(aggregateDemand, prices, kMax, kMin, maxPrice);
         final double error = DemandAnalyzer.errorSizeDouble(errorDemand);
         return new PriceWithError(
             prices, errorDemand, aggregateDemand, 
             error, PriceUpdateSource.INITIAL
         );
+    }
+    
+    public static int getKMin(final List<Integer> teamSizes) {
+        int kMin = Integer.MAX_VALUE;
+        for (final Integer teamSize: teamSizes) {
+            if (teamSize < kMin) {
+                kMin = teamSize;
+            }
+        }
+        return kMin;
     }
     
     public static int getKMax(final List<Integer> teamSizes) {
@@ -532,7 +543,7 @@ public abstract class TabuSearch {
                 maxPrice
             );
         final List<Double> errorDemand = 
-            gammaZ.z(aggregateDemand, prices, kMax, maxPrice);
+            gammaZ.z(aggregateDemand, prices, kMax, kMin, maxPrice);
         final double error = DemandAnalyzer.errorSizeDouble(errorDemand);
         return new PriceWithError(
             prices, errorDemand, aggregateDemand, 
