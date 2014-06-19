@@ -27,6 +27,7 @@ public abstract class DemandProblemGenerator {
         // runGrandCoalitionRsdAllLevelsTabuSearch();
         // runSmallRsdAllLevelsOptimalSizesTabuSearch();
         runSmallEachAgentDraftAllocation();
+        runSmallEachDraftCaptainsChoice();
     }
     
     @SuppressWarnings("unused")
@@ -183,11 +184,18 @@ public abstract class DemandProblemGenerator {
         runDraftAllocation(agents, valueRange, kMax);
     }
     
+    private static void runSmallEachDraftCaptainsChoice() {
+        final int agents = 20;
+        final int valueRange = 10;
+        final int kMax = 5;
+        runEachAgentDraftAllocation(agents, valueRange, kMax, true);
+    }
+    
     private static void runSmallEachAgentDraftAllocation() {
         final int agents = 20;
         final int valueRange = 10;
         final int kMax = 5;
-        runEachAgentDraftAllocation(agents, valueRange, kMax);
+        runEachAgentDraftAllocation(agents, valueRange, kMax, false);
     }
     
     @SuppressWarnings("unused")
@@ -407,7 +415,8 @@ public abstract class DemandProblemGenerator {
     private static void runEachAgentDraftAllocation(
         final int n,
         final double valueRange,
-        final int kMax
+        final int kMax,
+        final boolean isCaptainsChoice
     ) {
         final List<Agent> agents = new ArrayList<Agent>();
         final List<UUID> uuids = getUuids(n);
@@ -433,11 +442,19 @@ public abstract class DemandProblemGenerator {
         }
         
         final List<Integer> rsdOrder = RsdUtil.getShuffledNumberList(n);
-        final SimpleSearchResult searchResult = 
-            EachAgentDraftAllocation.eachAgentDraftAllocation(
-                agents, kMax, rsdOrder
-            );
-        System.out.println(searchResult.toString()); 
+        if (isCaptainsChoice) {
+            final SimpleSearchResult searchResult = 
+                EachDraftCaptainsChoice.eachDraftCaptainsChoiceAllocation(
+                    agents, kMax, rsdOrder
+                );
+            System.out.println(searchResult.toString());            
+        } else {
+            final SimpleSearchResult searchResult = 
+                EachAgentDraftAllocation.eachAgentDraftAllocation(
+                    agents, kMax, rsdOrder
+                );
+            System.out.println(searchResult.toString()); 
+        }
     }
     
     private static void runDraftAllocation(

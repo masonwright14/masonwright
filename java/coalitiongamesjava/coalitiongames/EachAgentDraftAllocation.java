@@ -46,19 +46,20 @@ public abstract class EachAgentDraftAllocation {
         for (int i = 0; i < rsdOrder.size(); i++) {
             final int currentAgentIndex = rsdOrder.get(i);        
             final Agent currentAgent = agents.get(currentAgentIndex);
-            if (isAgentTaken(teams, currentAgentIndex)) {
+            if (EachDraftHelper.isAgentTaken(teams, currentAgentIndex)) {
                 // agent is already on a team 
                 // (either captain, or already chosen).
-                final int teamIndex = getTeamIndex(teams, currentAgentIndex);
+                final int teamIndex = 
+                    EachDraftHelper.getTeamIndex(teams, currentAgentIndex);
                 final int maxSizeForTeam = finalTeamSizes.get(teamIndex);
                 if (teams.get(teamIndex).size() < maxSizeForTeam) {
                     // the team has room to add an agent.
                     final List<UUID> idsHighToLowValue = 
                         currentAgent.getAgentIdsHighValueToLow();
                     for (final UUID id: idsHighToLowValue) {
-                        if (!isAgentTaken(teams, agents, id)) {
+                        if (!EachDraftHelper.isAgentTaken(teams, agents, id)) {
                             final int indexToChoose = 
-                                getAgentIndexById(agents, id);
+                                EachDraftHelper.getAgentIndexById(agents, id);
                             teams.get(teamIndex).add(indexToChoose);
                             break;
                         }
@@ -117,7 +118,7 @@ public abstract class EachAgentDraftAllocation {
             if (agents.get(i).equals(selfAgent)) {
                 continue;
             }
-            if (!isAgentTaken(teams, i)) {
+            if (!EachDraftHelper.isAgentTaken(teams, i)) {
                 final UUID currentAgentId = agents.get(i).getUuid();
                 untakenOtherAgentsValue += 
                     selfAgent.getValueByUUID(currentAgentId);
@@ -165,61 +166,5 @@ public abstract class EachAgentDraftAllocation {
         
         assert bestTeamIndex != -1;
         return bestTeamIndex;
-    }
-    
-    private static int getAgentIndexById(
-        final List<Agent> agents,
-        final UUID uuid
-    ) {
-        for (int i = 0; i < agents.size(); i++) {
-            if (agents.get(i).getUuid().equals(uuid)) {
-                return i;
-            }
-        }
-        
-        throw new IllegalArgumentException();
-    }
-    
-    private static int getTeamIndex(
-        final List<List<Integer>> teams, 
-        final int index
-    ) {
-        for (int i = 0; i < teams.size(); i++) {
-            if (teams.get(i).contains(index)) {
-                return i;
-            }
-        }
-        
-        throw new IllegalArgumentException("not on a team");
-    }
-    
-    private static boolean isAgentTaken(
-        final List<List<Integer>> teams, 
-        final List<Agent> agents,
-        final UUID uuid
-    ) {
-        for (List<Integer> team: teams) {
-            for (Integer index: team) {
-                final Agent agent = agents.get(index);
-                if (agent.getUuid().equals(uuid)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    private static boolean isAgentTaken(
-        final List<List<Integer>> teams, 
-        final int index
-    ) {
-        for (List<Integer> team: teams) {
-            if (team.contains(index)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }

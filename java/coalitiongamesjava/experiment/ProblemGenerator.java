@@ -7,6 +7,7 @@ import java.util.UUID;
 import coalitiongames.Agent;
 import coalitiongames.DraftAllocation;
 import coalitiongames.EachAgentDraftAllocation;
+import coalitiongames.EachDraftCaptainsChoice;
 import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
 import coalitiongames.RandomAllocation;
@@ -23,7 +24,8 @@ public abstract class ProblemGenerator {
     }
     
     public static enum SimpleSearchAlgorithm implements SearchAlgorithm {
-        RANDOM_ANY, RANDOM_OPT, RSD_GREEDY, RSD_OPT, DRAFT, EACH_DRAFT
+        RANDOM_ANY, RANDOM_OPT, RSD_GREEDY, RSD_OPT, DRAFT, EACH_DRAFT,
+        EACH_DRAFT_CC
     }
     
     public static enum TabuSearchAlgorithm implements SearchAlgorithm {
@@ -45,6 +47,8 @@ public abstract class ProblemGenerator {
         SimpleSearchAlgorithm.RSD_GREEDY,
         SimpleSearchAlgorithm.RSD_OPT,
         SimpleSearchAlgorithm.DRAFT,
+        SimpleSearchAlgorithm.EACH_DRAFT,
+        SimpleSearchAlgorithm.EACH_DRAFT_CC,
         TabuSearchAlgorithm.TABU_ONE,
         TabuSearchAlgorithm.TABU_ALL,
         TabuSearchAlgorithm.TABU_ALL_OPT
@@ -60,6 +64,8 @@ public abstract class ProblemGenerator {
                 return "draft";
             case EACH_DRAFT:
                 return "eachDrf";
+            case EACH_DRAFT_CC:
+                return "eachDCC";
             case RANDOM_ANY:
                 return "randomAny";
             case RANDOM_OPT:
@@ -207,6 +213,8 @@ public abstract class ProblemGenerator {
             return runDraftAllocation(rsdOrder, budgets, values, kMax);
         case EACH_DRAFT:
             return runEachDraftAllocation(rsdOrder, budgets, values, kMax);
+        case EACH_DRAFT_CC:
+            return runEachDraftCaptainsChoice(rsdOrder, budgets, values, kMax);
         case RANDOM_ANY:
             return runRandomAnyAllocation(budgets, values, kMax);
         case RANDOM_OPT:
@@ -480,6 +488,40 @@ public abstract class ProblemGenerator {
         
         final SimpleSearchResult searchResult = 
             DraftAllocation.draftAllocation(
+                agents, kMax, rsdOrder
+            );
+        return searchResult;
+    }
+    
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
+    public static SimpleSearchResult runEachDraftCaptainsChoice(
+        final List<Integer> rsdOrder,
+        final List<Double> budgets,
+        final List<List<Double>> values,
+        final int kMax
+    ) {
+        final int n = rsdOrder.size();
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
+            final List<Double> agentValues = values.get(i);
+            agentValues.remove(i); // remove -1.0 for own value.
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(
+                new Agent(
+                    agentValues, subsetList, budgets.get(i), id, uuids.get(i)
+                )
+            );
+        }
+        
+        final SimpleSearchResult searchResult = 
+            EachDraftCaptainsChoice.eachDraftCaptainsChoiceAllocation(
                 agents, kMax, rsdOrder
             );
         return searchResult;
