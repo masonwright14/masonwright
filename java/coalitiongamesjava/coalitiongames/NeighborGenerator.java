@@ -175,7 +175,7 @@ public abstract class NeighborGenerator {
      * convenience function that calls neighbors() with default
      * values for step sizes, for unilateral neighbors and gradient neighbors.
      */
-    private static List<PriceWithSource> neighbors(
+    public static List<PriceWithSource> neighbors(
         final List<Double> prices,
         final List<Double> z,
         final double maxPrice

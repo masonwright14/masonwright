@@ -129,7 +129,7 @@ public abstract class TabuSearch {
             if (step > maxSteps) {
                 break;
             }
-            // get neigbors of currentNode, sorted by increasing error
+            // get neighbors of currentNode, sorted by increasing error
             final List<PriceWithError> sortedNeighbors = 
                 NeighborGenerator.sortedNeighbors(
                     currentNode.getPrices(), 

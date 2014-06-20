@@ -69,7 +69,7 @@ public abstract class EachAgentDraftAllocation {
                 // agent is not on a team.
                 // add self to favorite other team that has room
                 final int favoriteTeamIndex = 
-                    getFavoriteTeamIndexWithSpace(
+                    EachDraftHelper.getFavoriteTeamIndexWithSpace(
                         teams, finalTeamSizes, agents, currentAgent
                     );
                 teams.get(favoriteTeamIndex).add(currentAgentIndex);
@@ -101,70 +101,5 @@ public abstract class EachAgentDraftAllocation {
             rsdOrder, searchDurationMillis, captainIndexes,
             similarity
         );
-    }
-    
-    private static int getFavoriteTeamIndexWithSpace(
-        final List<List<Integer>> teams,
-        final List<Integer> finalTeamSizes,
-        final List<Agent> agents,
-        final Agent selfAgent
-    ) {
-        // find mean value of other agents not yet on a team.
-        double untakenOtherAgentsValue = 0.0;
-        int untakenOtherAgentCount = 0;
-        for (int i = 0; i < agents.size(); i++) {
-            // don't count the self agent when evaluating
-            // the mean value of other remaining agents.
-            if (agents.get(i).equals(selfAgent)) {
-                continue;
-            }
-            if (!EachDraftHelper.isAgentTaken(teams, i)) {
-                final UUID currentAgentId = agents.get(i).getUuid();
-                untakenOtherAgentsValue += 
-                    selfAgent.getValueByUUID(currentAgentId);
-                untakenOtherAgentCount++;
-            }
-        }
-        
-        double meanValueOtherRemainingAgents = 0.0;
-        if (untakenOtherAgentCount > 0) {
-            meanValueOtherRemainingAgents =
-                untakenOtherAgentsValue / untakenOtherAgentCount;
-        }
-
-        double maxTeamValue = -1.0;
-        int bestTeamIndex = -1;
-        for (int i = 0; i < teams.size(); i++) {
-            final List<Integer> currentTeam = teams.get(i);
-            final int currentTeamMaxSize = finalTeamSizes.get(i);
-            
-            // don't consider teams that are already full.
-            if (currentTeam.size() == currentTeamMaxSize) {
-                continue;
-            }
-            
-            double currentTeamValue = 0.0;
-            for (final Integer playerIndex: currentTeam) {
-                final UUID playerUUID = agents.get(playerIndex).getUuid();
-                final double playerValue = selfAgent.getValueByUUID(playerUUID);
-                currentTeamValue += playerValue;
-            }
-            
-            if (currentTeam.size() + 1 < currentTeamMaxSize) {
-                // team has room for another agent besides self agent.
-                
-                final int extraSpaces = 
-                    currentTeamMaxSize - (1 + currentTeam.size());
-                currentTeamValue += extraSpaces * meanValueOtherRemainingAgents;
-            }
-            
-            if (currentTeamValue > maxTeamValue) {
-                maxTeamValue = currentTeamValue;
-                bestTeamIndex = i;
-            }
-        }
-        
-        assert bestTeamIndex != -1;
-        return bestTeamIndex;
     }
 }
