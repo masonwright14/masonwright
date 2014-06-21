@@ -57,7 +57,7 @@ public abstract class EachAgentDraftTabu {
                     
                     // there should be a free agent remaining, or else something
                     // went wrong, because the team can't be filled.
-                    assert isFreeAgentLeft(teams, agents);
+                    assert isFreeAgentLeft(teams, agents.size());
                     final int agentIndexToChoose = 
                         getFavoriteAgentIndex(
                             teams, finalTeamSizes, agents, currentAgent
@@ -100,6 +100,33 @@ public abstract class EachAgentDraftTabu {
             rsdOrder, searchDurationMillis, captainIndexes,
             similarity
         );
+    }
+    
+    public static int countTeamsWithSpace(
+        final List<List<Integer>> teams, 
+        final List<Integer> finalTeamSizes
+    ) {
+        int result = 0;
+        for (int i = 0; i < teams.size(); i++) {
+            if (teams.get(i).size() < finalTeamSizes.get(i)) {
+                result++;
+            }
+        }
+        
+        return result;
+    }
+    
+    public static boolean isFreeAgentLeft(
+        final List<List<Integer>> teams, 
+        final int n
+    ) {
+        for (int i = 0; i < n; i++) {
+            if (!EachDraftHelper.isAgentTaken(teams, i)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     private static int getFavoriteTeamIndex(
@@ -176,10 +203,10 @@ public abstract class EachAgentDraftTabu {
         assert teams.get(captainTeamIndex).size() 
             < finalTeamSizes.get(captainTeamIndex);
         // only call this method if there is a free agent left.
-        assert isFreeAgentLeft(teams, agents);
+        assert isFreeAgentLeft(teams, agents.size());
 
         // if there is only 1 free agent left, choose it now.
-        if (countFreeAgentsLeft(teams, agents) == 1) {
+        if (countFreeAgentsLeft(teams, agents.size()) == 1) {
             // there is only 1 free agent left. return its index.
             for (int i = 0; i < agents.size(); i++) {
                 if (!EachDraftHelper.isAgentTaken(teams, i)) {
@@ -253,44 +280,17 @@ public abstract class EachAgentDraftTabu {
         return bestIndex;
     }
     
-    public static int countTeamsWithSpace(
-        final List<List<Integer>> teams, 
-        final List<Integer> finalTeamSizes
-    ) {
-        int result = 0;
-        for (int i = 0; i < teams.size(); i++) {
-            if (teams.get(i).size() < finalTeamSizes.get(i)) {
-                result++;
-            }
-        }
-        
-        return result;
-    }
-    
     private static int countFreeAgentsLeft(
         final List<List<Integer>> teams, 
-        final List<Agent> agents
+        final int n
     ) {
         int result = 0;
-        for (int i = 0; i < agents.size(); i++) {
+        for (int i = 0; i < n; i++) {
             if (!EachDraftHelper.isAgentTaken(teams, i)) {
                 result++;
             }
         }
         
         return result;
-    }
-    
-    public static boolean isFreeAgentLeft(
-        final List<List<Integer>> teams, 
-        final List<Agent> agents
-    ) {
-        for (int i = 0; i < agents.size(); i++) {
-            if (!EachDraftHelper.isAgentTaken(teams, i)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }

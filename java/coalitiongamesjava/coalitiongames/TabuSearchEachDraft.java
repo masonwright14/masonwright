@@ -28,7 +28,7 @@ public abstract class TabuSearchEachDraft {
         final List<Integer> finalTeamSizes
     ) {
         // there must be some free agent left.
-        assert EachAgentDraftTabu.isFreeAgentLeft(teams, agents);
+        assert EachAgentDraftTabu.isFreeAgentLeft(teams, agents.size());
         // the captain is already taken (on a team)
         assert EachDraftHelper.isAgentTaken(teams, agents.indexOf(captain));
         

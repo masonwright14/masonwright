@@ -60,14 +60,9 @@ public final class DemandGeneratorOneCTakenCaptain {
                     // don't run MIP, because agent's demand is fixed.
                     // add this agent's current team as its demand.
                     final List<Integer> team = teams.get(teamIndex);
-                    final List<Integer> row = new ArrayList<Integer>();
-                    for (int j = 0; j < agents.size(); j++) {
-                        if (team.contains(j)) {
-                            row.add(1);
-                        } else {
-                            row.add(0);
-                        }
-                    }
+                    final List<Integer> row = 
+                        DemandGeneratorOneCFreeCaptain.
+                            getOwnTeamDemand(agents.size(), team);
                     
                     result.add(row);
                     continue;
@@ -185,45 +180,23 @@ constraint:
         // get value, price, and total agents needed to fill
         // for every team that has room on it. exclude
         // teams that are full already.
-        final List<Double> teamValues = new ArrayList<Double>();
-        final List<Double> teamPrices = new ArrayList<Double>();
-        final List<Integer> teamAgentsNeeded = new ArrayList<Integer>();
-        for (int i = 0; i < teams.size(); i++) {
-            final int agentsNeeded = 
-                finalTeamSizes.get(i) - teams.get(i).size();
-            // team should not be over-filled at any time.
-            assert agentsNeeded >= 0;
-            if (agentsNeeded > 0) {
-                // include this team, because it has room.
-                teamAgentsNeeded.add(agentsNeeded);
-                final List<Integer> team = teams.get(i);
-                double teamValue = 0.0;
-                double teamPrice = 0.0;
-                for (final Integer index: team) {
-                    final UUID id = agents.get(index).getUuid();
-                    teamValue += dummyAgent.getValueByUUID(id);
-                    teamPrice += prices.get(index);
-                }
-                teamValues.add(teamValue);
-                teamPrices.add(teamPrice);
-            }
-        }
+        final List<Double> teamValues = 
+            DemandGeneratorOneCFreeCaptain.
+                teamValues(teams, finalTeamSizes, agents, dummyAgent);
+        final List<Double> teamPrices = 
+            DemandGeneratorOneCFreeCaptain.
+                teamPrices(teams, finalTeamSizes, prices);
+        final List<Integer> teamAgentsNeeded = 
+            DemandGeneratorOneCFreeCaptain.
+                teamAgentsNeeded(teams, finalTeamSizes);
         
         // list value, price of every other free agent besides dummyAgent.
-        final List<Double> agentValues = new ArrayList<Double>();
-        final List<Double> agentPrices = new ArrayList<Double>();
-        
-        for (int i = 0; i < agents.size(); i++) {
-            if (!EachDraftHelper.isAgentTaken(teams, i) && i != dummyIndex) {
-                // include this agent, because it's 
-                // free and not the dummy agent.
-                final double price = prices.get(i);
-                final double value = 
-                    dummyAgent.getValueByUUID(agents.get(i).getUuid());
-                agentValues.add(value);
-                agentPrices.add(price);
-            }
-        }
+        final List<Double> agentValues = 
+            DemandGeneratorOneCFreeCaptain.
+                otherFreeAgentValues(agents, teams, dummyAgent);
+        final List<Double> agentPrices = 
+            DemandGeneratorOneCFreeCaptain.
+                otherFreeAgentPrices(agents, teams, prices, dummyAgent);
         
         final double budget = dummyAgent.getBudget();
         
@@ -234,25 +207,13 @@ constraint:
                 teamAgentsNeeded, agentValues, agentPrices, budget
             );
         
-        int chosenTeamIndex = -1;
-        for (int i = 0; i < teamValues.size(); i++) {
-            if (dummyDemand.get(i) == 1) {
-                chosenTeamIndex = i;
-                break;
-            }
-        }
+        final int chosenTeamIndex = 
+            DemandGeneratorOneCFreeCaptain.
+                chosenTeamIndex(teamValues.size(), dummyDemand);
         if (chosenTeamIndex == -1) {
             // empty bundle received. return all 0's, but 1 for self.
-            final List<Integer> result = new ArrayList<Integer>();
-            for (int i = 0; i < agents.size(); i++) {
-                if (i == dummyIndex) {
-                    result.add(1);
-                } else {
-                    result.add(0);
-                }
-            }
-            
-            return result;
+            return DemandGeneratorOneCFreeCaptain.
+                getSoloAgentDemand(agents.size(), dummyIndex);
         }
         
         // filled bundle received.
@@ -261,54 +222,69 @@ constraint:
         demandedIndexes.add(dummyIndex);
         
         // add indexes of agents on the demanded team.
-        int indexInTeamDemand = 0;
-        boolean found = false;
-        // find the demanded team.
-        for (int i = 0; i < teams.size(); i++) {
-            final List<Integer> team = teams.get(i);
-            if (team.size() < finalTeamSizes.get(i)) {
-                // team has room, so would be included in the MIP
-                if (indexInTeamDemand == chosenTeamIndex) {
-                    // team is the chosen team.
-                    demandedIndexes.addAll(team);
-                    found = true;
-                    break;
-                }
-                
-                indexInTeamDemand++;
-            }
-        }
-        if (!found) {
-            throw new IllegalStateException();
-        }
+        demandedIndexes.addAll(
+            DemandGeneratorOneCFreeCaptain.
+                getChosenTeamMembers(teams, finalTeamSizes, chosenTeamIndex)
+        );
         
         // first other free agent in "agents" has index in
         // dummyDemand of teams.size().
-        int indexInDummyDemand = teams.size();
-        for (int i = 0; i < agents.size(); i++) {
-            if (!EachDraftHelper.isAgentTaken(teams, i) && i != dummyIndex) {
-                // agent is a free agent other than the dummy agent.
-                if (dummyDemand.get(indexInDummyDemand) == 1) {
-                    // dummy agent demanded this agent.
-                    demandedIndexes.add(i);
-                }
-                
-                indexInDummyDemand++;
-            }
-        }
+        demandedIndexes.addAll(
+            DemandGeneratorOneCFreeCaptain.getChosenFreeAgents(
+                teams, agents.size(), dummyIndex, dummyDemand
+            )
+        );
         
         // demandedIndexes now contains indexes in "agents" of all demanded
         // agents.
         
-        final List<Integer> result = new ArrayList<Integer>();
+        return DemandGeneratorOneCFreeCaptain.
+            getOwnTeamDemand(agents.size(), demandedIndexes);
+    }
+    
+    private static List<Double> allFreeAgentValues(
+        final List<Agent> agents,
+        final List<List<Integer>> teams,
+        final Agent agent
+    ) {
+        final List<Double> values = new ArrayList<Double>();
+        for (int j = 0; j < agents.size(); j++) {
+            // only include free agents
+            if (!EachDraftHelper.isAgentTaken(teams, j)) {
+                final UUID id = agents.get(j).getUuid();
+                values.add(agent.getValueByUUID(id));
+            }
+        }
+        return values;
+    }
+    
+    private static List<Double> allFreeAgentPrices(
+        final List<Agent> agents,
+        final List<List<Integer>> teams,
+        final List<Double> prices
+    ) {
+        final List<Double> agentPrices = new ArrayList<Double>();
         for (int i = 0; i < agents.size(); i++) {
-            if (demandedIndexes.contains(i)) {
-                result.add(1);
-            } else {
-                result.add(0);
+            if (!EachDraftHelper.isAgentTaken(teams, i)) {
+                agentPrices.add(prices.get(i));
             }
         }
         
+        return agentPrices;
+    }
+    
+    private static double teamCost(
+        final List<Integer> team,
+        final List<Double> prices,
+        final int selfIndex
+    ) {
+        double result = 0.0;
+        for (Integer index: team) {
+            // don't pay for self agent
+            if (index != selfIndex) {
+                result += prices.get(index);
+            }
+        }
         return result;
     }
         
@@ -354,27 +330,12 @@ constraint:
         assert agentsNeeded > 0;
         
         // only use prices and values of free agents.
-        final List<Double> iPrices = new ArrayList<Double>();
-        final List<Double> iValues = new ArrayList<Double>();
-        for (int j = 0; j < prices.size(); j++) {
-            // only include free agents in the MIP
-            if (!EachDraftHelper.isAgentTaken(teams, j)) {
-                iPrices.add(prices.get(j));
-                final UUID id = agents.get(j).getUuid();
-                iValues.add(dummyAgent.getValueByUUID(id));
-            }
-        }
+        final List<Double> iPrices = allFreeAgentPrices(agents, teams, prices);
+        final List<Double> iValues = 
+            allFreeAgentValues(agents, teams, dummyAgent);
         
         // dummy agent must pay the cost of team's current members.
-        double fixedCost = 0.0;
-        for (Integer index: dummyTeam) {
-            // don't pay for self agent
-            if (index != dummyIndex) {
-                final UUID id = agents.get(index).getUuid();
-                fixedCost += dummyAgent.getValueByUUID(id);
-            }
-        }
-        
+        final double fixedCost = teamCost(dummyTeam, prices, dummyIndex);
         // temporarily remove cost of current teammates from budget
         final double budget = dummyAgent.getBudget() - fixedCost;
         
@@ -452,25 +413,12 @@ result: list of captain's demand for each agent, including self
         assert agentsNeeded > 0;
         
         // only use prices and values of free agents.
-        final List<Double> iPrices = new ArrayList<Double>();
-        final List<Double> iValues = new ArrayList<Double>();
-        for (int j = 0; j < prices.size(); j++) {
-            if (!EachDraftHelper.isAgentTaken(teams, j)) {
-                iPrices.add(prices.get(j));
-                final UUID id = agents.get(j).getUuid();
-                iValues.add(captain.getValueByUUID(id));
-            }
-        }
+        final List<Double> iPrices = allFreeAgentPrices(agents, teams, prices);
+        final List<Double> iValues = allFreeAgentValues(agents, teams, captain);
         
         // remove cost of captain's current teammates from budget (temporarily)
-        double fixedCost = 0.0;
-        for (Integer index: captainTeam) {
-            if (!agents.get(index).equals(captain)) {
-                final UUID id = agents.get(index).getUuid();
-                fixedCost += captain.getValueByUUID(id);
-            }
-        }
-        
+        final double fixedCost = 
+            teamCost(captainTeam, prices, captainIndex);       
         final double budget = captain.getBudget() - fixedCost;
 
         // get list of which free agents the 
@@ -496,6 +444,16 @@ result: list of captain's demand for each agent, including self
         return captainDemand;
     }   
     
+    private static List<Integer> zerosList(
+        final int len
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < len; i++) {
+            result.add(0);
+        }
+        return result;
+    }
+    
     /**
      * 
      * @param values contains values of free agents to the captain
@@ -517,11 +475,7 @@ result: list of captain's demand for each agent, including self
         if (!MipChecker.isFeasible(prices, budget, agentsNeeded)) {
             // captain can't afford enough agents
             // return set of all 0's
-            final List<Integer> result = new ArrayList<Integer>();
-            for (int i = 0; i < values.size(); i++) {
-                result.add(0);
-            }
-            return result;
+            return zerosList(values.size());
         }
         
         // captain can afford "agentsNeeded" free agents.
@@ -564,16 +518,8 @@ result: list of captain's demand for each agent, including self
         }
         
         assert team.size() == agentsNeeded;
-        
-        final List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < values.size(); i++) {
-            if (team.contains(i)) {
-                result.add(1);
-            } else {
-                result.add(0);
-            }
-        }
-         return result;
+        return DemandGeneratorOneCFreeCaptain.
+            getOwnTeamDemand(values.size(), team);
     }
     
     /*
