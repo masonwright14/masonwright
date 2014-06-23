@@ -63,6 +63,12 @@ public abstract class EachAgentDraftTabu {
                             teams, finalTeamSizes, agents, currentAgent
                         );
                     teams.get(teamIndex).add(agentIndexToChoose);
+                    if (MipGenerator.DEBUGGING) {
+                        System.out.println(
+                            i + ". Agent " + currentAgentIndex 
+                                + " chose " + agentIndexToChoose
+                        );
+                    }
                 }
             } else {
                 // agent is not on a team.
@@ -72,6 +78,12 @@ public abstract class EachAgentDraftTabu {
                         teams, finalTeamSizes, agents, currentAgent
                     );
                 teams.get(favoriteTeamIndex).add(currentAgentIndex);
+                if (MipGenerator.DEBUGGING) {
+                    System.out.println(
+                        i + ". Agent " + currentAgentIndex 
+                            + " joined team " + favoriteTeamIndex
+                    );
+                }
             }
         }
         

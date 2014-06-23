@@ -299,7 +299,7 @@ public abstract class DemandProblemGenerator {
         );
     }
     
-    private static List<UUID> getUuids(final int n) {
+    public static List<UUID> getUuids(final int n) {
         final List<UUID> uuids = new ArrayList<UUID>();
         for (int i = 0; i < n; i++) {
             uuids.add(UUID.randomUUID());
@@ -307,7 +307,7 @@ public abstract class DemandProblemGenerator {
         return uuids;
     }
     
-    private static List<UUID> getUuidsWithout(
+    public static List<UUID> getUuidsWithout(
         final List<UUID> original,
         final int toRemove
     ) {
