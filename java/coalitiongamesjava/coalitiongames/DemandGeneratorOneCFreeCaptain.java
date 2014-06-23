@@ -361,6 +361,7 @@ public final class DemandGeneratorOneCFreeCaptain {
         double meanOtherFreeAgentValue = 0.0;
         if (!otherFreeAgentValues.isEmpty()) {
             for (final double value: otherFreeAgentValues) {
+                assert value >= 0.0;
                 meanOtherFreeAgentValue += value;
             }
             meanOtherFreeAgentValue /= otherFreeAgentValues.size();
@@ -478,7 +479,13 @@ result: list of captain's demand for each agent, including self
         // testOtherFreeAgentValues();
         // testOtherFreeAgentPrices();
         // testChosenTeamIndex();
-        testChosenFreeAgents();
+        // testChosenFreeAgents();
+        // testGetChosenTeamMembers();
+        // testGetSoloAgentDemand();
+        // testGetOwnTeamDemand();
+        // testMeanOtherFreeAgentValue();
+        // testGetFreeCaptainDemand();
+        testGetAggregateDemandFreeCaptain();
     }
     
     /*
@@ -695,6 +702,7 @@ result: list of captain's demand for each agent, including self
     }
     
     // should return [11]
+    @SuppressWarnings("unused")
     private static void testChosenFreeAgents() {
         Integer[] team1Arr = {0, 1, 2};
         List<Integer> team1 = Arrays.asList(team1Arr);
@@ -739,6 +747,192 @@ result: list of captain's demand for each agent, including self
         System.out.println(
             getChosenFreeAgents(
                 teams, countAgents, teamSizes, selfIndex, selfDemand
+            )
+        );
+    }
+    
+    /*
+     * Should return [5, 6, 7, 8, 9] because team [3, 4]
+     * is skipped, since it is full.
+     */
+    @SuppressWarnings("unused")
+    private static void testGetChosenTeamMembers() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final Integer[] teamSizesArr = {5, 2, 7};
+        List<Integer> teamSizes = Arrays.asList(teamSizesArr);
+        
+        final int chosenTeamIndex = 1;
+        System.out.println(
+            getChosenTeamMembers(
+                teams, teamSizes, chosenTeamIndex
+            )
+        );
+    }
+    
+    /*
+     * Should be: [0, 0, 1, 0, 0]
+     */
+    @SuppressWarnings("unused")
+    private static void testGetSoloAgentDemand() {
+        final int n = 5;
+        final int selfIndex = 2;
+        System.out.println(getSoloAgentDemand(n, selfIndex));
+    }
+    
+    /*
+     * Should be: [1, 0, 0, 1, 0, 0, 0, 1, 1, 0]
+     */
+    @SuppressWarnings("unused")
+    private static void testGetOwnTeamDemand() {
+        final int n = 10;
+        final Integer[] teamArr = {0, 3, 7, 8};
+        List<Integer> team = Arrays.asList(teamArr);
+        System.out.println(getOwnTeamDemand(n, team));
+    }
+    
+    // should be 1.6
+    @SuppressWarnings("unused")
+    private static void testMeanOtherFreeAgentValue() {
+        final Double[] valuesArr = {1.0, 0.0, 0.5, 2.0, 4.5};
+        List<Double> values = Arrays.asList(valuesArr);
+        System.out.println(meanOtherFreeAgentValue(values));
+    }
+    
+    /*
+     * should be: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+     */
+    @SuppressWarnings("unused")
+    private static void testGetFreeCaptainDemand() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final Integer[] teamSizesArr = {5, 2, 7};
+        List<Integer> teamSizes = Arrays.asList(teamSizesArr);
+        
+        final Double[] captainValuesArr = 
+        {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0};
+        List<Double> captainValues = Arrays.asList(captainValuesArr);
+        
+        final int countAgents = 14;
+        List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = DemandProblemGenerator.getUuids(countAgents);
+        
+        final int selfIndex = 10;
+        for (int i = 0; i < countAgents; i++) {
+            List<Double> values = new ArrayList<Double>();
+            if (i == selfIndex) {
+                values.addAll(captainValues);
+            } else {
+                for (int j = 1; j < countAgents; j++) {
+                    values.add(1.0);
+                }
+            }
+
+            final List<UUID> subsetList = 
+                DemandProblemGenerator.getUuidsWithout(uuids, i);
+            final int id = i;
+            final double budget = 105.0;
+            agents.add(
+                new Agent(values, subsetList, budget, id, uuids.get(i))
+            );
+        }
+        
+        final Double[] agentPricesArr = 
+    {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0};
+        List<Double> agentPrices = Arrays.asList(agentPricesArr);
+        
+        System.out.println(
+            getFreeCaptainDemand(
+                agents, agentPrices, teams, teamSizes, agents.get(selfIndex)
+            )
+        );
+    }
+    
+    /*
+     * Should be:
+1 1 1 0 0 0 0 0 0 0 0 0 1 1 
+1 1 1 0 0 0 0 0 0 0 0 0 1 1 
+1 1 1 0 0 0 0 0 0 0 0 0 1 1 
+0 0 0 1 1 0 0 0 0 0 0 0 0 0 
+0 0 0 1 1 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+0 0 0 0 0 1 1 1 1 1 1 1 0 0 
+0 0 0 0 0 1 1 1 1 1 0 1 0 1 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+0 0 0 0 0 1 1 1 1 1 0 0 1 1 
+
+    Captain chooses most valuable team, plus lowest price other agents
+    to fill that team.
+     */
+    private static void testGetAggregateDemandFreeCaptain() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final Integer[] teamSizesArr = {5, 2, 7};
+        List<Integer> teamSizes = Arrays.asList(teamSizesArr);
+        
+        final Double[] captainValuesArr = 
+        {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0};
+        List<Double> captainValues = Arrays.asList(captainValuesArr);
+        
+        final int countAgents = 14;
+        List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = DemandProblemGenerator.getUuids(countAgents);
+        
+        final int selfIndex = 10;
+        for (int i = 0; i < countAgents; i++) {
+            List<Double> values = new ArrayList<Double>();
+            values.addAll(captainValues);
+
+            final List<UUID> subsetList = 
+                DemandProblemGenerator.getUuidsWithout(uuids, i);
+            final int id = i;
+            final double budget = 200.0;
+            agents.add(
+                new Agent(values, subsetList, budget, id, uuids.get(i))
+            );
+        }
+        
+        final Double[] agentPricesArr = 
+    {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0};
+        List<Double> agentPrices = Arrays.asList(agentPricesArr);
+        DemandGeneratorOneCFreeCaptain demandGen = 
+            new DemandGeneratorOneCFreeCaptain();
+        final double maxPrice = 105.0;
+        Util.printDemandAsMatrix(
+            demandGen.getAggregateDemandFreeCaptain(
+                agents, agentPrices, teams, 
+                teamSizes, maxPrice, agents.get(selfIndex)
             )
         );
     }
