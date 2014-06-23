@@ -208,19 +208,6 @@ public final class DemandGeneratorOneCFreeCaptain {
         return agentPrices;
     }
     
-    private static double meanOtherFreeAgentValue(
-        final List<Double> otherFreeAgentValues
-    ) {
-        double meanOtherFreeAgentValue = 0.0;
-        if (!otherFreeAgentValues.isEmpty()) {
-            for (final double value: otherFreeAgentValues) {
-                meanOtherFreeAgentValue += value;
-            }
-            meanOtherFreeAgentValue /= otherFreeAgentValues.size();
-        }
-        return meanOtherFreeAgentValue;
-    }
-    
     /*
      * -1 if no team chosen
      */
@@ -236,6 +223,105 @@ public final class DemandGeneratorOneCFreeCaptain {
             }
         }
         return chosenTeamIndex;
+    }
+    
+    public static List<Integer> getChosenFreeAgents(
+        final List<List<Integer>> teams,
+        final int n,
+        final int captainIndex,
+        final List<Integer> captainDemand
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        int indexInCaptainDemand = teams.size();
+        for (int i = 0; i < n; i++) {
+            if (!EachDraftHelper.isAgentTaken(teams, i) && i != captainIndex) {
+                // agent is a free agent other than the dummy agent.
+                if (captainDemand.get(indexInCaptainDemand) == 1) {
+                    // captain demanded this agent.
+                    result.add(i);
+                }
+                
+                indexInCaptainDemand++;
+            }
+        }
+        return result;
+    }
+    
+    /*
+     * chosenTeamIndex is only based on list of teams that are not full,
+     * not among "teams" list of all teams.
+     */
+    public static List<Integer> getChosenTeamMembers(
+        final List<List<Integer>> teams,
+        final List<Integer> finalTeamSizes,
+        final int chosenTeamIndex
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        int indexInTeamDemand = 0;
+        // find the demanded team.
+        for (int i = 0; i < teams.size(); i++) {
+            final List<Integer> team = teams.get(i);
+            if (team.size() < finalTeamSizes.get(i)) {
+                // team has room, so would be included in the MIP
+                if (indexInTeamDemand == chosenTeamIndex) {
+                    // team is the chosen team.
+                    result.addAll(team);
+                    return result;
+                }
+                
+                indexInTeamDemand++;
+            }
+        }
+        
+        throw new IllegalStateException("not found");
+    }
+    
+    public static List<Integer> getSoloAgentDemand(
+        final int n,
+        final int selfIndex
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int i = 0; i < n; i++) {
+            if (i == selfIndex) {
+                result.add(1);
+            } else {
+                result.add(0);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * @param n total agent count
+     * @param team agents demanded
+     * @return 1 for each item in team, 0 for others
+     */
+    public static List<Integer> getOwnTeamDemand(
+        final int n,
+        final List<Integer> team
+    ) {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int j = 0; j < n; j++) {
+            if (team.contains(j)) {
+                result.add(1);
+            } else {
+                result.add(0);
+            }
+        }
+        return result;
+    }
+    
+    private static double meanOtherFreeAgentValue(
+        final List<Double> otherFreeAgentValues
+    ) {
+        double meanOtherFreeAgentValue = 0.0;
+        if (!otherFreeAgentValues.isEmpty()) {
+            for (final double value: otherFreeAgentValues) {
+                meanOtherFreeAgentValue += value;
+            }
+            meanOtherFreeAgentValue /= otherFreeAgentValues.size();
+        }
+        return meanOtherFreeAgentValue;
     }
     
     /*
@@ -331,91 +417,5 @@ result: list of captain's demand for each agent, including self
         // agents.
         
         return getOwnTeamDemand(agents.size(), demandedIndexes);
-    }
-    
-    public static List<Integer> getChosenFreeAgents(
-        final List<List<Integer>> teams,
-        final int n,
-        final int captainIndex,
-        final List<Integer> captainDemand
-    ) {
-        final List<Integer> result = new ArrayList<Integer>();
-        int indexInCaptainDemand = teams.size();
-        for (int i = 0; i < n; i++) {
-            if (!EachDraftHelper.isAgentTaken(teams, i) && i != captainIndex) {
-                // agent is a free agent other than the dummy agent.
-                if (captainDemand.get(indexInCaptainDemand) == 1) {
-                    // captain demanded this agent.
-                    result.add(i);
-                }
-                
-                indexInCaptainDemand++;
-            }
-        }
-        return result;
-    }
-    
-    /*
-     * chosenTeamIndex is only based on list of teams that are not full,
-     * not among "teams" list of all teams.
-     */
-    public static List<Integer> getChosenTeamMembers(
-        final List<List<Integer>> teams,
-        final List<Integer> finalTeamSizes,
-        final int chosenTeamIndex
-    ) {
-        final List<Integer> result = new ArrayList<Integer>();
-        int indexInTeamDemand = 0;
-        // find the demanded team.
-        for (int i = 0; i < teams.size(); i++) {
-            final List<Integer> team = teams.get(i);
-            if (team.size() < finalTeamSizes.get(i)) {
-                // team has room, so would be included in the MIP
-                if (indexInTeamDemand == chosenTeamIndex) {
-                    // team is the chosen team.
-                    result.addAll(team);
-                    return result;
-                }
-                
-                indexInTeamDemand++;
-            }
-        }
-        
-        throw new IllegalStateException("not found");
-    }
-    
-    public static List<Integer> getSoloAgentDemand(
-        final int n,
-        final int selfIndex
-    ) {
-        final List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < n; i++) {
-            if (i == selfIndex) {
-                result.add(1);
-            } else {
-                result.add(0);
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * @param n total agent count
-     * @param team agents demanded
-     * @return 1 for each item in team, 0 for others
-     */
-    public static List<Integer> getOwnTeamDemand(
-        final int n,
-        final List<Integer> team
-    ) {
-        final List<Integer> result = new ArrayList<Integer>();
-        for (int j = 0; j < n; j++) {
-            if (team.contains(j)) {
-                result.add(1);
-            } else {
-                result.add(0);
-            }
-        }
-        return result;
     }
 }

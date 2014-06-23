@@ -348,20 +348,9 @@ constraint:
         );
 
         final List<Integer> mipValues = mipResult.getRoundedColumnValues();
-        
-        // must insert 1 for taken agents on 
-        // captain team, 0 for other taken agents.
-        for (int i = 0; i < agents.size(); i++) {
-            if (EachDraftHelper.isAgentTaken(teams, i)) {
-                if (dummyTeam.contains(i)) {
-                    mipValues.add(i, 1);
-                } else {
-                    mipValues.add(i, 0);
-                }
-            }
-        }
-        
-        return mipValues;
+        return getDemandTakensInserted(
+            mipValues, teams, agents.size(), dummyTeam
+        );
     }
     
     /*
@@ -441,8 +430,32 @@ result: list of captain's demand for each agent, including self
             }
         }
         
-        return captainDemand;
+        return getDemandTakensInserted(
+            captainDemand, teams, agents.size(), captainTeam
+        );
     }   
+    
+    private static List<Integer> getDemandTakensInserted(
+        final List<Integer> partialDemand,
+        final List<List<Integer>> teams,
+        final int n,
+        final List<Integer> myTeam
+    ) {
+        final List<Integer> result = new ArrayList<Integer>(partialDemand);
+        // must insert 1 for taken agents on 
+        // own team, 0 for other taken agents.
+        for (int i = 0; i < n; i++) {
+            if (EachDraftHelper.isAgentTaken(teams, i)) {
+                if (myTeam.contains(i)) {
+                    result.add(i, 1);
+                } else {
+                    result.add(i, 0);
+                }
+            }
+        }
+        
+        return result;
+    }
     
     private static List<Integer> zerosList(
         final int len

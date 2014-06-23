@@ -145,11 +145,7 @@ public abstract class EachAgentDraftTabu {
         
         // if there is only one team with space, choose it now
         if (countTeamsWithSpace(teams, finalTeamSizes) == 1) {
-            for (int i = 0; i < teams.size(); i++) {
-                if (teams.get(i).size() < finalTeamSizes.get(i)) {
-                    return i;
-                }
-            }
+            return getFirstTeamWithSpaceIndex(teams, finalTeamSizes);
         }
         
         final GammaZ gammaZ = new GammaZ4();
@@ -175,18 +171,35 @@ public abstract class EachAgentDraftTabu {
         // got a bundle containing some team.
         // return index of the team included in this bundle.
         
+        return getIncludedTeamIndex(teams, captainAllocation);
+    }
+    
+    /**
+     * 
+     * @param teams list of list<Integer>, 
+     * where each list has the indexes of members
+     * of one team.
+     * @param myAllocation must include all members of exactly 1
+     *  team in "teams", as indicated
+     * by a "1" at the index of each member of that team.
+     * @return index in "teams" of the included team.
+     */
+    private static int getIncludedTeamIndex(
+        final List<List<Integer>> teams,
+        final List<Integer> myAllocation
+    ) {
         for (int teamIndex = 0; teamIndex < teams.size(); teamIndex++) {
             final List<Integer> team = teams.get(teamIndex);
             // all teams have been assigned captains already, 
             // so each team has at least one member.
             final int firstAgentIndex = team.get(0);
-            if (captainAllocation.get(firstAgentIndex) == 1) {
+            if (myAllocation.get(firstAgentIndex) == 1) {
                 // this is the team included in the bundle.
                 return teamIndex;
             }
         }
         
-        throw new IllegalStateException();
+        throw new IllegalArgumentException();
     }
     
     private static int getFavoriteAgentIndex(
@@ -208,11 +221,7 @@ public abstract class EachAgentDraftTabu {
         // if there is only 1 free agent left, choose it now.
         if (countFreeAgentsLeft(teams, agents.size()) == 1) {
             // there is only 1 free agent left. return its index.
-            for (int i = 0; i < agents.size(); i++) {
-                if (!EachDraftHelper.isAgentTaken(teams, i)) {
-                    return i;
-                }
-            }
+            return getFirstFreeAgentIndex(teams, agents.size());
         }
         
         // use GammaZ that penalizes under-demand heavily.
@@ -228,45 +237,42 @@ public abstract class EachAgentDraftTabu {
         if (RsdUtil.getTeamSize(captainAllocation) == 1) {
             // got empty bundle.
             // select favorite free agent.
-            double favoriteValue = -1.0;
-            UUID favoriteId = null;
-            for (final UUID aUuid: captain.getAgentIdsHighValueToLow()) {
-                // only consider free agents
-                if (!EachDraftHelper.isAgentTaken(teams, agents, aUuid)) {
-                    final double currentValue = captain.getValueByUUID(aUuid);
-                    if (currentValue > favoriteValue) {
-                        favoriteValue = currentValue;
-                        favoriteId = aUuid;
-                    }
-                }
-            }
-            
-            // there must be a free agent.
-            if (favoriteId == null) {
-                throw new IllegalStateException();
-            }
-            
-            for (int i = 0; i < agents.size(); i++) {
-                if (agents.get(i).getUuid().equals(favoriteId)) {
-                    return i;
-                }
-            }
-            
-            throw new IllegalStateException("not found");
+            return favoriteFreeAgentIndex(
+                agents, captain, teams
+            );
         }
         
         // got a non-empty bundle.
         // select the favorite free agent in this bundle.
+        return favoriteFreeAgentInAllocationIndex(
+            agents, captain, teams, captainAllocation
+        );
+    }
+    
+    /*
+     * Returns index in "agents", not in the allocation itself.
+     * The favorite free agent is selected from the selfAllocation.
+     */
+    private static int favoriteFreeAgentInAllocationIndex(
+        final List<Agent> agents,
+        final Agent self,
+        final List<List<Integer>> teams,
+        final List<Integer> selfAllocation
+    ) {
+        assert !selfAllocation.isEmpty();
+        assert EachDraftHelper.isAgentTaken(teams, agents.indexOf(self));
+        final int selfIndex = agents.indexOf(self);
+        // select the favorite free agent in this bundle.
         double bestValue = -1.0;
         int bestIndex = -1;
-        for (int i = 0; i < captainAllocation.size(); i++) {
+        for (int i = 0; i < selfAllocation.size(); i++) {
             if (
-                i != captainIndex // not the captain
-                && captainAllocation.get(i) == 1 // in the bundle
+                i != selfIndex // not the self agent
+                && selfAllocation.get(i) == 1 // in the bundle
                 && !EachDraftHelper.isAgentTaken(teams, i) // free agent
             ) {
                 final UUID currentId = agents.get(i).getUuid();
-                final double currentValue = captain.getValueByUUID(currentId);
+                final double currentValue = self.getValueByUUID(currentId);
                 if (currentValue > bestValue) {
                     bestValue = currentValue;
                     bestIndex = i;
@@ -278,6 +284,39 @@ public abstract class EachAgentDraftTabu {
             throw new IllegalStateException();
         }
         return bestIndex;
+    }
+    
+    private static int favoriteFreeAgentIndex(
+        final List<Agent> agents,
+        final Agent self,
+        final List<List<Integer>> teams
+    ) {
+        assert countFreeAgentsLeft(teams, agents.size()) > 0;
+        double favoriteValue = -1.0;
+        UUID favoriteId = null;
+        for (final UUID aUuid: self.getAgentIdsHighValueToLow()) {
+            // only consider free agents
+            if (!EachDraftHelper.isAgentTaken(teams, agents, aUuid)) {
+                final double currentValue = self.getValueByUUID(aUuid);
+                if (currentValue > favoriteValue) {
+                    favoriteValue = currentValue;
+                    favoriteId = aUuid;
+                }
+            }
+        }
+        
+        // there must be a free agent.
+        if (favoriteId == null) {
+            throw new IllegalStateException();
+        }
+        
+        for (int i = 0; i < agents.size(); i++) {
+            if (agents.get(i).getUuid().equals(favoriteId)) {
+                return i;
+            }
+        }
+        
+        throw new IllegalStateException("not found");
     }
     
     private static int countFreeAgentsLeft(
@@ -292,5 +331,35 @@ public abstract class EachAgentDraftTabu {
         }
         
         return result;
+    }
+    
+    private static int getFirstFreeAgentIndex(
+        final List<List<Integer>> teams,
+        final int n
+    ) {
+        assert countFreeAgentsLeft(teams, n) > 0;
+        
+        for (int i = 0; i < n; i++) {
+            if (!EachDraftHelper.isAgentTaken(teams, i)) {
+                return i;
+            }
+        }
+        
+        throw new IllegalArgumentException();
+    }
+    
+    private static int getFirstTeamWithSpaceIndex(
+        final List<List<Integer>> teams, 
+        final List<Integer> finalTeamSizes
+    ) {
+        assert countTeamsWithSpace(teams, finalTeamSizes) > 0;
+        
+        for (int i = 0; i < teams.size(); i++) {
+            if (teams.get(i).size() < finalTeamSizes.get(i)) {
+                return i;
+            }
+        }
+        
+        throw new IllegalStateException();
     }
 }
