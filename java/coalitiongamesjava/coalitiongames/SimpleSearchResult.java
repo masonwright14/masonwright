@@ -672,6 +672,7 @@ public class SimpleSearchResult {
         builder.append(", \nisCaptain=");
         builder.append(", \nrsdIndexes=");
         builder.append(getRsdIndexes());
+        builder.append(", \nisCaptain=");
         builder.append(isCaptain());
         builder.append("]");
         return builder.toString();

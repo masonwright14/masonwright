@@ -39,7 +39,6 @@ public final class MipGeneratorCPLEX implements MipGenerator {
     ) {
         assert values.size() >= 1;
         assert values.size() == prices.size();
-        assert budget >= MIN_BUDGET;
         assert kMax >= kMin;
         assert kMin >= 0;
         

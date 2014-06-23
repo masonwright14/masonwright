@@ -56,6 +56,7 @@ public final class DemandGeneratorOneCFreeCaptain {
                     final List<Integer> row = 
                         getOwnTeamDemand(agents.size(), team);
                     
+                    assert row.size() == agents.size();
                     result.add(row);
                     continue;
                 }
@@ -65,6 +66,7 @@ public final class DemandGeneratorOneCFreeCaptain {
                     DemandGeneratorOneCTakenCaptain.getTakenDummyDemand(
                         agents, prices, teams, finalTeamSizes, maxPrice, i
                     );
+                assert row.size() == agents.size();
                 result.add(row);
             } else {
                 // agent is free, not on a team.
@@ -75,6 +77,7 @@ public final class DemandGeneratorOneCFreeCaptain {
                         getFreeCaptainDemand(
                             agents, prices, teams, finalTeamSizes, captain
                         );
+                    assert row.size() == agents.size();
                     result.add(row);
                     continue;
                 }
@@ -84,6 +87,7 @@ public final class DemandGeneratorOneCFreeCaptain {
                     DemandGeneratorOneCTakenCaptain.getFreeDummyDemand(
                         agents, prices, teams, finalTeamSizes, maxPrice, i
                     );
+                assert row.size() == agents.size();
                 result.add(row);
             }
         }        
@@ -227,13 +231,21 @@ public final class DemandGeneratorOneCFreeCaptain {
     
     public static List<Integer> getChosenFreeAgents(
         final List<List<Integer>> teams,
-        final int n,
+        final int totalAgentsInModel,
+        final List<Integer> finalTeamSizes,
         final int captainIndex,
         final List<Integer> captainDemand
     ) {
+        final int otherFreeAgentCount = 
+            EachAgentDraftTabu.
+                countFreeAgentsLeft(teams, totalAgentsInModel) - 1;
+        final int teamsWithSpaceCount = 
+            EachAgentDraftTabu.countTeamsWithSpace(teams, finalTeamSizes);
+        assert captainDemand.size() 
+            == teamsWithSpaceCount + otherFreeAgentCount;
         final List<Integer> result = new ArrayList<Integer>();
-        int indexInCaptainDemand = teams.size();
-        for (int i = 0; i < n; i++) {
+        int indexInCaptainDemand = teamsWithSpaceCount;
+        for (int i = 0; i < otherFreeAgentCount; i++) {
             if (!EachDraftHelper.isAgentTaken(teams, i) && i != captainIndex) {
                 // agent is a free agent other than the dummy agent.
                 if (captainDemand.get(indexInCaptainDemand) == 1) {
@@ -358,8 +370,7 @@ result: list of captain's demand for each agent, including self
         // index of "agents" of the captain
         final int captainIndex = agents.indexOf(captain);
         // captain must be free, not on a team if this method called
-        assert !EachDraftHelper.isAgentTaken(teams, captainIndex);
-        
+        assert !EachDraftHelper.isAgentTaken(teams, captainIndex);        
         // get value, price, and total agents needed to fill
         // for every team that has room on it. exclude
         // teams that are full already.
@@ -405,11 +416,17 @@ result: list of captain's demand for each agent, including self
             getChosenTeamMembers(teams, finalTeamSizes, chosenTeamIndex)
         );
         
+        // FIXME
+        // set of demanded agents only includes agents other than the self
+        // agent, and only includes other free agents.
+        // set of demanded teams only includes teams with space.
+        
         // first other free agent in "agents" has index in
         // captainDemand of teams.size().
         demandedIndexes.addAll(
             getChosenFreeAgents(
-                teams, agents.size(), captainIndex, captainDemand
+                teams, agents.size(), 
+                finalTeamSizes, captainIndex, captainDemand
             )
         );
         

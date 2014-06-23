@@ -148,7 +148,9 @@ public abstract class EachAgentDraftTabu {
             return getFirstTeamWithSpaceIndex(teams, finalTeamSizes);
         }
         
-        final GammaZ gammaZ = new GammaZ4();
+        // final GammaZ gammaZ = new GammaZ4();
+        final GammaZ gammaZ = new GammaZ2();
+        
         final SearchResult searchResult = 
             TabuSearchEachDraft.tabuSearchEachDraftFreeCaptain(
                 agents, gammaZ, captain, teams, finalTeamSizes
@@ -225,7 +227,8 @@ public abstract class EachAgentDraftTabu {
         }
         
         // use GammaZ that penalizes under-demand heavily.
-        final GammaZ gammaZ = new GammaZ4();
+        // final GammaZ gammaZ = new GammaZ4();
+        final GammaZ gammaZ = new GammaZ2();
         final SearchResult searchResult = 
             TabuSearchEachDraft.tabuSearchEachDraftTakenCaptain(
                 agents, gammaZ, captain, teams, finalTeamSizes
@@ -262,6 +265,8 @@ public abstract class EachAgentDraftTabu {
         assert !selfAllocation.isEmpty();
         assert EachDraftHelper.isAgentTaken(teams, agents.indexOf(self));
         final int selfIndex = agents.indexOf(self);
+        assert selfAllocation.get(selfIndex) == 1;
+        assert selfAllocation.size() == agents.size();
         // select the favorite free agent in this bundle.
         double bestValue = -1.0;
         int bestIndex = -1;
@@ -319,7 +324,7 @@ public abstract class EachAgentDraftTabu {
         throw new IllegalStateException("not found");
     }
     
-    private static int countFreeAgentsLeft(
+    public static int countFreeAgentsLeft(
         final List<List<Integer>> teams, 
         final int n
     ) {

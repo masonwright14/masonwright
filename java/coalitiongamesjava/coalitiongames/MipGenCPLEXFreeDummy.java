@@ -26,7 +26,8 @@ public final class MipGenCPLEXFreeDummy {
      * each entry must be positive.
      * @param agentValues a list of the values of free agents
      * for the dummy agent.
-     * @param agentPrices a list of the prices of free agents
+     * @param agentPrices a list of the prices of free agents other
+     * than the dummy
      * @param budget dummy agent's budget
      * @return a list of integers in {0, 1} with length
      * teamValues.size() + agentValues.size(). each integer indicates
@@ -62,12 +63,9 @@ public final class MipGenCPLEXFreeDummy {
 
         if (!isFeasible(teamPrices, teamAgentsNeeded, agentPrices, budget)) {
             // can't afford any bundle with 1 team and teamAgentsNeeded agents
-            final List<Integer> result = new ArrayList<Integer>();
             // return 0 demand for teams and agents
-            for (int i = 0; i < teamValues.size() + agentValues.size(); i++) {
-                result.add(0);
-            }
-            return result;
+            return DemandGeneratorOneCTakenCaptain.
+                zerosList(teamValues.size() + agentPrices.size());
         }
         
         // the problem is feasible, so run the MIP
@@ -158,6 +156,7 @@ public final class MipGenCPLEXFreeDummy {
             
             final IloCplex.Status status = lp.getStatus();
             lp.end();
+            
             throw new IllegalStateException(
                 "No solution found: " + status
             ); 
@@ -181,10 +180,16 @@ public final class MipGenCPLEXFreeDummy {
         final double budget
     ) {
         for (int i = 0; i < teamPrices.size(); i++) {
-            final double budgetLeft = budget - teamPrices.get(i);
-            final int kMin = teamAgentsNeeded.get(i) - 1;
-            if (MipChecker.isFeasible(agentPrices, budgetLeft, kMin)) {
-                return true;
+            final double teamPrice = teamPrices.get(i);
+            final double budgetLeft = budget - teamPrice;
+            if (teamAgentsNeeded.get(i) > 0) {
+                // kMin = team agents needed, WITHOUT subtracting 1.
+                // MipChecker.isFeasible() already assumes the self agent
+                // is included in the count, so don't subtract 1 here.
+                final int kMin = teamAgentsNeeded.get(i);
+                if (MipChecker.isFeasible(agentPrices, budgetLeft, kMin)) {
+                    return true;
+                }
             }
         }
         

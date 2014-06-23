@@ -22,6 +22,11 @@ public abstract class MipChecker {
         final double budget,
         final int kMin
     ) {
+        // not feasible even if kMin is 0, if budget is negative.
+        if (budget < 0.0) {
+            return false;
+        }
+        
         // prices excludes the self agent,
         // so kMin can be 1 greater than its length
         if (kMin > prices.size() + 1) {

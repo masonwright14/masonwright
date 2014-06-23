@@ -25,9 +25,11 @@ public abstract class DemandProblemGenerator {
         // runSmallDraftAllocation();
         // runGrandCoalitionRsdTabuSearch();
         // runGrandCoalitionRsdAllLevelsTabuSearch();
-        runSmallRsdAllLevelsOptimalSizesTabuSearch();
+        // runSmallRsdAllLevelsOptimalSizesTabuSearch();
         // runSmallEachAgentDraftAllocation();
         // runSmallEachDraftCaptainsChoice();
+        // runVerySmallEachDraftTabu();
+        runSmallEachDraftTabu();
     }
     
     @SuppressWarnings("unused")
@@ -127,6 +129,30 @@ public abstract class DemandProblemGenerator {
         );
     }
     
+    private static void runSmallEachDraftTabu() {
+        final int agents = 15;
+        final int valueRange = 10;
+        final int kMax = 6;
+        runEachDraftTabu(
+            agents, 
+            valueRange, 
+            kMax
+        );
+    }
+    
+    @SuppressWarnings("unused")
+    private static void runVerySmallEachDraftTabu() {
+        final int agents = 10;
+        final int valueRange = 10;
+        final int kMax = 4;
+        runEachDraftTabu(
+            agents, 
+            valueRange, 
+            kMax
+        );
+    }
+    
+    @SuppressWarnings("unused")
     private static void runSmallRsdAllLevelsOptimalSizesTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -288,6 +314,55 @@ public abstract class DemandProblemGenerator {
         final List<UUID> result = new ArrayList<UUID>(original);
         result.remove(toRemove);
         return result;
+    }
+    
+    private static void runEachDraftTabu(
+        final int n,
+        final double valueRange,
+        final int kMax
+    ) {
+        final List<Integer> rsdOrder = 
+            RsdUtil.getShuffledNumberList(n);
+        final double baseValue = 50.0;
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        final List<Double> budgets = new ArrayList<Double>();
+        for (int i = 0; i < n; i++) {
+            final double budget =
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            budgets.add(budget);
+        }
+        
+        Collections.sort(budgets);
+        Collections.reverse(budgets);
+        final List<Double> sortedBudgets = new ArrayList<Double>(budgets);
+        budgets.clear();
+        for (int i = 0; i < n; i++) {
+            budgets.add(sortedBudgets.get(rsdOrder.indexOf(i)));
+        }
+        
+        for (int i = 0; i < n; i++) {
+            List<Double> values = new ArrayList<Double>();
+            for (int j = 1; j < n; j++) {
+                double newValue = 
+                    baseValue + Math.random() * valueRange - valueRange / 2.0;
+                if (newValue < 0) {
+                    newValue = 0;
+                }
+                values.add(newValue);
+            }
+            
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(
+                new Agent(values, subsetList, budgets.get(i), id, uuids.get(i))
+            );
+        }
+        
+        final SimpleSearchResult searchResult = 
+            EachAgentDraftTabu.eachAgentDraftTabu(agents, kMax, rsdOrder);
+        System.out.println(searchResult.toString());
     }
     
     private static void runRsdAllLevelsOptimalSizesTabuSearch(

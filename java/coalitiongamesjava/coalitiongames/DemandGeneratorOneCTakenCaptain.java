@@ -64,6 +64,7 @@ public final class DemandGeneratorOneCTakenCaptain {
                         DemandGeneratorOneCFreeCaptain.
                             getOwnTeamDemand(agents.size(), team);
                     
+                    assert row.size() == agents.size();
                     result.add(row);
                     continue;
                 }
@@ -76,6 +77,7 @@ public final class DemandGeneratorOneCTakenCaptain {
                         getTakenCaptainDemand(
                             agents, prices, teams, finalTeamSizes, captain
                         );
+                    assert row.size() == agents.size();
                     result.add(row);
                     continue;
                 }
@@ -86,6 +88,7 @@ public final class DemandGeneratorOneCTakenCaptain {
                     getTakenDummyDemand(
                         agents, prices, teams, finalTeamSizes, maxPrice, i
                     );
+                assert row.size() == agents.size();
                 result.add(row);
             } else {
                 // agent is free, and not the captain (captain is taken).
@@ -94,6 +97,7 @@ public final class DemandGeneratorOneCTakenCaptain {
                     getFreeDummyDemand(
                         agents, prices, teams, finalTeamSizes, maxPrice, i
                     );
+                assert row.size() == agents.size();
                 result.add(row);
             }
         }
@@ -198,6 +202,9 @@ constraint:
             DemandGeneratorOneCFreeCaptain.
                 otherFreeAgentPrices(agents, teams, prices, dummyAgent);
         
+        assert agentValues.size() + 1 == EachAgentDraftTabu.
+            countFreeAgentsLeft(teams, agents.size());
+        
         final double budget = dummyAgent.getBudget();
         
         MipGenCPLEXFreeDummy mipGen = new MipGenCPLEXFreeDummy();
@@ -231,7 +238,7 @@ constraint:
         // dummyDemand of teams.size().
         demandedIndexes.addAll(
             DemandGeneratorOneCFreeCaptain.getChosenFreeAgents(
-                teams, agents.size(), dummyIndex, dummyDemand
+                teams, agents.size(), finalTeamSizes, dummyIndex, dummyDemand
             )
         );
         
@@ -420,19 +427,11 @@ result: list of captain's demand for each agent, including self
         
         // must insert 1 for taken agents on captain 
         // team, 0 for other taken agents.
-        for (int i = 0; i < agents.size(); i++) {
-            if (EachDraftHelper.isAgentTaken(teams, i)) {
-                if (captainTeam.contains(i)) {
-                    captainDemand.add(i, 1);
-                } else {
-                    captainDemand.add(i, 0);
-                }
-            }
-        }
-        
-        return getDemandTakensInserted(
+        final List<Integer> result = getDemandTakensInserted(
             captainDemand, teams, agents.size(), captainTeam
         );
+        assert result.size() == agents.size();
+        return result;
     }   
     
     private static List<Integer> getDemandTakensInserted(
@@ -457,7 +456,7 @@ result: list of captain's demand for each agent, including self
         return result;
     }
     
-    private static List<Integer> zerosList(
+    public static List<Integer> zerosList(
         final int len
     ) {
         final List<Integer> result = new ArrayList<Integer>();

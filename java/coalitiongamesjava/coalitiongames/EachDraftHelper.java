@@ -67,28 +67,8 @@ public abstract class EachDraftHelper {
         final List<Agent> agents,
         final Agent selfAgent
     ) {
-        // find mean value of other agents not yet on a team.
-        double untakenOtherAgentsValue = 0.0;
-        int untakenOtherAgentCount = 0;
-        for (int i = 0; i < agents.size(); i++) {
-            // don't count the self agent when evaluating
-            // the mean value of other remaining agents.
-            if (agents.get(i).equals(selfAgent)) {
-                continue;
-            }
-            if (!EachDraftHelper.isAgentTaken(teams, i)) {
-                final UUID currentAgentId = agents.get(i).getUuid();
-                untakenOtherAgentsValue += 
-                    selfAgent.getValueByUUID(currentAgentId);
-                untakenOtherAgentCount++;
-            }
-        }
-        
-        double meanValueOtherRemainingAgents = 0.0;
-        if (untakenOtherAgentCount > 0) {
-            meanValueOtherRemainingAgents =
-                untakenOtherAgentsValue / untakenOtherAgentCount;
-        }
+        final double meanValueOtherRemainingAgents = 
+            meanOtherFreeAgentValue(teams, agents, selfAgent);
 
         double maxTeamValue = -1.0;
         int bestTeamIndex = -1;
@@ -124,5 +104,36 @@ public abstract class EachDraftHelper {
         
         assert bestTeamIndex != -1;
         return bestTeamIndex;
+    }
+    
+    private static double meanOtherFreeAgentValue(
+        final List<List<Integer>> teams,
+        final List<Agent> agents,
+        final Agent selfAgent
+    ) {
+        // find mean value of other agents not yet on a team.
+        double untakenOtherAgentsValue = 0.0;
+        int untakenOtherAgentCount = 0;
+        for (int i = 0; i < agents.size(); i++) {
+            // don't count the self agent when evaluating
+            // the mean value of other remaining agents.
+            if (agents.get(i).equals(selfAgent)) {
+                continue;
+            }
+            if (!EachDraftHelper.isAgentTaken(teams, i)) {
+                final UUID currentAgentId = agents.get(i).getUuid();
+                untakenOtherAgentsValue += 
+                    selfAgent.getValueByUUID(currentAgentId);
+                untakenOtherAgentCount++;
+            }
+        }
+        
+        double meanValueOtherRemainingAgents = 0.0;
+        if (untakenOtherAgentCount > 0) {
+            meanValueOtherRemainingAgents =
+                untakenOtherAgentsValue / untakenOtherAgentCount;
+        }
+        
+        return meanValueOtherRemainingAgents;
     }
 }

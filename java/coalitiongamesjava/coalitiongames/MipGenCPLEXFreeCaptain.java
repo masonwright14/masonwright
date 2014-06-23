@@ -29,7 +29,7 @@ public final class MipGenCPLEXFreeCaptain {
      * than the captain
      * @param budget captain's budget
      * @return a list of integers in {0, 1} with length
-     * teamValues.size() + agentValues.size(). each integer indicates
+     * teamValues.size() + # of other free agents left. each integer indicates
      * whether the captain demands that team or agent.
      * if the captain can't afford any team plus enough free
      * agents to fill the team, it demands the empty bundle.
@@ -63,12 +63,9 @@ public final class MipGenCPLEXFreeCaptain {
             teamPrices, teamAgentsNeeded, agentPrices, budget)
         ) {
             // can't afford any bundle with 1 team and teamAgentsNeeded agents
-            final List<Integer> result = new ArrayList<Integer>();
             // return 0 demand for teams and agents
-            for (int i = 0; i < teamValues.size() + agentPrices.size(); i++) {
-                result.add(0);
-            }
-            return result;
+            return DemandGeneratorOneCTakenCaptain.
+                zerosList(teamValues.size() + agentPrices.size());
         }
         
         // the problem is feasible, so run the MIP
@@ -172,6 +169,7 @@ public final class MipGenCPLEXFreeCaptain {
             
             final IloCplex.Status status = lp.getStatus();
             lp.end();
+            
             throw new IllegalStateException(
                 "No solution found: " + status
             ); 

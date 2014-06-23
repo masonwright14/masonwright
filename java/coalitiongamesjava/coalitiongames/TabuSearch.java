@@ -11,8 +11,8 @@ import coalitiongames.PriceWithError.PriceUpdateSource;
 
 public abstract class TabuSearch {
     
-    public static final int DEFAULT_TABU_STEPS = 20;
-    // public static final int DEFAULT_TABU_STEPS = 10; // for quick testing
+    // public static final int DEFAULT_TABU_STEPS = 20;
+    public static final int DEFAULT_TABU_STEPS = 10; // for quick testing
     
     public static void main(final String[] args) {
         final Integer[] myArr = {7, 2, 1, 11, 12, 13};
