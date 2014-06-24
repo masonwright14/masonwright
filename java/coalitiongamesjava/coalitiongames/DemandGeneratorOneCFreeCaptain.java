@@ -465,7 +465,22 @@ result: list of captain's demand for each agent, including self
         // demandedIndexes now contains indexes in "agents" of all demanded
         // agents.
         
-        return getOwnTeamDemand(agents.size(), demandedIndexes);
+        final List<Integer> result = 
+            getOwnTeamDemand(agents.size(), demandedIndexes);
+        
+        if (MipGenerator.DEBUGGING) {
+            double totalCost = 0.0;
+            for (int i = 0; i < result.size(); i++) {
+                if (i != captainIndex) {
+                    totalCost += result.get(i) * prices.get(i);
+                }
+            }
+            
+            final double tolerance = 0.01;
+            assert totalCost  - tolerance <= budget;
+        }
+        
+        return result;
     }
     
     /*****************************************************************

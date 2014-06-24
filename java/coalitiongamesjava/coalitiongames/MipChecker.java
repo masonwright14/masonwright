@@ -84,7 +84,7 @@ public abstract class MipChecker {
         double total = 0;
         
         // allow for rounding error in GLPK solver constraints
-        final double overBudgetTolerance = 0.001;
+        final double overBudgetTolerance = 0.01;
         for (int i = 0; i < prices.size(); i++) {
             total += columnValues.get(i) * prices.get(i);
         }

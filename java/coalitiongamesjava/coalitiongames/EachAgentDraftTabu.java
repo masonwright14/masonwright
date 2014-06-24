@@ -1,6 +1,7 @@
 package coalitiongames;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -378,5 +379,76 @@ public abstract class EachAgentDraftTabu {
         }
         
         throw new IllegalStateException();
+    }
+    
+    /*****************************************************************
+     * TESTING
+     */
+    
+    public static void main(final String[] args) {
+        // testGetFirstTeamWithSpaceIndex();
+        // testGetFirstFreeAgentIndex();
+        testCountFreeAgentsLeft();
+    }
+    
+    /*
+     * Should be: 1
+     */
+    @SuppressWarnings("unused")
+    private static void testGetFirstTeamWithSpaceIndex() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final Integer[] teamSizesArr = {3, 4, 7};
+        List<Integer> teamSizes = Arrays.asList(teamSizesArr);
+        
+        System.out.println(getFirstTeamWithSpaceIndex(teams, teamSizes));
+    }
+    
+    /*
+     * should be: 10
+     */
+    @SuppressWarnings("unused")
+    private static void testGetFirstFreeAgentIndex() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final int n = 14;
+        System.out.println(getFirstFreeAgentIndex(teams, n));
+    }
+    
+    /*
+     * Should be: 4
+     */
+    private static void testCountFreeAgentsLeft() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final int n = 14;
+        System.out.println(countFreeAgentsLeft(teams, n));
     }
 }
