@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 public final class DemandGeneratorOneCTakenCaptain {
+    
+    private static final double TOLERANCE = 0.01;
 
     /**
      * @param agents includes all agents, some of which already have
@@ -257,8 +259,7 @@ constraint:
                 }
             }
             
-            final double tolerance = 0.01;
-            assert totalCost  - tolerance <= budget;
+            assert totalCost  - TOLERANCE <= budget;
         }
         
         return result;
@@ -388,8 +389,7 @@ constraint:
                 }
             }
             
-            final double tolerance = 0.01;
-            assert totalCost  - tolerance <= dummyAgent.getBudget();
+            assert totalCost  - TOLERANCE <= dummyAgent.getBudget();
         }
         
         return result;
@@ -482,8 +482,7 @@ result: list of captain's demand for each agent, including self
                 }
             }
             
-            final double tolerance = 0.01;
-            assert totalCost  - tolerance <= captain.getBudget();
+            assert totalCost  - TOLERANCE <= captain.getBudget();
         }
         
         return result;
@@ -605,8 +604,7 @@ result: list of captain's demand for each agent, including self
                 totalCost += prices.get(i) * result.get(i);
             }
             
-            final double tolerance = 0.01;
-            assert totalCost  - tolerance <= budget;
+            assert totalCost  - TOLERANCE <= budget;
         }
         
         return result;

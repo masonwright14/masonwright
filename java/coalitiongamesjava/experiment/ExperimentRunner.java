@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import coalitiongames.SearchResult;
 import coalitiongames.SimpleSearchResult;
 import experiment.ProblemGenerator.SearchAlgorithm;
 import experiment.ProblemGenerator.SimpleSearchAlgorithm;
@@ -45,6 +44,10 @@ public abstract class ExperimentRunner {
         );
         */
         
+        runExperiment(
+            TabuSearchAlgorithm.TABU_EACH, SOLVER_NAME, "newfrat"
+        );
+        
         /*
         final String fileName = "rndUncor_200_agents";
         runExperiment(SimpleSearchAlgorithm.DRAFT, SOLVER_NAME, fileName);
@@ -56,7 +59,7 @@ public abstract class ExperimentRunner {
         
         // runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT_CC);
         
-        printMeanCosineSimilarities();
+        // printMeanCosineSimilarities();
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {
@@ -173,8 +176,8 @@ public abstract class ExperimentRunner {
                 final long runStartMillis = new Date().getTime();
                 TabuSearchAlgorithm tabuAlgorithm = 
                     (TabuSearchAlgorithm) algorithm;
-                final SearchResult searchResult =
-                    ProblemGenerator.getSearchResult(
+                final SimpleSearchResult searchResult =
+                    ProblemGenerator.getTabuSearchResult(
                         inputFileName, tabuAlgorithm
                     );
                 allResults.add(searchResult);

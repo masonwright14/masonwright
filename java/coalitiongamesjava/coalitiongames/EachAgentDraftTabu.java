@@ -250,8 +250,12 @@ public abstract class EachAgentDraftTabu {
         final List<Integer> captainAllocation = 
             searchResult.getAllocation().get(captainIndex);
         
-        if (RsdUtil.getTeamSize(captainAllocation) == 1) {
-            // got empty bundle.
+        if (
+            RsdUtil.getTeamSize(captainAllocation) 
+            == teams.get(captainTeamIndex).size()
+            || RsdUtil.getTeamSize(captainAllocation) == 1
+        ) {
+            // couldn't afford any free agents on the market.
             // select favorite free agent.
             return favoriteFreeAgentIndex(
                 agents, captain, teams
@@ -284,6 +288,9 @@ public abstract class EachAgentDraftTabu {
         double bestValue = -1.0;
         int bestIndex = -1;
         for (int i = 0; i < selfAllocation.size(); i++) {
+            assert selfAllocation.get(i) == 0 
+                || selfAllocation.get(i) == 1;
+            
             if (
                 i != selfIndex // not the self agent
                 && selfAllocation.get(i) == 1 // in the bundle
@@ -299,6 +306,16 @@ public abstract class EachAgentDraftTabu {
         }
         // there must be at least 1 free agent in the allocation
         if (bestIndex == -1) {
+            System.out.println("teams:");
+            for (List<Integer> team: teams) {
+                System.out.println(team);
+            }
+            System.out.println("self index: " + selfIndex);
+            System.out.println("self allocation: " + selfAllocation);
+            System.out.println("agent count: " + agents.size());
+            System.out.println(
+                "free agents left: " + countFreeAgentsLeft(teams, agents.size())
+            );
             throw new IllegalStateException();
         }
         return bestIndex;
@@ -388,7 +405,12 @@ public abstract class EachAgentDraftTabu {
     public static void main(final String[] args) {
         // testGetFirstTeamWithSpaceIndex();
         // testGetFirstFreeAgentIndex();
-        testCountFreeAgentsLeft();
+        // testCountFreeAgentsLeft();
+        // testCountTeamsWithSpace();
+        // testIsFreeAgentLeft();
+        // testGetIncludedTeamIndex();
+        // testFavoriteFreeAgentIndex();
+        testFavoriteFreeAgentInAllocationIndex();
     }
     
     /*
@@ -436,6 +458,7 @@ public abstract class EachAgentDraftTabu {
     /*
      * Should be: 4
      */
+    @SuppressWarnings("unused")
     private static void testCountFreeAgentsLeft() {
         Integer[] team1Arr = {0, 1, 2};
         List<Integer> team1 = Arrays.asList(team1Arr);
@@ -450,5 +473,175 @@ public abstract class EachAgentDraftTabu {
 
         final int n = 14;
         System.out.println(countFreeAgentsLeft(teams, n));
+    }
+    
+    /*
+     * Should be: 2
+     */
+    @SuppressWarnings("unused")
+    private static void testCountTeamsWithSpace() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final Integer[] teamSizesArr = {3, 4, 7};
+        List<Integer> teamSizes = Arrays.asList(teamSizesArr);
+        
+        System.out.println(countTeamsWithSpace(teams, teamSizes));
+    }
+    
+    /*
+     * Should be: true false
+     */
+    @SuppressWarnings("unused")
+    private static void testIsFreeAgentLeft() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+
+        final int n = 14;
+        System.out.println(isFreeAgentLeft(teams, n));
+        final int smallerGroupN = 10;
+        System.out.println(isFreeAgentLeft(teams, smallerGroupN));
+    }
+    
+    /*
+     * Should be: 1
+     */
+    @SuppressWarnings("unused")
+    private static void testGetIncludedTeamIndex() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+        
+        Integer[] myAllocationArr = 
+            {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0};
+        List<Integer> myAllocation = Arrays.asList(myAllocationArr);
+        System.out.println(getIncludedTeamIndex(teams, myAllocation));
+    }
+    
+    /*
+     * Should be: 13
+     */
+    @SuppressWarnings("unused")
+    private static void testFavoriteFreeAgentIndex() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+        
+        final Double[] captainValuesArr = 
+        {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0};
+        List<Double> captainValues = Arrays.asList(captainValuesArr);
+        
+        final int countAgents = 14;
+        List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = DemandProblemGenerator.getUuids(countAgents);
+        
+        final int takenIndex = 0;
+        int selfIndex = takenIndex;
+        for (int i = 0; i < countAgents; i++) {
+            List<Double> values = new ArrayList<Double>();
+            if (i == selfIndex) {
+                values.addAll(captainValues);
+            } else {
+                for (int j = 1; j < countAgents; j++) {
+                    values.add(1.0);
+                }
+            }
+
+            final List<UUID> subsetList = 
+                DemandProblemGenerator.getUuidsWithout(uuids, i);
+            final int id = i;
+            final double budget = 105.0;
+            agents.add(
+                new Agent(values, subsetList, budget, id, uuids.get(i))
+            );
+        }
+        
+        System.out.println(
+            favoriteFreeAgentIndex(agents, agents.get(selfIndex), teams)
+        );
+    }
+    
+    /*
+     * Should be: 12
+     */
+    private static void testFavoriteFreeAgentInAllocationIndex() {
+        Integer[] team1Arr = {0, 1, 2};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        final Integer[] team2Arr = {3, 4};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        final Integer[] team3Arr = {5, 6, 7, 8, 9};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        teams.add(team1);
+        teams.add(team2);
+        teams.add(team3);
+        
+        final Double[] captainValuesArr = 
+        {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0};
+        List<Double> captainValues = Arrays.asList(captainValuesArr);
+        
+        final int countAgents = 14;
+        List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = DemandProblemGenerator.getUuids(countAgents);
+        
+        final int takenIndex = 0;
+        int selfIndex = takenIndex;
+        for (int i = 0; i < countAgents; i++) {
+            List<Double> values = new ArrayList<Double>();
+            if (i == selfIndex) {
+                values.addAll(captainValues);
+            } else {
+                for (int j = 1; j < countAgents; j++) {
+                    values.add(1.0);
+                }
+            }
+
+            final List<UUID> subsetList = 
+                DemandProblemGenerator.getUuidsWithout(uuids, i);
+            final int id = i;
+            final double budget = 105.0;
+            agents.add(
+                new Agent(values, subsetList, budget, id, uuids.get(i))
+            );
+        }
+        
+        Integer[] allocationArr = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0};
+        List<Integer> allocation = Arrays.asList(allocationArr);
+        
+        System.out.println(
+            favoriteFreeAgentInAllocationIndex(
+                agents, agents.get(selfIndex), teams, allocation
+            )
+        );
     }
 }

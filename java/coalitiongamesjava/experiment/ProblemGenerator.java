@@ -7,6 +7,7 @@ import java.util.UUID;
 import coalitiongames.Agent;
 import coalitiongames.DraftAllocation;
 import coalitiongames.EachAgentDraftAllocation;
+import coalitiongames.EachAgentDraftTabu;
 import coalitiongames.EachDraftCaptainsChoice;
 import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
@@ -29,7 +30,7 @@ public abstract class ProblemGenerator {
     }
     
     public static enum TabuSearchAlgorithm implements SearchAlgorithm {
-        TABU_ONE, TABU_ALL, TABU_ALL_OPT
+        TABU_ONE, TABU_ALL, TABU_ALL_OPT, TABU_EACH
     }
     
     static final String[] INPUT_PREFIX_ARRAY = {
@@ -51,7 +52,8 @@ public abstract class ProblemGenerator {
         SimpleSearchAlgorithm.EACH_DRAFT_CC,
         TabuSearchAlgorithm.TABU_ONE,
         TabuSearchAlgorithm.TABU_ALL,
-        TabuSearchAlgorithm.TABU_ALL_OPT
+        TabuSearchAlgorithm.TABU_ALL_OPT,
+        TabuSearchAlgorithm.TABU_EACH
     };
     
     public static String getAlgorithmName(
@@ -87,6 +89,8 @@ public abstract class ProblemGenerator {
                 return "tabuAllOpt";
             case TABU_ONE:
                 return "tabuOne";
+            case TABU_EACH:
+                return "tabuEach";
             default:
                 throw new IllegalArgumentException(); 
             }
@@ -104,8 +108,8 @@ public abstract class ProblemGenerator {
         System.out.println(result);
         */
         
-        final SearchResult result =
-            getSearchResult(
+        final SimpleSearchResult result =
+            getTabuSearchResult(
                 "inputFiles/newfrat_1.txt", 
                 TabuSearchAlgorithm.TABU_ALL_OPT
             );
@@ -152,7 +156,7 @@ public abstract class ProblemGenerator {
         return true;
     }
     
-    public static SearchResult getSearchResult(
+    public static SimpleSearchResult getTabuSearchResult(
         final String fileName,
         final TabuSearchAlgorithm algorithm
     ) {
@@ -161,7 +165,7 @@ public abstract class ProblemGenerator {
         assert checkRsdBudgets(budgets, rsdOrder);
         final List<List<Double>> values = SampleInputLoader.getMatrix(fileName);
         final int kMax = (int) Math.ceil(Math.sqrt(rsdOrder.size()));
-        return getSearchResult(
+        return getTabuSearchResult(
             rsdOrder,
             budgets,
             values,
@@ -176,7 +180,7 @@ public abstract class ProblemGenerator {
      * example:
      * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
      */
-    public static SearchResult getSearchResult(
+    public static SimpleSearchResult getTabuSearchResult(
         final List<Integer> rsdOrder,
         final List<Double> budgets,
         final List<List<Double>> values,
@@ -190,6 +194,8 @@ public abstract class ProblemGenerator {
             return runTabuAllOptAllocation(rsdOrder, budgets, values, kMax);
         case TABU_ONE:
             return runTabuOneAllocation(rsdOrder, budgets, values, kMax);
+        case TABU_EACH:
+            return runTabuEachAllocation(rsdOrder, budgets, values, kMax);
         default:
             throw new IllegalArgumentException();
         }
@@ -296,6 +302,38 @@ public abstract class ProblemGenerator {
             RsdAllLevelsTabuSearch.rsdTabuSearchAllLevels(
                 agents, gammaZ, kMax, kMin, rsdOrder
             );
+        return searchResult;
+    }
+    
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
+    public static SimpleSearchResult runTabuEachAllocation(
+        final List<Integer> rsdOrder,
+        final List<Double> budgets,
+        final List<List<Double>> values,
+        final int kMax
+    ) {
+        final int n = rsdOrder.size();
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
+            final List<Double> agentValues = values.get(i);
+            agentValues.remove(i); // remove -1.0 for own value.
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(
+                new Agent(
+                    agentValues, subsetList, budgets.get(i), id, uuids.get(i)
+                )
+            );
+        }
+        
+        final SimpleSearchResult searchResult = 
+            EachAgentDraftTabu.eachAgentDraftTabu(agents, kMax, rsdOrder);
         return searchResult;
     }
     

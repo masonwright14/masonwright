@@ -193,6 +193,7 @@ public abstract class RsdUtil {
         // add 1 if there's a 1, else add a 0. this gives the team size.
         // note that 1 is always present for the self agent, as desired.
         for (Integer i: demand) {
+            assert i == 1 || i == 0;
             teamSize += i;
         }
         return teamSize;

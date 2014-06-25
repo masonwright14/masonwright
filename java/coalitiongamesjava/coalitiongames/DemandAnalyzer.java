@@ -1,6 +1,7 @@
 package coalitiongames;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class DemandAnalyzer {
@@ -95,13 +96,18 @@ public abstract class DemandAnalyzer {
     ) {
         final List<Integer> result = new ArrayList<Integer>();
         
-        if (kMin <= 1) {
-            for (int i = 0; i < demand.size(); i++) {
-                result.add(0);
+        if (MipGenerator.DEBUGGING) {
+            // should be a square matrix
+            for (List<Integer> item: demand) {
+                assert item.size() == demand.size();
             }
-            return result;
         }
         
+        if (kMin <= 1) {
+            return DemandGeneratorOneCTakenCaptain.zerosList(demand.size());
+        }
+        
+        // (kMin - 1) is maximum under-demand
         final int minDemand = kMin - 1;
         for (int i = 0; i < demand.size(); i++) {
             // if not demanded by any other agent, under-demand is (kMin - 1)
@@ -247,5 +253,43 @@ public abstract class DemandAnalyzer {
         }
         
         return result;
+    }
+    
+    /*****************************************************************
+     * TESTING
+     */
+    
+    public static void main(final String[] args) {
+        testGetIntegerUnderDemand();
+    }
+    
+    /*
+     * Should be: [0, 0, 0, 1, 1, 0, 0, 0, 0, 0] because over-demand counts as 0
+     */
+    private static void testGetIntegerUnderDemand() {
+        List<List<Integer>> teams = new ArrayList<List<Integer>>();
+        
+        Integer[] team1Arr =       {1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
+        List<Integer> team1 = Arrays.asList(team1Arr);
+        teams.add(team1);
+        teams.add(team1);
+        teams.add(team1);
+
+        
+        final Integer[] team2Arr = {0, 0, 0, 1, 1, 0, 0, 0, 0, 0};
+        List<Integer> team2 = Arrays.asList(team2Arr);
+        teams.add(team2);
+        teams.add(team2);
+        
+        final Integer[] team3Arr = {0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
+        List<Integer> team3 = Arrays.asList(team3Arr);
+        teams.add(team3);
+        teams.add(team3);
+        teams.add(team3);
+        teams.add(team3);
+        teams.add(team3);
+        final int kMin = 3;
+        
+        System.out.println(getIntegerUnderDemand(teams, kMin));
     }
 }

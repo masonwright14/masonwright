@@ -31,16 +31,21 @@ public final class GammaZ4 implements GammaZ {
             }
         }
         
+        int myKMin = kMin;
+        if (myKMin < 1) {
+            myKMin = 1;
+        }
+        
         final List<Integer> incomingUnrequitedDemand = 
             DemandAnalyzer.getIncomingUnrequitedDemand(demand);
         final List<Integer> integerUnderDemand = 
-            DemandAnalyzer.getIntegerUnderDemand(demand, kMin);
+            DemandAnalyzer.getIntegerUnderDemand(demand, myKMin);
         
         final List<Double> result = new ArrayList<Double>();
         for (int i = 0; i < demand.size(); i++) {
             final double z4 = 
                 incomingUnrequitedDemand.get(i) 
-                - kMin * integerUnderDemand.get(i);
+                - myKMin * integerUnderDemand.get(i);
             result.add(z4);
         }
         

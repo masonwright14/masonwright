@@ -7,6 +7,7 @@ import ilog.concert.IloLinearNumExpr;
 import ilog.cplex.IloCplex;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class MipGenCPLEXFreeDummy {
@@ -151,7 +152,23 @@ public final class MipGenCPLEXFreeDummy {
                 }
                 
                 lp.end();
-                return getRoundedColumnValues(columnValues);
+                
+                final List<Integer> result = 
+                    getRoundedColumnValues(columnValues);
+                if (MipGenerator.DEBUGGING) {
+                    final int testIterations = 10000;
+                    // final int testIterations = 100;
+                    boolean testResult = 
+                        MipChecker.checkFreeDummyLpSolution(
+                            result, teamValues, teamPrices, teamAgentsNeeded, 
+                            agentValues, agentPrices, budget, testIterations
+                        );
+                    if (!testResult) {
+                        throw new IllegalStateException();
+                    }
+                }
+                
+                return result;
             }
             
             final IloCplex.Status status = lp.getStatus();
@@ -212,5 +229,34 @@ public final class MipGenCPLEXFreeDummy {
         }
         
         return result;
+    }
+    
+    /*****************************************************************
+     * TESTING
+     */
+    
+    public static void main(final String[] args) {
+        testIsFeasible();
+    }
+    
+    /*
+     * Should be: false true
+     */
+    private static void testIsFeasible() {
+        final Double[] teamPricesArr = {15.0, 20.0};
+        List<Double> teamPrices = Arrays.asList(teamPricesArr);
+        final Integer[] agentsNeededArr = {3, 2};
+        List<Integer> agentsNeeded = Arrays.asList(agentsNeededArr);
+        final Double[] agentPricesArr = {3.0, 4.0, 5.0};
+        List<Double> agentPrices = Arrays.asList(agentPricesArr);
+        final double budget = 21.0;
+        System.out.println(
+            isFeasible(teamPrices, agentsNeeded, agentPrices, budget)
+        );
+        
+        final double budget2 = 22.1;
+        System.out.println(
+            isFeasible(teamPrices, agentsNeeded, agentPrices, budget2)
+        );
     }
 }

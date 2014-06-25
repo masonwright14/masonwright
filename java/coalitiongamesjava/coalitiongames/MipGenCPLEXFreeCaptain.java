@@ -163,8 +163,24 @@ public final class MipGenCPLEXFreeCaptain {
                 }
                 
                 lp.end();
-                return MipGenCPLEXFreeDummy.
+                final List<Integer> result = MipGenCPLEXFreeDummy.
                     getRoundedColumnValues(columnValues);
+                
+                if (MipGenerator.DEBUGGING) {
+                    final int testIterations = 10000;
+                    // final int testIterations = 100;
+                    boolean testResult = 
+                        MipChecker.checkFreeCaptainLpSolution(
+                            result, teamValues, teamPrices, teamAgentsNeeded, 
+                            meanOtherFreeAgentValue, agentPrices, budget, 
+                            testIterations
+                        );
+                    if (!testResult) {
+                        throw new IllegalStateException();
+                    }
+                }
+                
+                return result;
             }
             
             final IloCplex.Status status = lp.getStatus();
