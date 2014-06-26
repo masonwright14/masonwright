@@ -1,6 +1,7 @@
 package experiment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +43,20 @@ public abstract class ProblemGenerator {
         "rndUncor_50_agents", "rndUncor_200_agents"
     };
     
+    private static final String[] ALGORITHM_NAME_ARRAY = {
+        "draft", "eachDrf", "eachDCC", "randomAny", "randomOpt",
+        "rsdGreedy", "rsdOpt", "tabuAll", "tabuAllOpt", 
+        "tabuOne", "tabuEach"
+    };
+    
+    public static List<String> getAlgorithmNames() {
+        return Arrays.asList(ALGORITHM_NAME_ARRAY);
+    }
+    
+    public static List<String> inputPrefixes() {
+        return Arrays.asList(INPUT_PREFIX_ARRAY);
+    }
+    
     static final SearchAlgorithm[] ALGORITHM_ARRAY = {
         SimpleSearchAlgorithm.RANDOM_ANY,
         SimpleSearchAlgorithm.RANDOM_OPT,
@@ -55,6 +70,47 @@ public abstract class ProblemGenerator {
         TabuSearchAlgorithm.TABU_ALL_OPT,
         TabuSearchAlgorithm.TABU_EACH
     };
+    
+    public static SearchAlgorithm getSearchAlgorithm(final String name) {
+        if (name == null) {
+            throw new IllegalArgumentException();
+        }
+        if (name.equals("draft")) {
+            return SimpleSearchAlgorithm.DRAFT;
+        }
+        if (name.equals("eachDrf")) {
+            return SimpleSearchAlgorithm.EACH_DRAFT;
+        }
+        if (name.equals("eachDCC")) {
+            return SimpleSearchAlgorithm.EACH_DRAFT_CC;
+        }
+        if (name.equals("randomAny")) {
+            return SimpleSearchAlgorithm.RANDOM_ANY;
+        }
+        if (name.equals("randomOpt")) {
+            return SimpleSearchAlgorithm.RANDOM_OPT;
+        }
+        if (name.equals("rsdGreedy")) {
+            return SimpleSearchAlgorithm.RSD_GREEDY;
+        }
+        if (name.equals("rsdOpt")) {
+            return SimpleSearchAlgorithm.RSD_OPT;
+        }
+        if (name.equals("tabuAll")) {
+            return TabuSearchAlgorithm.TABU_ALL;
+        }
+        if (name.equals("tabuAllOpt")) {
+            return TabuSearchAlgorithm.TABU_ALL_OPT;
+        }
+        if (name.equals("tabuOne")) {
+            return TabuSearchAlgorithm.TABU_ONE;
+        }
+        if (name.equals("tabuEach")) {
+            return TabuSearchAlgorithm.TABU_EACH;
+        }
+        
+        throw new IllegalArgumentException();
+    }
     
     public static String getAlgorithmName(
         final SearchAlgorithm algorithm

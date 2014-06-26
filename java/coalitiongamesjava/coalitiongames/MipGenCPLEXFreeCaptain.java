@@ -112,6 +112,11 @@ public final class MipGenCPLEXFreeCaptain {
             final IloCplex lp = new IloCplex();
             lp.setOut(null);
             
+            // set these parameters if memory is a concern
+            lp.setParam(IloCplex.IntParam.Threads, 2);
+            final double sizeInMb = 600.0;
+            lp.setParam(IloCplex.DoubleParam.WorkMem, sizeInMb);
+            
             // x (results) must be in {0, 1}^(# teams + # agents)
             int[] xLowerBounds = new int[dimensions];
             int[] xUpperBounds = new int[dimensions];

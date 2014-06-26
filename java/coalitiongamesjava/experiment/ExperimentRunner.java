@@ -15,7 +15,7 @@ public abstract class ExperimentRunner {
 
     private static final String INPUT_FOLDER_NAME = "inputFiles";
     
-    private static final String SOLVER_NAME = "cplex";
+    public static final String SOLVER_NAME = "cplex";
     
     public static void main(final String[] args) {
         /*
@@ -45,7 +45,7 @@ public abstract class ExperimentRunner {
         */
         
         runExperiment(
-            TabuSearchAlgorithm.TABU_EACH, SOLVER_NAME, "newfrat"
+            TabuSearchAlgorithm.TABU_EACH, SOLVER_NAME, "rndUncor_20_agents"
         );
         
         /*
@@ -146,7 +146,7 @@ public abstract class ExperimentRunner {
         );
 }
     
-    private static void runExperiment(
+    public static void runExperiment(
         final SearchAlgorithm algorithm,
         final String solverName,
         final String inputFilePrefix

@@ -9,10 +9,10 @@ import coalitiongames.RsdUtil;
 public abstract class RandomInputGenerator {
     
     public static void main(final String[] args) {
-        // final int runCount = 20;
+        final int runCount = 20;
         // final int numPlayers = 20;
         // generateRandomInputFiles(numPlayers, runCount);
-        // generateAllRandomInputFiles(runCount);
+        generateAllRandomInputFiles(runCount);
     }
     
     public static void generateAllRandomInputFiles(
