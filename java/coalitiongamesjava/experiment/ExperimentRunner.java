@@ -105,7 +105,7 @@ public abstract class ExperimentRunner {
        );
     }
     
-    private static void runExperimentsForInputFilePrefixOfType(
+    public static void runExperimentsForInputFilePrefixOfType(
         final String solverName,
         final String inputFilePrefix,
         final boolean isTabu
