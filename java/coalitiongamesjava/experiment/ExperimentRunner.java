@@ -1,6 +1,10 @@
 package experiment;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +18,8 @@ import experiment.ProblemGenerator.TabuSearchAlgorithm;
 public abstract class ExperimentRunner {
 
     private static final String INPUT_FOLDER_NAME = "inputFiles";
+    
+    private static final String MEAN_RANK_OUTPUT_FOLDER_NAME = "meanRankFiles";
     
     public static final String SOLVER_NAME = "cplex";
     
@@ -44,9 +50,11 @@ public abstract class ExperimentRunner {
         );
         */
         
+        /*
         runExperiment(
             TabuSearchAlgorithm.TABU_EACH, SOLVER_NAME, "rndUncor_20_agents"
         );
+        */
         
         /*
         final String fileName = "rndUncor_200_agents";
@@ -60,6 +68,8 @@ public abstract class ExperimentRunner {
         // runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT_CC);
         
         // printMeanCosineSimilarities();
+        
+        printAgentMeanRanksAndValues();
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {
@@ -257,4 +267,85 @@ public abstract class ExperimentRunner {
             );
         }
     }
+    
+    /*
+     * inputPrefix_ranks.csv
+     * first column: playerId (0-based, from 0 to (N - 1))
+     * second column: meanRank
+     * third column: meanValue
+     * 3 columns, (N + 1) rows with header
+     * CSV format
+     */
+    public static void printAgentMeanRanksAndValues() {
+        Writer output = null;
+        
+        final String header = "playerId,meanRank,meanValue\n";
+        final DecimalFormat df = new DecimalFormat("#.###");
+        try {
+            for (String inputFilePrefix: ProblemGenerator.INPUT_PREFIX_ARRAY) {
+                final String outputFileName = MEAN_RANK_OUTPUT_FOLDER_NAME + "/"
+                    + inputFilePrefix + "_ranks" + FileHandler.CSV_EXTENSION;
+                output = new BufferedWriter(
+                    new FileWriter(
+                        FileHandler.getFileAndCreateIfNeeded(outputFileName)
+                    ));
+                output.write(header);
+                
+                final int runNumber = 1;
+                final String inputFileName = INPUT_FOLDER_NAME + "/" 
+                    + inputFilePrefix + "_" 
+                    + runNumber + FileHandler.TEXT_EXTENSION;
+                
+                SimpleSearchResult result = 
+                    ProblemGenerator.getSimpleSearchResult(
+                    inputFileName, SimpleSearchAlgorithm.RANDOM_OPT
+                );
+                final List<Double> utilities = 
+                    result.getMeanAgentUtilitiesNoJitter();
+                final List<Double> ranks = 
+                    result.getMeanAgentRanksNoJitter();
+                for (int i = 0; i < result.getAgents().size(); i++) {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(i).append(',').
+                    append(df.format(ranks.get(i))).
+                    append(',').append(df.format(utilities.get(i))).
+                    append('\n');
+                    output.write(builder.toString());
+                }
+                
+                System.out.println(inputFilePrefix);
+                output.write('\n');
+                output.flush();
+                output.close();
+            }
+
+        } catch (IOException e) {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return;
+        }
+
+    }
+    
+    /*
+    private static String listRoundedToString(final List<Double> input) {
+        final StringBuilder builder = new StringBuilder();
+        final DecimalFormat df = new DecimalFormat("#.###");
+        for (int i = 0; i < input.size(); i++) {
+            builder.append(df.format(input.get(i)));
+            if (i + 1 < input.size()) {
+                builder.append(',');
+            }
+        }
+        builder.append('\n');
+        
+        return builder.toString();
+    }
+    */
 }

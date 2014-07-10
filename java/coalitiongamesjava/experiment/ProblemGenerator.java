@@ -190,7 +190,7 @@ public abstract class ProblemGenerator {
         );
     }
     
-    private static boolean checkRsdBudgets(
+    public static boolean checkRsdBudgets(
         final List<Double> budgets,
         final List<Integer> rsdOrder
     ) {
@@ -655,7 +655,7 @@ public abstract class ProblemGenerator {
         return searchResult;
     }
     
-    private static List<UUID> getUuids(final int n) {
+    public static List<UUID> getUuids(final int n) {
         final List<UUID> uuids = new ArrayList<UUID>();
         for (int i = 0; i < n; i++) {
             uuids.add(UUID.randomUUID());
@@ -663,7 +663,7 @@ public abstract class ProblemGenerator {
         return uuids;
     }
     
-    private static List<UUID> getUuidsWithout(
+    public static List<UUID> getUuidsWithout(
         final List<UUID> original,
         final int toRemove
     ) {

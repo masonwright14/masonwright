@@ -12,7 +12,7 @@ import java.util.List;
 public final class MipGeneratorCPLEX implements MipGenerator {
     
     private static final boolean IS_PARALLEL = true;
-
+    
     /**
      * 
      * @param values a list of all the other agents, 
@@ -79,6 +79,11 @@ public final class MipGeneratorCPLEX implements MipGenerator {
                 // set these parameters if using parallel processing
                 lp.setParam(IloCplex.IntParam.Threads, 1);
                 final double sizeInMb = 400.0;
+                lp.setParam(IloCplex.DoubleParam.WorkMem, sizeInMb);
+            } else {
+                // set these parameters if memory is a concern
+                lp.setParam(IloCplex.IntParam.Threads, 2);
+                final double sizeInMb = 600.0;
                 lp.setParam(IloCplex.DoubleParam.WorkMem, sizeInMb);
             }
             

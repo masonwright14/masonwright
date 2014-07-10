@@ -358,6 +358,61 @@ public class SimpleSearchResult {
         return result;
     }
     
+    /*
+     * For each agent, report the mean rank for that agent
+     * for all the (N - 1) other agents.
+     */
+    public final List<Double> getMeanAgentRanksNoJitter() {
+        final List<Double> result = new ArrayList<Double>();
+        final int countOtherAgents = agents.size() - 1;
+        for (final Agent currentAgent: agents) {
+            double currentAgentTotal = 0.0;
+            for (final Agent otherAgent: agents) {
+                if (!currentAgent.equals(otherAgent)) {
+                    final double rankToOtherAgent = 
+                        getRankOfAgentNoJitter(
+                            otherAgent, // ranking agent
+                            currentAgent // ranked agent
+                        );
+                    currentAgentTotal += rankToOtherAgent;
+                }
+            }
+            final double currentAgentMean = 
+                currentAgentTotal / countOtherAgents;
+            result.add(currentAgentMean);
+        }
+        
+        assert result.size() == agents.size();
+        return result;
+    }
+    
+    private static double getRankOfAgentNoJitter(
+        final Agent rankingAgent, 
+        final Agent rankedAgent
+    ) {
+        assert !rankingAgent.equals(rankedAgent);
+        final UUID rankedAgentId = rankedAgent.getUuid();
+        
+        final List<Integer> sortedValues = new ArrayList<Integer>();
+        for (final Double item: rankingAgent.getValues()) {
+            sortedValues.add((int) Math.floor(item));
+        }
+        Collections.sort(sortedValues);
+        Collections.reverse(sortedValues);
+        
+        final int rankedAgentValueFloor = 
+            (int) Math.floor(rankingAgent.getValueByUUID(rankedAgentId));
+        // ranks should be 1-based, not 0-based, so add 1.
+        final int rankedAgentFirstRank = 
+            1 + sortedValues.indexOf(rankedAgentValueFloor);
+        final int rankedAgentLastRank = 
+            1 + sortedValues.lastIndexOf(rankedAgentValueFloor);
+        // set rank of item to be mean of 
+        // first occurrence rank and last occurrence rank,
+        // because ties are possible.    
+        return (rankedAgentFirstRank + rankedAgentLastRank) / 2.0;
+    }
+    
     public final List<Double> meanTeammateRanksNoJitter() {
         final List<Double> result = new ArrayList<Double>();
         for (int i = 0; i < this.agents.size(); i++) {
@@ -375,9 +430,9 @@ public class SimpleSearchResult {
             int teamSize = 0;
             for (int j = 0; j < this.agents.size(); j++) {
                 if (i != j && team.get(j) == 1) {
-                    final UUID otherAgenUuid = this.agents.get(j).getUuid();
+                    final UUID otherAgentUuid = this.agents.get(j).getUuid();
                     final double otherAgentValue = 
-                        agent.getValueByUUID(otherAgenUuid);
+                        agent.getValueByUUID(otherAgentUuid);
                     final int otherAgentValueFloor = 
                         (int) Math.floor(otherAgentValue);
                     // ranks should be 1-based, not 0-based, so add 1.
@@ -652,6 +707,32 @@ public class SimpleSearchResult {
         }
         
         return result;        
+    }
+    
+    /*
+     * For each agent, report the mean utility for that agent
+     * from all the (N - 1) other agents.
+     */
+    public final List<Double> getMeanAgentUtilitiesNoJitter() {
+        final List<Double> result = new ArrayList<Double>();
+        final int countOtherAgents = agents.size() - 1;
+        for (final Agent currentAgent: agents) {
+            double currentAgentTotal = 0.0;
+            final UUID currentAgentId = currentAgent.getUuid();
+            // get value of this agent to all other agents
+            for (final Agent otherAgent: agents) {
+                if (!currentAgent.equals(otherAgent)) {
+                    currentAgentTotal += 
+                        Math.floor(otherAgent.getValueByUUID(currentAgentId));
+                }
+            }
+            final double currentAgentMean = 
+                currentAgentTotal / countOtherAgents;
+            result.add(currentAgentMean);
+        }
+        
+        assert result.size() == agents.size();
+        return result;
     }
     
     @Override
