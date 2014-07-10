@@ -13,7 +13,7 @@ public interface MipGenerator {
     
     double MIN_BUDGET = 100.0;
     
-    boolean DEBUGGING = false;
+    boolean DEBUGGING = true;
     
     /*
      * handle case where no set of size kMin or larger

@@ -14,6 +14,7 @@ import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
 import coalitiongames.RsdAllLevelsTabuSearch;
 import coalitiongames.RsdAllocation;
+import coalitiongames.RsdTabuAllSpitl;
 import coalitiongames.RsdTabuSearch;
 import coalitiongames.RsdUtil;
 import coalitiongames.SimpleSearchResult;
@@ -366,6 +367,12 @@ public abstract class RegretProblemGenerator {
         case TABU_ONE:
             searchResult = 
                 RsdTabuSearch.rsdTabuSearchOneLevel(
+                    agents, gammaZ, kMax, rsdOrder
+                );
+            break;
+        case TABU_ALL_OPT_SPITL:
+            searchResult =
+                RsdTabuAllSpitl.rsdTabuSearchAllLevelsOptimalSizesSpitl(
                     agents, gammaZ, kMax, rsdOrder
                 );
             break;

@@ -15,6 +15,7 @@ import coalitiongames.GammaZ2;
 import coalitiongames.RandomAllocation;
 import coalitiongames.RsdAllLevelsTabuSearch;
 import coalitiongames.RsdAllocation;
+import coalitiongames.RsdTabuAllSpitl;
 import coalitiongames.RsdTabuSearch;
 import coalitiongames.SearchResult;
 import coalitiongames.SimpleSearchResult;
@@ -31,7 +32,7 @@ public abstract class ProblemGenerator {
     }
     
     public static enum TabuSearchAlgorithm implements SearchAlgorithm {
-        TABU_ONE, TABU_ALL, TABU_ALL_OPT, TABU_EACH
+        TABU_ONE, TABU_ALL, TABU_ALL_OPT, TABU_EACH, TABU_ALL_OPT_SPITL
     }
     
     static final String[] INPUT_PREFIX_ARRAY = {
@@ -46,7 +47,7 @@ public abstract class ProblemGenerator {
     private static final String[] ALGORITHM_NAME_ARRAY = {
         "draft", "eachDrf", "eachDCC", "randomAny", "randomOpt",
         "rsdGreedy", "rsdOpt", "tabuAll", "tabuAllOpt", 
-        "tabuOne", "tabuEach"
+        "tabuOne", "tabuEach", "tabuAllOptSpitl"
     };
     
     public static List<String> getAlgorithmNames() {
@@ -68,7 +69,8 @@ public abstract class ProblemGenerator {
         TabuSearchAlgorithm.TABU_ONE,
         TabuSearchAlgorithm.TABU_ALL,
         TabuSearchAlgorithm.TABU_ALL_OPT,
-        TabuSearchAlgorithm.TABU_EACH
+        TabuSearchAlgorithm.TABU_EACH,
+        TabuSearchAlgorithm.TABU_ALL_OPT_SPITL
     };
     
     public static SearchAlgorithm getSearchAlgorithm(final String name) {
@@ -107,6 +109,9 @@ public abstract class ProblemGenerator {
         }
         if (name.equals("tabuEach")) {
             return TabuSearchAlgorithm.TABU_EACH;
+        }
+        if (name.equals("tabuAllOptSpitl")) {
+            return TabuSearchAlgorithm.TABU_ALL_OPT_SPITL;
         }
         
         throw new IllegalArgumentException();
@@ -147,6 +152,8 @@ public abstract class ProblemGenerator {
                 return "tabuOne";
             case TABU_EACH:
                 return "tabuEach";
+            case TABU_ALL_OPT_SPITL:
+                return "tabuAllOptSpitl";
             default:
                 throw new IllegalArgumentException(); 
             }
@@ -252,6 +259,10 @@ public abstract class ProblemGenerator {
             return runTabuOneAllocation(rsdOrder, budgets, values, kMax);
         case TABU_EACH:
             return runTabuEachAllocation(rsdOrder, budgets, values, kMax);
+        case TABU_ALL_OPT_SPITL:
+            return runTabuAllOptSpitlAllocation(
+                rsdOrder, budgets, values, kMax
+            );
         default:
             throw new IllegalArgumentException();
         }
@@ -288,6 +299,41 @@ public abstract class ProblemGenerator {
         default:
             throw new IllegalArgumentException();
         }
+    }
+    
+    /*
+     * rsdOrder: first item is the index of the first agent to go.
+     * second item is the index of second agent to go, etc.
+     * example:
+     * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
+     */
+    public static SearchResult runTabuAllOptSpitlAllocation(
+        final List<Integer> rsdOrder,
+        final List<Double> budgets,
+        final List<List<Double>> values,
+        final int kMax
+    ) {
+        final int n = rsdOrder.size();
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
+            final List<Double> agentValues = values.get(i);
+            agentValues.remove(i); // remove -1.0 for own value.
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(
+                new Agent(
+                    agentValues, subsetList, budgets.get(i), id, uuids.get(i)
+                )
+            );
+        }
+        
+        final GammaZ gammaZ = new GammaZ2();
+        final SearchResult searchResult = 
+            RsdTabuAllSpitl.rsdTabuSearchAllLevelsOptimalSizesSpitl(
+                agents, gammaZ, kMax, rsdOrder
+            );
+        return searchResult;
     }
     
     /*

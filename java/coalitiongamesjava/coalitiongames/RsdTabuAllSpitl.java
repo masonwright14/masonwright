@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public abstract class RsdAllLevelsTabuSearch {
-    
+import coalitiongames.PriceWithError.PriceUpdateSource;
+
+public abstract class RsdTabuAllSpitl {
+
     /*
      * rsdOrder: first item is the index of the first agent to go.
      * second item is the index of second agent to go, etc.
@@ -17,7 +19,7 @@ public abstract class RsdAllLevelsTabuSearch {
      * 1 2 0 -> agent 1 goes, then agent 2, then agent 0.
      */
     public static SearchResult 
-        rsdTabuSearchAllLevelsOptimalSizes(
+        rsdTabuSearchAllLevelsOptimalSizesSpitl(
         final List<Agent> agents,
         final GammaZ gammaZ,
         final int kMax,
@@ -27,7 +29,7 @@ public abstract class RsdAllLevelsTabuSearch {
             RsdUtil.getOptimalTeamSizeRange(agents.size(), kMax);
         final int optimalKMin = optimalTeamSizeRange.get(0);
         final int optimalKMax = optimalTeamSizeRange.get(1);
-        return rsdTabuSearchAllLevels(
+        return rsdTabuSearchAllLevelsSpitl(
             agents, gammaZ, optimalKMax, optimalKMin, rsdOrder
         );
     }
@@ -58,13 +60,7 @@ public abstract class RsdAllLevelsTabuSearch {
      * all remaining agents are placed on the same team.
      * 
      * Else if the remaining number of agents is > kMax, then 
-     * if the next agent remaining in RSD order still has all members of its
-     * favorite affordable, feasible bundle (from the tabu search) available, 
-     * it takes that bundle, and so on.
-     * 
-     * If at some point the next agent remaining in RSD order 
-     * does not have all the agents of its favorite affordable, 
-     * feasible bundle available, then we run a new tabu search for the 
+     * we run a new tabu search for the 
      * remaining agents, allowing only the feasible numbers
      * of agents per team to be chosen. Continue until all 
      * agents are assigned to teams.
@@ -88,7 +84,7 @@ public abstract class RsdAllLevelsTabuSearch {
      * and other data
      */   
     public static SearchResult 
-        rsdTabuSearchAllLevels(
+        rsdTabuSearchAllLevelsSpitl(
         final List<Agent> agents,
         final GammaZ gammaZ,
         final int kMax,
@@ -124,8 +120,6 @@ public abstract class RsdAllLevelsTabuSearch {
         
         // time the duration of the search to the millisecond
         final long searchStartMillis = new Date().getTime();
-        final List<Integer> initialFeasibleTeamSizes = 
-            RsdUtil.getFeasibleNextTeamSizes(n, kMin, kMax);
         
         // holds the index of the captain of each team, in order.
         final List<Integer> captainIndexes = new ArrayList<Integer>();
@@ -133,10 +127,9 @@ public abstract class RsdAllLevelsTabuSearch {
         // currentSearchResult sets the prices of all agents. if it has market
         // clearing error, not all agents 
         // will get their allocations from this result.
-        SearchResult currentSearchResult = TabuSearch.tabuSearchRanges(
-            agents, gammaZ, initialFeasibleTeamSizes);
-        int tabuSearchCalls = 1;
-        final SearchResult initialSearchResult = currentSearchResult;
+        SearchResult currentSearchResult;
+        SearchResult initialSearchResult = null;
+        int tabuSearchCalls = 0;
         
         // an allocation. each player appears in exactly 1 List<Integer>, 
         // or row. there is one row per team, instead of 1 row per player.
@@ -201,67 +194,6 @@ public abstract class RsdAllLevelsTabuSearch {
                 break;
             }
             
-            /*
-             * check if agent can be allocated its favorite 
-             * affordable bundle from currentSearchResult.
-             * -- can't demand any agent that is already "taken"
-             */
-            // check if currentSearchResult demand 
-            // for the current agent is feasible.
-            
-            final int indexInCurrentSearchResult = 
-                currentSearchResult.getAgents().indexOf(agents.get(agentIndex));
-            final List<Integer> currentAgentDemand = 
-                currentSearchResult.getAllocation().
-                    get(indexInCurrentSearchResult);
-            // add 0 demand for agents already on teams
-            if (currentAgentDemand.size() < agents.size()) {
-                Collections.sort(takenAgentIndexes);
-                for (int i = 0; i < agents.size(); i++) {
-                    final Agent agentToFind = agents.get(i);
-                    if (
-                        !currentSearchResult.getAgents().contains(agentToFind)
-                    ) {
-                        currentAgentDemand.add(i, 0);
-                    }
-                }
-            }
-            assert currentAgentDemand.size() == agents.size();
-            
-            // check if the demand tries to take a player already taken.
-            boolean hasDemandConflict = false;
-            for (int i = 0; i < currentAgentDemand.size(); i++) {
-                // if the agent demands an agent already taken . . .
-                if (
-                    currentAgentDemand.get(i) == 1 
-                    && takenAgentIndexes.contains(i)
-                ) {
-                    hasDemandConflict = true;
-                    break;
-                }
-            }
-            if (!hasDemandConflict) {
-                // check if the demanded team size is feasible.
-                // this also stops an agent who didn't get kMin agents
-                // in the last tabuSearch result from being given too few
-                // agents.
-                final int teamSize = RsdUtil.getTeamSize(currentAgentDemand);
-                if (feasibleTeamSizes.contains(teamSize)) {
-                    // the allocation is feasible. make this allocation.
-                    allocation.add(currentAgentDemand);
-                    // indicate that all taken agents have been taken.
-                    for (int i = 0; i < currentAgentDemand.size(); i++) {
-                        if (currentAgentDemand.get(i) == 1) {
-                            takenAgentIndexes.add(i);
-                        }
-                    }
-                    assert takenAgentIndexes.contains(agentIndex);
-                    // done with this agent
-                    continue;
-                }
-            }
-            
-            assert !takenAgentIndexes.contains(agentIndex);
             // currentAgentDemand demand for this agent was not feasible.
             final List<Integer> newAgentDemand = new ArrayList<Integer>();
             // if this is the only agent left, don't bother with tabu search
@@ -322,10 +254,19 @@ public abstract class RsdAllLevelsTabuSearch {
                     }
                 }
                 
+                if (MipGenerator.DEBUGGING) {
+                    System.out.println(
+                        "Running tabu search: " + tabuSearchCalls
+                    );
+                }
+                
                 // update prices for remaining agents
                 currentSearchResult = TabuSearch.tabuSearchRanges(
                     remainingAgents, gammaZ, feasibleTeamSizes
                 );
+                if (initialSearchResult == null) {
+                    initialSearchResult = currentSearchResult;
+                }
                 
                 tabuSearchCalls++;
                 
@@ -344,10 +285,11 @@ public abstract class RsdAllLevelsTabuSearch {
                 final List<Integer> emptyList = new ArrayList<Integer>();
                 final int agentIndexInRemainingAgents = 
                     remainingAgents.indexOf(currentAgent);
-                final List<Double> prices = getPriceListWithout(
-                    currentSearchResult.getPrices(), 
-                    agentIndexInRemainingAgents, emptyList
-                );
+                final List<Double> prices = 
+                    RsdAllLevelsTabuSearch.getPriceListWithout(
+                        currentSearchResult.getPrices(), 
+                        agentIndexInRemainingAgents, emptyList
+                    );
                 // final MipGenerator mipGenerator = new MipGeneratorGLPK();
                 final MipGenerator mipGenerator = new MipGeneratorCPLEX();
                 final double maxPrice = MipGenerator.MIN_BUDGET 
@@ -382,9 +324,9 @@ public abstract class RsdAllLevelsTabuSearch {
             if (RsdUtil.getTeamSize(newAgentDemand) < kMin) {
                 assert RsdUtil.getTeamSize(newAgentDemand) == 1;
                 final List<Integer> rsdDemand = 
-                    getRsdChoices(agentIndex, agents, 
-                    takenAgentIndexes, Collections.min(feasibleTeamSizes)
-                );
+                    RsdAllLevelsTabuSearch.getRsdChoices(agentIndex, agents, 
+                        takenAgentIndexes, Collections.min(feasibleTeamSizes)
+                    );
                 allocation.add(rsdDemand);
                 for (int i = 0; i < rsdDemand.size(); i++) {
                     if (rsdDemand.get(i) == 1) {
@@ -421,106 +363,22 @@ public abstract class RsdAllLevelsTabuSearch {
             RsdUtil.getAllocation(allocation);
         final double similarity = 
             PreferenceAnalyzer.getMeanPairwiseCosineSimilarity(agents);
+        List<Double> prices = null;
+        List<Double> bestErrorValues = null;
+        List<PriceUpdateSource> priceUpdateSources = null;
+        if (initialSearchResult != null) {
+            prices = initialSearchResult.getPrices();
+            bestErrorValues = initialSearchResult.getBestErrorValues();
+            priceUpdateSources = 
+                initialSearchResult.getPriceUpdateSources();
+        }
         final SearchResult result = new SearchResult(
-            initialSearchResult.getPrices(), resultAllocation, error, 
+            prices, resultAllocation, error, 
             errorSize, 0, kMax, maxBudget, agents, searchDurationMillis,
-            rsdOrder, initialSearchResult.getBestErrorValues(),
-            initialSearchResult.getPriceUpdateSources(),
+            rsdOrder, bestErrorValues,
+            priceUpdateSources,
             tabuSearchCalls, captainIndexes, similarity
         );
-        return result;
-    }
-    
-    public static List<Double> getPriceListWithout(
-        final List<Double> partialPriceList, 
-        final int agentIndex, 
-        final List<Integer> takenAgentIndexes
-    ) {
-        // self index should not be in takenAgentIndexes, 
-        // because indexesToRemove
-        // should only include indexes of agents already assigned to teams,
-        // and the self agent is the next agent 
-        // to act as "captain," so it should not be on a team yet.
-        assert !takenAgentIndexes.contains(agentIndex);
-        
-        final List<Double> result = new ArrayList<Double>();
-        for (Double originalItem: partialPriceList) {
-            result.add(originalItem);
-        }
-        
-        final List<Integer> myTakenAgentIndexes = new ArrayList<Integer>();
-        for (final Integer takenAgentIndex: takenAgentIndexes) {
-            myTakenAgentIndexes.add(takenAgentIndex);
-        }
-        
-        // remove the self agent price also
-        myTakenAgentIndexes.add(agentIndex);
-        // sort the indexes increasing
-        Collections.sort(myTakenAgentIndexes);
-        
-        final int itemsRemovedBeforeAgentIndex = 
-            myTakenAgentIndexes.indexOf(agentIndex);
-        // index of agent in result is 
-        // (agentIndex - itemsRemovedBeforeAgentIndex).
-        result.remove(agentIndex - itemsRemovedBeforeAgentIndex);
-        return result; 
-    }
-    
-    /**
-     * 
-     * @param captainIndex index of "team captain" in agents list
-     * @param agents list of all agents
-     * @param takenAgentIndexes indexes in agents list of already taken agents
-     * @param teamSize size of the team to choose, including the captain
-     * @return a list of 0's and 1's of length same as agents list,
-     * where 1 indicates the player is on the team. there should be
-     * teamSize number of 1's, including a 1 at item captainIndex
-     */
-    public static List<Integer> getRsdChoices(
-        final int captainIndex,
-        final List<Agent> agents,
-        final List<Integer> takenAgentIndexes,
-        final int teamSize
-    ) {
-        List<Integer> team = new ArrayList<Integer>();
-        team.add(captainIndex);
-        final Agent captain = agents.get(captainIndex);
-        for (final UUID aUuid: captain.getAgentIdsHighValueToLow()) {
-            boolean isTaken = false;
-            for (final Integer takenAgentIndex: takenAgentIndexes) {
-                if (agents.get(takenAgentIndex).getUuid().equals(aUuid)) {
-                    isTaken = true;
-                    break;
-                }
-            }
-            if (!isTaken) {
-                int index = -1;
-                for (int i = 0; i < agents.size(); i++) {
-                    if (agents.get(i).getUuid().equals(aUuid)) {
-                        index = i;
-                        break;
-                    }
-                }
-                assert index != -1;
-                team.add(index);
-                if (team.size() == teamSize) {
-                    break;
-                }
-            }
-        }
-        
-        assert team.contains(captainIndex);
-        assert team.size() == teamSize;
-        
-        final List<Integer> result = new ArrayList<Integer>();
-        for (int i = 0; i < agents.size(); i++) {
-            if (team.contains(i)) {
-                result.add(1);
-            } else {
-                result.add(0);
-            }
-        }
-        
         return result;
     }
 }
