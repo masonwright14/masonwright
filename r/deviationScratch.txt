@@ -1,0 +1,194 @@
+
+myFileString <- "draft_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+getResultByRun <- function(myData, colName) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    resultThisRun <- mean(runSubset[,colName])
+    resultByRun <- c(resultByRun, resultThisRun)
+  }
+  return(as.numeric(resultByRun))
+}
+
+getResultByRunForAgent <- function(myData, agentId, colName) {
+  agentData <- subset(myData, playerId == agentId)
+  return(getResultByRun(agentData, colName))
+}
+
+getResultByRunForAgent(resultDataDraft, 0, "budget")
+
+getSdForAgent <- function(myData, agentId, colName) {
+  agentDataByRun <- getResultByRunForAgent(myData, agentId, colName)
+  return(as.numeric(sd(agentDataByRun)))
+}
+
+getSdForAgent(resultDataDraft, 0, "budget")
+
+getRangeForAgent <- function(myData, agentId, colName) {
+  agentDataByRun <- getResultByRunForAgent(myData, agentId, colName)
+  myRange <- max(agentDataByRun) - min(agentDataByRun)
+  return(as.numeric(myRange))
+}
+
+getRangeForAgent(resultDataDraft, 0, "budget")
+
+getMeanSdByAgent <- function(myData, colName) {
+  myList <- list()
+  maxId <- max(myData$playerId)
+  for (i in 0:maxId) {
+    playerSd <- getSdForAgent(myData, i, colName)
+    myList <- c(myList, playerSd)
+  }
+  myList <- as.numeric(myList)
+  return(mean(myList))
+}
+
+getMeanSdByAgent(resultDataDraft, "budget")
+
+getMeanRangeByAgent <- function(myData, colName) {
+  myList <- list()
+  maxId <- max(myData$playerId)
+  for (i in 0:maxId) {
+    playerSd <- getRangeForAgent(myData, i, colName)
+    myList <- c(myList, playerSd)
+  }
+  myList <- as.numeric(myList)
+  return(mean(myList))
+}
+
+getAgentSds <- function(myData, colName) {
+  myList <- list()
+  maxId <- max(myData$playerId)
+  for (i in 0:maxId) {
+    playerSd <- getSdForAgent(myData, i, colName)
+    myList <- c(myList, playerSd)
+  }
+  myList <- as.numeric(myList)
+  return(myList)
+}
+
+getAgentRanges <- function(myData, colName) {
+  myList <- list()
+  maxId <- max(myData$playerId)
+  for (i in 0:maxId) {
+    playerSd <- getRangeForAgent(myData, i, colName)
+    myList <- c(myList, playerSd)
+  }
+  myList <- as.numeric(myList)
+  return(myList)
+}
+
+getAgentSdsByFile <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+return(getAgentSds(resultData, colName))
+}
+
+getAgentRangesByFile <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+return(getAgentRanges(resultData, colName))
+}
+
+
+getMeanRangeByAgent(resultDataDraft, "budget")
+
+getMeanSdByAgentFile <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+return(getMeanSdByAgent(resultData, colName))
+}
+
+getMeanRangeByAgentFile <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+return(getMeanRangeByAgent(resultData, colName))
+}
+
+getMeanSdByAgentFile("draft_newfrat", "budget")
+getMeanRangeByAgentFile("draft_newfrat", "budget")
+
+
+getMeanSdByAgentFile("randomOpt_newfrat", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("rsdOpt_newfrat", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("draft_newfrat", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("eachDCC_newfrat", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuAllOptSpitl_newfrat", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuEach_newfrat", "meanTeammateRankNoJitter")
+
+getMeanSdByAgentFile("randomOpt_random_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("rsdOpt_random_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("draft_random_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("eachDCC_random_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuAllOptSpitl_random_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuEach_random_20_agents", "meanTeammateRankNoJitter")
+
+getMeanSdByAgentFile("randomOpt_rndUncor_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("rsdOpt_rndUncor_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("draft_rndUncor_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("eachDCC_rndUncor_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuAllOptSpitl_rndUncor_20_agents", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuEach_rndUncor_20_agents", "meanTeammateRankNoJitter")
+
+
+getMeanSdByAgentFile("randomOpt_free", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("rsdOpt_free", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("draft_free", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("eachDCC_free", "meanTeammateRankNoJitter")
+getMeanSdByAgentFile("tabuEach_free", "meanTeammateRankNoJitter")
+
+# TODO: boxplot of s.d. of meanTeammateRankNoJitter across runs
+# each agent's s.d. in meanTeammateRankNoJitter across runs is one point.
+# each algorithm is one column.
+
+sdBoxplot <- function(colName, yLabel, suffix) {
+boxplot(getAgentSdsByFile(paste("randomOpt_", suffix, sep = ""), colName), getAgentSdsByFile(paste("rsdOpt_", suffix, sep = ""), colName), getAgentSdsByFile(paste("draft_", suffix, sep = ""), colName), getAgentSdsByFile(paste("eachDCC_", suffix, sep = ""), colName), getAgentSdsByFile(paste("tabuAllOptSpitl_", suffix, sep = ""), colName), getAgentSdsByFile(paste("tabuEach_", suffix, sep = ""), colName), names=c("Random", "RSD", "Draft", "EDCC", "Tabu", "Tabu Each"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+sdBoxplotNoTabuOpt <- function(colName, yLabel, suffix) {
+boxplot(getAgentSdsByFile(paste("randomOpt_", suffix, sep = ""), colName), getAgentSdsByFile(paste("rsdOpt_", suffix, sep = ""), colName), getAgentSdsByFile(paste("draft_", suffix, sep = ""), colName), getAgentSdsByFile(paste("eachDCC_", suffix, sep = ""), colName), getAgentSdsByFile(paste("tabuEach_", suffix, sep = ""), colName), names=c("Random", "RSD", "Draft", "EDCC", "Tabu Each"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+sdBoxplot("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "newfrat")
+sdBoxplot("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "random_20_agents")
+sdBoxplot("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "rndUncor_20_agents")
+sdBoxplot("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "random_30_agents")
+
+sdBoxplotNoTabuOpt("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "free")
+sdBoxplotNoTabuOpt("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "vand")
+sdBoxplotNoTabuOpt("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "random_30_agents")
+sdBoxplotNoTabuOpt("meanTeammateRankNoJitter", "S.D. in Mean Teammate Rank", "rndUncor_30_agents")
+
+sdBoxplotNoTabuOpt("favTeammateRankNoJitter", "S.D. in Favorite Teammate Rank", "free")
+sdBoxplotNoTabuOpt("favTeammateRankNoJitter", "S.D. in Favorite Teammate Rank", "vand")
+sdBoxplotNoTabuOpt("favTeammateRankNoJitter", "S.D. in Favorite Teammate Rank", "random_30_agents")
+sdBoxplotNoTabuOpt("favTeammateRankNoJitter", "S.D. in Favorite Teammate Rank", "rndUncor_30_agents")
+
+sdBoxplotNoTabuOpt("fractionOfTotalUtilityNoJitter", "S.D. in Total Utility Fraction", "free")
+sdBoxplotNoTabuOpt("fractionOfTotalUtilityNoJitter", "S.D. in Total Utility Fraction", "vand")
+sdBoxplotNoTabuOpt("fractionOfTotalUtilityNoJitter", "S.D. in Total Utility Fraction", "random_30_agents")
+sdBoxplotNoTabuOpt("fractionOfTotalUtilityNoJitter", "S.D. in Total Utility Fraction", "rndUncor_30_agents")
+
+rangeBoxplot <- function(colName, yLabel, suffix) {
+boxplot(getAgentRangesByFile(paste("randomOpt_", suffix, sep = ""), colName), getAgentRangesByFile(paste("rsdOpt_", suffix, sep = ""), colName), getAgentRangesByFile(paste("draft_", suffix, sep = ""), colName), getAgentRangesByFile(paste("eachDCC_", suffix, sep = ""), colName), getAgentRangesByFile(paste("tabuAllOptSpitl_", suffix, sep = ""), colName), getAgentRangesByFile(paste("tabuEach_", suffix, sep = ""), colName), names=c("Random", "RSD", "Draft", "EDCC", "Tabu", "Tabu Each"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+rangeBoxplotNoTabuOpt <- function(colName, yLabel, suffix) {
+boxplot(getAgentRangesByFile(paste("randomOpt_", suffix, sep = ""), colName), getAgentRangesByFile(paste("rsdOpt_", suffix, sep = ""), colName), getAgentRangesByFile(paste("draft_", suffix, sep = ""), colName), getAgentRangesByFile(paste("eachDCC_", suffix, sep = ""), colName), getAgentRangesByFile(paste("tabuEach_", suffix, sep = ""), colName), names=c("Random", "RSD", "Draft", "EDCC", "Tabu Each"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+rangeBoxplot("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "newfrat")
+rangeBoxplot("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "random_20_agents")
+rangeBoxplot("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "rndUncor_20_agents")
+rangeBoxplot("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "random_30_agents")
+
+rangeBoxplotNoTabuOpt("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "free")
+rangeBoxplotNoTabuOpt("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "vand")
+rangeBoxplotNoTabuOpt("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "random_30_agents")
+rangeBoxplotNoTabuOpt("meanTeammateRankNoJitter", "Range of Mean Teammate Rank", "rndUncor_30_agents")
+

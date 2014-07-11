@@ -1,0 +1,1241 @@
+
+# myFileString <- "rsdGreedy_random_20_agents"
+
+# myFileString <- "rsdGreedy_newfrat"
+ 
+# myFileString <- "tabuAllOptSpitl_random_20_agents"
+
+# myFileString <- "draft_newfrat"
+
+# myFileString <- "eachDrf_newfrat"
+
+# myFileString <- "eachDCC_newfrat"
+
+myFileString <- "tabuEach_newfrat"
+
+# myFileString <- "rsdOpt_newFrat"
+
+# myFileString <- "tabuAllOptSpitl_newfrat"
+
+# myFileString <- "tabuAll_newfrat"
+
+descFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_descr.csv", sep = "")
+
+summaryFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_summary.csv", sep = "")
+
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+
+descData <- read.csv(file= descFileName,head=TRUE,sep=",")
+
+colnames(descData)
+
+myN <- descData[,c('n')]
+myKMin <- descData[,c('kMin')]
+myKMax <- descData[,c('kMax')]
+
+summaryData <- read.csv(file= summaryFileName,head=TRUE,sep=",")
+
+colnames(summaryData)
+
+runNumber <- summaryData[,c('runNumber')]
+countRuns <- length(runNumber)
+runTimeInMillis <- summaryData[,c('runTimeInMillis')]
+numberOfTeams <- summaryData[,c('numberOfTeams')]
+
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+colnames(resultData)
+ [1] "runNumber"                         "playerId"                         
+ [3] "isCaptain"                         "budget"                           
+ [5] "budgetRank"                        "rsdOrderIndex"                    
+ [7] "teamSizeWithSelf"                  "teamUtility"                      
+ [9] "teamUtilityNoJitter"               "meanTeammateUtility"              
+[11] "meanTeammateUtilityNoJitter"       "fractionOfTotalUtility"           
+[13] "fractionOfTotalUtilityNoJitter"    "envyAmount"                       
+[15] "envyAmountNoJitter"                "envyAmountMinusSingleGood"        
+[17] "envyAmountMinusSingleGoodNoJitter" "meanTeammateRank"                 
+[19] "meanTeammateRankNoJitter"          "sumOfReversedRanks"               
+[21] "sumOfReversedRanksNoJitter"        "favTeammateRank"                  
+[23] "favTeammateRankNoJitter"           "leastFavTeammateRank"             
+[25] "leastFavTeammateRankNoJitter"  
+
+# 95% CI lower bound
+getLowerBound <- function(myValues) {
+  a <- mean(myValues)
+  s <- sd(myValues)
+  n <- length(myValues)
+  error <- qt(0.975,df=n-1)*s/sqrt(n)
+  return(a - error)
+}
+
+# 95% CI upper bound
+getUpperBound <- function(myValues) {
+  a <- mean(myValues)
+  s <- sd(myValues)
+  n <- length(myValues)
+  error <- qt(0.975,df=n-1)*s/sqrt(n)
+  return(a + error)
+}
+
+getResultByRun <- function(colName) {
+  runNumber <- summaryData[,c('runNumber')]
+  countRuns <- length(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(resultData, runNumber == i)
+    resultThisRun <- mean(runSubset[,colName])
+    resultByRun <- c(resultByRun, resultThisRun)
+  }
+  return(as.numeric(resultByRun))
+}
+
+# max team size
+max(resultData$teamSizeWithSelf)
+
+# min team size
+min(resultData$teamSizeWithSelf)
+
+# max team size - min team size
+max(resultData$teamSizeWithSelf) - min(resultData$teamSizeWithSelf)
+runNumber <- summaryData[,c('runNumber')]
+countRuns <- length(runNumber)
+resultByRun <- list()
+for (i in 1:countRuns) {
+  runSubset <- subset(resultData, runNumber == i)
+  resultThisRun <- max(runSubset$teamSizeWithSelf) - min(runSubset$teamSizeWithSelf)
+  resultByRun <- c(resultByRun, resultThisRun)
+}
+resultByRun <- as.numeric(resultByRun)
+mean(resultByRun)
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# mean rank of teammates across runs
+mean(resultData$meanTeammateRankNoJitter)
+resultByRun <- getResultByRun("meanTeammateRankNoJitter")
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# mean rank of fav teammate across runs
+mean(resultData$favTeammateRankNoJitter)
+resultByRun <- getResultByRun("favTeammateRankNoJitter")
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# mean rank of least fav teammate across runs
+mean(resultData$leastFavTeammateRankNoJitter)
+
+# mean fraction of total utility
+mean(resultData$fractionOfTotalUtilityNoJitter)
+resultByRun <- getResultByRun("fractionOfTotalUtilityNoJitter")
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# mean sum of reversed ranks
+mean (resultData$sumOfReversedRanksNoJitter)
+resultByRun <- getResultByRun("sumOfReversedRanksNoJitter")
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# 1 / # of teams
+myN <- descData[,c('n')]
+1 / myN
+
+# mean fraction of total utility - 1 / # teams in that run
+runNumber <- summaryData[,c('runNumber')]
+countRuns <- length(runNumber)
+numberOfTeamsList <- summaryData[,c('numberOfTeams')]
+resultList <- list()
+for (i in 1:countRuns) {
+    runSubset <- subset(resultData, runNumber == i)
+    numberOfTeamsForRun <- numberOfTeamsList[i]
+    meanForRun <- mean(runSubset$fractionOfTotalUtilityNoJitter)
+    resultList <- c(resultList, meanForRun - (1 / numberOfTeamsForRun))
+}
+mean(unlist(resultList))
+
+# mean envy
+mean(resultData$envyAmountNoJitter)
+resultByRun <- getResultByRun("envyAmountNoJitter")
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# mean envy minus single good
+mean(resultData$envyAmountMinusSingleGoodNoJitter)
+resultByRun <- getResultByRun("envyAmountMinusSingleGoodNoJitter")
+lowerBound <- getLowerBound(as.numeric(resultByRun))
+upperBound <- getUpperBound(as.numeric(resultByRun))
+
+# mean rank of all other agents (which is just N / 2, because there are (N - 1) other agents)
+myN <- descData[,c('n')]
+meanAllOtherAgentsRank <- myN / 2
+
+# mean rank of teammates across runs - mean rank of all other agents (which is just (N / 2))
+myN <- descData[,c('n')]
+meanAllOtherAgentsRank <- myN / 2
+mean(resultData$meanTeammateRankNoJitter) - meanAllOtherAgentsRank
+
+# fraction of agents with envyAmountNoJitter > 0
+countAgentRuns <- nrow(resultData)
+countEnvyRows <- nrow(subset(resultData, envyAmountNoJitter > 0))
+countEnvyRows / countAgentRuns
+
+# fraction of agents with envyAmountMinusSingleGoodNoJitter > 0
+countAgentRuns <- nrow(resultData)
+countEnvyMinusSingleGoodRows <- nrow(subset(resultData, envyAmountMinusSingleGoodNoJitter > 0))
+countEnvyMinusSingleGoodRows / countAgentRuns
+
+# fraction of agents with favTeammateRank == 1
+countAgentRuns <- nrow(resultData)
+getFavRows <- nrow(subset(resultData, favTeammateRank == 1))
+getFavRows / countAgentRuns
+
+# histogram of team size
+# lines: kMin, kMax
+myKMax <- descData[,c('kMax')]
+hist(resultData$teamSizeWithSelf, breaks= myKMax)
+myKMin <- descData[,c('kMin')]
+abline(v= myKMin,col="red",lty=3, lwd=3)
+abline(v= myKMax,col="red",lty=3, lwd=3)
+
+# histogram of mean teammate rank
+# line: mean rank
+myKMin <- descData[,c('kMin')]
+hist(resultData$meanTeammateRankNoJitter, breaks=myN - myKMin)
+myN <- descData[,c('n')]
+meanAllOtherAgentsRank <- myN / 2
+abline(v= meanAllOtherAgentsRank,col="red",lty=3, lwd=3)
+
+# histogram of fav teammate rank
+# line: mean rank
+myKMin <- descData[,c('kMin')]
+hist(resultData$favTeammateRankNoJitter, breaks=myN - 1)
+myN <- descData[,c('n')]
+meanAllOtherAgentsRank <- myN / 2
+abline(v= meanAllOtherAgentsRank,col="red",lty=3, lwd=3)
+
+# histogram of sum of reversed ranks
+# lines: kMin * mean rank, kMax * mean rank
+hist(resultData$sumOfReversedRanksNoJitter)
+myKMin <- descData[,c('kMin')]
+myKMax <- descData[,c('kMax')]
+myN <- descData[,c('n')]
+meanAllOtherAgentsRank <- myN / 2
+meanAgentRankKMin <- myKMin * meanAllOtherAgentsRank
+meanAgentRankKMax <- myKMax * meanAllOtherAgentsRank
+abline(v= meanAgentRankKMin,col="red",lty=3, lwd=3)
+abline(v= meanAgentRankKMax,col="red",lty=3, lwd=3)
+
+# histogram of fraction of total utility
+# line: 1 / mean # of teams
+hist(resultData$fractionOfTotalUtilityNoJitter)
+numberOfTeamsList <- summaryData[,c('numberOfTeams')]
+meanTeamCount <- mean(numberOfTeamsList)
+abline(v= 1 / meanTeamCount,col="red",lty=3, lwd=3)
+
+# get list of best meanTeammateRankNoJitter - worst meanTeammateRankNoJitter, by agent
+# also get its mean
+# also make a histogram
+myN <- descData[,c('n')]
+rangeOfMeanTeammateRankNoJitter <- list()
+for (i in 1:myN) {
+    currentPlayerSubset <- subset(resultData, playerId == (i - 1))
+    currentPlayerMax <- max(currentPlayerSubset$meanTeammateRankNoJitter)
+    currentPlayerMin <- min(currentPlayerSubset$meanTeammateRankNoJitter)
+    currentPlayerDifference <- currentPlayerMax - currentPlayerMin
+    rangeOfMeanTeammateRankNoJitter <- c(rangeOfMeanTeammateRankNoJitter, currentPlayerDifference)
+}
+rangeOfMeanTeammateRankNoJitter
+mean(unlist(rangeOfMeanTeammateRankNoJitter))
+hist(unlist(rangeOfMeanTeammateRankNoJitter))
+
+
+# get list of best sumOfReversedRanksNoJitter - worst sumOfReversedRanksNoJitter, by agent
+# also get its mean
+# also make a histogram
+myN <- descData[,c('n')]
+rangeOfSumOfReversedRanksNoJitter <- list()
+for (i in 1:myN) {
+    currentPlayerSubset <- subset(resultData, playerId == (i - 1))
+    currentPlayerMax <- max(currentPlayerSubset$sumOfReversedRanksNoJitter)
+    currentPlayerMin <- min(currentPlayerSubset$sumOfReversedRanksNoJitter)
+    currentPlayerDifference <- currentPlayerMax - currentPlayerMin
+    rangeOfSumOfReversedRanksNoJitter <- c(rangeOfSumOfReversedRanksNoJitter, currentPlayerDifference)
+}
+rangeOfSumOfReversedRanksNoJitter
+mean(unlist(rangeOfSumOfReversedRanksNoJitter))
+hist(unlist(rangeOfSumOfReversedRanksNoJitter))
+
+
+# get list of best fractionOfTotalUtilityNoJitter - worst fractionOfTotalUtilityNoJitter, by agent
+# also get its mean
+# also make a histogram
+myN <- descData[,c('n')]
+rangeOfFractionOfTotalUtilityNoJitter <- list()
+for (i in 1:myN) {
+    currentPlayerSubset <- subset(resultData, playerId == (i - 1))
+    currentPlayerMax <- max(currentPlayerSubset$fractionOfTotalUtilityNoJitter)
+    currentPlayerMin <- min(currentPlayerSubset$fractionOfTotalUtilityNoJitter)
+    currentPlayerDifference <- currentPlayerMax - currentPlayerMin
+    rangeOfFractionOfTotalUtilityNoJitter <- c(rangeOfFractionOfTotalUtilityNoJitter, currentPlayerDifference)
+}
+rangeOfFractionOfTotalUtilityNoJitter
+mean(unlist(rangeOfFractionOfTotalUtilityNoJitter))
+hist(unlist(rangeOfFractionOfTotalUtilityNoJitter))
+
+######################################################################
+# QUANTILES
+
+getMeanMedian <- function(myParam) {
+  listAcrossRuns <- list()
+  for (i in 1:countRuns) {
+    currentRunSubset <- subset(resultData, runNumber == i)
+    currentRunValue <- median(currentRunSubset[,myParam])
+    listAcrossRuns <- c(listAcrossRuns, currentRunValue)
+  }
+  listAcrossRuns <- as.numeric(listAcrossRuns)
+  return(mean(listAcrossRuns))
+}
+
+getMeanMin <- function(myParam) {
+  listAcrossRuns <- list()
+  for (i in 1:countRuns) {
+    currentRunSubset <- subset(resultData, runNumber == i)
+    currentRunValue <- min(currentRunSubset[,myParam])
+    listAcrossRuns <- c(listAcrossRuns, currentRunValue)
+  }
+  listAcrossRuns <- as.numeric(listAcrossRuns)
+  mean(listAcrossRuns)
+}
+
+getMeanMax <- function(myParam) {
+  listAcrossRuns <- list()
+  for (i in 1:countRuns) {
+    currentRunSubset <- subset(resultData, runNumber == i)
+    currentRunValue <- max(currentRunSubset[,myParam])
+    listAcrossRuns <- c(listAcrossRuns, currentRunValue)
+  }
+  listAcrossRuns <- as.numeric(listAcrossRuns)
+  return(mean(listAcrossRuns))
+}
+
+getMeanQuantile <- function(myParam, percentile) {
+  listAcrossRuns <- list()
+  for (i in 1:countRuns) {
+    currentRunSubset <- subset(resultData, runNumber == i)
+    currentRunQuantile <- quantile(currentRunSubset[,myParam], c(percentile))
+    currentRunValue <- unname(currentRunQuantile)
+    listAcrossRuns <- c(listAcrossRuns, currentRunValue)
+  }
+  listAcrossRuns <- as.numeric(listAcrossRuns)
+  return(mean(listAcrossRuns))
+}
+
+getQuantilesAsList <- function(myParam) {
+  result <- vector()
+  result <- c(result, getMeanMin(myParam)) 
+  result <- c(result, getMeanQuantile(myParam, 0.05))
+  result <- c(result, getMeanQuantile(myParam, 0.25))
+  result <- c(result, getMeanMedian(myParam)) 
+  result <- c(result, getMeanQuantile(myParam, 0.75))
+  result <- c(result, getMeanQuantile(myParam, 0.95))
+  result <- c(result, getMeanMax(myParam)) 
+  return(result)
+}
+
+# get average across runs of median meanTeammateRankNoJitter
+getMeanMin("meanTeammateRankNoJitter")
+getMeanQuantile("meanTeammateRankNoJitter", 0.05)
+getMeanQuantile("meanTeammateRankNoJitter", 0.25)
+getMeanMedian("meanTeammateRankNoJitter")
+getMeanQuantile("meanTeammateRankNoJitter", 0.75)
+getMeanQuantile("meanTeammateRankNoJitter", 0.95)
+getMeanMax("meanTeammateRankNoJitter")
+
+getQuantilesAsList("meanTeammateRankNoJitter")
+
+# get min, max, and quantiles for fav teammate rank
+getQuantilesAsList("favTeammateRankNoJitter")
+
+# get min, max, and quantiles for fraction of total utiltiy
+getQuantilesAsList("fractionOfTotalUtilityNoJitter")
+
+# get min, max, and quantiles for sum of reversed ranks
+getQuantilesAsList("sumOfReversedRanksNoJitter")
+
+######################################################################
+# BOXPLOTS
+
+myFileString <- "draft_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuAllOptSpitl_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+boxplot(resultDataRandom[,c('meanTeammateRankNoJitter')], resultDataRsd[,c('meanTeammateRankNoJitter')], resultDataDraft[,c('meanTeammateRankNoJitter')], resultDataEachDrf[,c('meanTeammateRankNoJitter')], 
+resultDataEDCC[,c('meanTeammateRankNoJitter')], resultDataTabu[,c('meanTeammateRankNoJitter')], names=c("Random", "RSD", "Draft", "Each Draft", "EDCC", "Tabu"), ylab="Mean Teammate Rank",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+
+myBoxplot <- function(colName, yLabel) {
+boxplot(resultDataRandom[,c(colName)], resultDataRsd[,c(colName)], resultDataDraft[,c(colName)], resultDataEachDrf[,c(colName)], resultDataEDCC[,c(colName)], resultDataTabu[,c(colName)], names=c("Random", "RSD", "Draft", "Each Draft", "EDCC", "Tabu"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+myBoxplot2 <- function(colName, yLabel) {
+boxplot(resultDataRandom[,c(colName)], resultDataRsd[,c(colName)], resultDataDraft[,c(colName)], resultDataEachDrf[,c(colName)], resultDataEDCC[,c(colName)], resultDataTabu[,c(colName)], resultDataTE[,c(colName)], names=c("Random", "RSD", "Draft", "Each Draft", "EDCC", "Tabu", "TE"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+# mean teammate rank
+myBoxplot("meanTeammateRankNoJitter", "Mean Teammate Rank")
+
+# fav teammate rank
+myBoxplot("favTeammateRankNoJitter", "Favorite Teammate Rank")
+
+# fraction of total utility
+myBoxplot("fractionOfTotalUtilityNoJitter", "Fraction of Total Utility")
+
+# sum of reversed ranks
+myBoxplot("sumOfReversedRanksNoJitter", "Sum of Reversed Ranks")
+
+
+
+
+# mean teammate rank
+myBoxplot2("meanTeammateRankNoJitter", "Mean Teammate Rank")
+
+# fav teammate rank
+myBoxplot2("favTeammateRankNoJitter", "Favorite Teammate Rank")
+
+# fraction of total utility
+myBoxplot2("fractionOfTotalUtilityNoJitter", "Fraction of Total Utility")
+
+# sum of reversed ranks
+myBoxplot2("sumOfReversedRanksNoJitter", "Sum of Reversed Ranks")
+
+
+myFileString <- "draft_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+
+myFileString <- "draft_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuAllOptSpitl_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_random_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+myFileString <- "draft_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuAllOptSpitl_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+
+myFileString <- "draft_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+myFileString <- "draft_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuAllOptSpitl_random_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+myFileString <- "draft_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+# mean teammate rank
+mySmallBoxplot2("meanTeammateRankNoJitter", "Mean Teammate Rank")
+
+# fav teammate rank
+mySmallBoxplot2("favTeammateRankNoJitter", "Favorite Teammate Rank")
+
+# fraction of total utility
+mySmallBoxplot2("fractionOfTotalUtilityNoJitter", "Fraction of Total Utility")
+
+# sum of reversed ranks
+mySmallBoxplot2("sumOfReversedRanksNoJitter", "Sum of Reversed Ranks")
+
+
+
+mySmallBoxplot <- function(colName, yLabel) {
+boxplot(resultDataRandom[,c(colName)], resultDataRsd[,c(colName)], resultDataDraft[,c(colName)], resultDataEachDrf[,c(colName)], resultDataEDCC[,c(colName)], names=c("Random", "RSD", "Draft", "Each Draft", "EDCC"), ylab= yLabel,
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+mySmallBoxplot2 <- function(colName, yLabel) {
+boxplot(resultDataRandom[,c(colName)], resultDataRsd[,c(colName)], resultDataDraft[,c(colName)], resultDataEachDrf[,c(colName)], resultDataEDCC[,c(colName)], resultDataTE[,c(colName)], names=c("Random", "RSD", "Draft", "Each Draft", "EDCC", "Tabu Each"), ylab= yLabel,
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+
+# mean teammate rank
+mySmallBoxplot("meanTeammateRankNoJitter", "Mean Teammate Rank")
+
+# fav teammate rank
+mySmallBoxplot("favTeammateRankNoJitter", "Favorite Teammate Rank")
+
+# fraction of total utility
+mySmallBoxplot("fractionOfTotalUtilityNoJitter", "Fraction of Total Utility")
+
+# sum of reversed ranks
+mySmallBoxplot("sumOfReversedRanksNoJitter", "Sum of Reversed Ranks")
+
+
+myFileString <- "draft_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+myFileString <- "draft_rndUncor_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_rndUncor_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_rndUncor_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_rndUncor_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_rndUncor_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+
+myFileString <- "draft_random_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_random_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "randomOpt_random_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_random_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDCC_random_200_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+
+####################################
+
+getResultsByRsdOrderIndex <- function(myData, colName) {
+  resultByRsdOrderIndex <- list()
+  lastIndex <- max(myData$rsdOrderIndex)
+  for (i in 0:lastIndex) {
+    runSubset <- subset(myData, rsdOrderIndex == i)
+    resultThisRsdOrderIndex <- mean(runSubset[,colName])
+    resultByRsdOrderIndex <- c(resultByRsdOrderIndex, resultThisRsdOrderIndex)
+  }
+  return(as.numeric(resultByRsdOrderIndex))
+}
+
+makeRsdPlot <- function(mySuffix) {
+myFileString <- paste("rsdOpt", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsdOpt <- read.csv(file= resultFileName,head=TRUE,sep=",")
+lastIndex <- max(resultDataRsdOpt$rsdOrderIndex)
+myXs <- list(0:lastIndex)
+byRsdRsdOpt <- getResultsByRsdOrderIndex(resultDataRsdOpt, "meanTeammateRankNoJitter")
+plot(myXs[[1]], byRsdRsdOpt, type="l", col="red", xlab="Random Serial Index", ylab="Mean Teammate Rank",
+	frame=F, col.axis="#888888", col.lab="#888888") 
+
+myFileString <- paste("draft", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdDraft<- getResultsByRsdOrderIndex(resultDataDraft, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdDraft, col="darkorange")
+
+myFileString <- paste("eachDCC", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdEDCC<- getResultsByRsdOrderIndex(resultDataEDCC, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdEDCC, col="blue")
+
+myFileString <- paste("tabuAllOptSpitl", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdTabuAll<- getResultsByRsdOrderIndex(resultDataTabu, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdTabuAll, col="dimgrey")
+
+myFileString <- paste("tabuEach", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabuEach <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdTabuEach <- getResultsByRsdOrderIndex(resultDataTabuEach, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdTabuEach, col="green4")
+
+countOtherAgents <- max(resultDataRsdOpt$rsdOrderIndex)
+meanRank <- (countOtherAgents + 1) / 2
+abline(h=meanRank, col="black", lty=2, lwd=0.8)
+
+legend(12, 4, c("RSD", "Draft", "EDCC", "Tabu", "EachTabu"), cex=0.8, 
+   col=c("red", "darkorange", "blue", "dimgrey", "green4"), lty=1)
+}
+
+makeRsdPlot("newfrat")
+makeRsdPlot("random_20_agents")
+makeRsdPlot("rndUncor_20_agents")
+makeRsdPlot("random_30_agents")
+
+
+########################
+
+makeRsdPlotNoTabuEach <- function(mySuffix) {
+myFileString <- paste("rsdOpt", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsdOpt <- read.csv(file= resultFileName,head=TRUE,sep=",")
+lastIndex <- max(resultDataRsdOpt$rsdOrderIndex)
+myXs <- list(0:lastIndex)
+byRsdRsdOpt <- getResultsByRsdOrderIndex(resultDataRsdOpt, "meanTeammateRankNoJitter")
+plot(myXs[[1]], byRsdRsdOpt, type="l", col="red", xlab="Random Serial Index", ylab="Mean Teammate Rank",
+	frame=F, col.axis="#888888", col.lab="#888888") 
+
+myFileString <- paste("draft", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdDraft<- getResultsByRsdOrderIndex(resultDataDraft, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdDraft, col="darkorange")
+
+myFileString <- paste("eachDCC", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdEDCC<- getResultsByRsdOrderIndex(resultDataEDCC, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdEDCC, col="blue")
+
+myFileString <- paste("tabuAllOptSpitl", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdTabuAll<- getResultsByRsdOrderIndex(resultDataTabu, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdTabuAll, col="dimgrey")
+
+countOtherAgents <- max(resultDataRsdOpt$rsdOrderIndex)
+meanRank <- (countOtherAgents + 1) / 2
+abline(h=meanRank, col="black", lty=2, lwd=0.8)
+
+legend(12, 4, c("RSD", "Draft", "EDCC", "Tabu"), cex=0.8, 
+   col=c("red", "darkorange", "blue", "dimgrey"), lty=1)
+}
+
+makeRsdPlotNoTabuEach("random_20_agents")
+
+########################
+
+makeRsdPlotNoTabuOpt <- function(mySuffix) {
+myFileString <- paste("rsdOpt", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsdOpt <- read.csv(file= resultFileName,head=TRUE,sep=",")
+lastIndex <- max(resultDataRsdOpt$rsdOrderIndex)
+myXs <- list(0:lastIndex)
+byRsdRsdOpt <- getResultsByRsdOrderIndex(resultDataRsdOpt, "meanTeammateRankNoJitter")
+plot(myXs[[1]], byRsdRsdOpt, type="l", col="red", xlab="Random Serial Index", ylab="Mean Teammate Rank",
+	frame=F, col.axis="#888888", col.lab="#888888") 
+
+myFileString <- paste("draft", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdDraft<- getResultsByRsdOrderIndex(resultDataDraft, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdDraft, col="darkorange")
+
+myFileString <- paste("eachDCC", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdEDCC<- getResultsByRsdOrderIndex(resultDataEDCC, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdEDCC, col="blue")
+
+myFileString <- paste("tabuEach", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabuEach <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdTabuEach <- getResultsByRsdOrderIndex(resultDataTabuEach, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdTabuEach, col="green4")
+
+countOtherAgents <- max(resultDataRsdOpt$rsdOrderIndex)
+meanRank <- (countOtherAgents + 1) / 2
+abline(h=meanRank, col="black", lty=2, lwd=0.8)
+
+legend(12, 4, c("RSD", "Draft", "EDCC", "EachTabu"), cex=0.8, 
+   col=c("red", "darkorange", "blue", "green4"), lty=1)
+}
+
+makeRsdPlotNoTabuOpt("random_30_agents")
+makeRsdPlotNoTabuOpt("rndUncor_30_agents")
+makeRsdPlotNoTabuOpt("newfrat")
+makeRsdPlotNoTabuOpt("vand")
+makeRsdPlotNoTabuOpt("free")
+
+########################
+
+makeRsdPlotNoTabu <- function(mySuffix) {
+myFileString <- paste("rsdOpt", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsdOpt <- read.csv(file= resultFileName,head=TRUE,sep=",")
+lastIndex <- max(resultDataRsdOpt$rsdOrderIndex)
+myXs <- list(0:lastIndex)
+byRsdRsdOpt <- getResultsByRsdOrderIndex(resultDataRsdOpt, "meanTeammateRankNoJitter")
+plot(myXs[[1]], byRsdRsdOpt, type="l", col="red", xlab="Random Serial Index", ylab="Mean Teammate Rank",
+	frame=F, col.axis="#888888", col.lab="#888888") 
+
+myFileString <- paste("draft", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdDraft<- getResultsByRsdOrderIndex(resultDataDraft, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdDraft, col="darkorange")
+
+myFileString <- paste("eachDCC", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdEDCC<- getResultsByRsdOrderIndex(resultDataEDCC, "meanTeammateRankNoJitter")
+lines(myXs[[1]], byRsdEDCC, col="blue")
+
+countOtherAgents <- max(resultDataRsdOpt$rsdOrderIndex)
+meanRank <- (countOtherAgents + 1) / 2
+abline(h=meanRank, col="black", lty=2, lwd=0.8)
+
+legend(12, 4, c("RSD", "Draft", "EDCC"), cex=0.8, 
+   col=c("red", "darkorange", "blue"), lty=1)
+}
+
+makeRsdPlotNoTabu("rndUncor_50_agents")
+makeRsdPlotNoTabu("rndUncor_200_agents")
+
+makeRsdPlotNoTabu("random_50_agents")
+makeRsdPlotNoTabu("random_200_agents")
+
+########################
+
+myFileString <- "draft_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuAllOptSpitl_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuEach_newfrat"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myBoxplotCaptainsOnly <- function(colName, yLabel, isCap) {
+boxplot(subset(resultDataRsd, isCaptain == isCap)[,c(colName)], subset(resultDataDraft, isCaptain == isCap)[,c(colName)], subset(resultDataEachDrf, isCaptain == isCap)[,c(colName)], subset(resultDataTabu, isCaptain == isCap)[,c(colName)], subset(resultDataTE, isCaptain == isCap)[,c(colName)], names=c("RSD", "Draft", "Each Draft", "Tabu", "TabuEach"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+myBoxplotCaptainsOnly("meanTeammateRankNoJitter", "Mean Teammate Rank", 0)
+
+myBoxplotCaptainsBoth <- function(colName, yLabel) {
+boxplot(subset(resultDataRsd, isCaptain == 1)[,c(colName)], subset(resultDataRsd, isCaptain == 0)[,c(colName)], subset(resultDataDraft, isCaptain == 1)[,c(colName)], subset(resultDataDraft, isCaptain == 0)[,c(colName)], subset(resultDataEachDrf, isCaptain == 1)[,c(colName)], subset(resultDataEachDrf, isCaptain == 0)[,c(colName)], subset(resultDataTabu, isCaptain == 1)[,c(colName)], subset(resultDataTabu, isCaptain == 0)[,c(colName)], 
+subset(resultDataTE, isCaptain == 1)[,c(colName)], subset(resultDataTE, isCaptain == 0)[,c(colName)], 
+names=c("RSD-C", "RSD-N", "Draft-C", "Draft-N", "Each Draft-C", "Each Draft-N", "Tabu-C", "Tabu-N", "TE-C", "TE-N"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+myBoxplotCaptainsBoth("meanTeammateRankNoJitter", "Mean Teammate Rank")
+
+myFileString <- "draft_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_rndUncor_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myBoxplotNoTabuCaptainsOnly <- function(colName, yLabel, isCap) {
+boxplot(subset(resultDataRsd, isCaptain == isCap)[,c(colName)], subset(resultDataDraft, isCaptain == isCap)[,c(colName)], subset(resultDataEachDrf, isCaptain == isCap)[,c(colName)], names=c("RSD", "Draft", "Each Draft"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+myBoxplotNoTabuCaptainsOnly("meanTeammateRankNoJitter", "Mean Teammate Rank", 1)
+
+myBoxplotNoTabuCaptainsBoth <- function(colName, yLabel) {
+boxplot(subset(resultDataRsd, isCaptain == 1)[,c(colName)], subset(resultDataRsd, isCaptain == 0)[,c(colName)], subset(resultDataDraft, isCaptain == 1)[,c(colName)], subset(resultDataDraft, isCaptain == 0)[,c(colName)], subset(resultDataEachDrf, isCaptain == 1)[,c(colName)], subset(resultDataEachDrf, isCaptain == 0)[,c(colName)], names=c("RSD-C", "RSD-N", "Draft-C", "Draft-N", "Each Draft-C", "Each Draft-N"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+myBoxplotNoTabuCaptainsBoth("meanTeammateRankNoJitter", "Mean Teammate Rank")
+
+myFileString <- "draft_random_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "rsdOpt_random_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "eachDrf_random_50_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEachDrf <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+########################
+
+# TODO:
+box plot of fraction with envy
+for all algorithms:
+	-- each algorithm is a column
+	-- each run of the algorithm is a data point in the column
+	-- data point shows fraction of agents with envy in that run of that algorithm (in [0, 1])
+for all algorithms with isCaptain vs. not isCaptain
+
+line graph of fraction with envy:
+for one algorithm:
+	-- each random serial index is a column
+	-- fraction of agents with that RSI over all runs is the data point
+
+same thing, but using envyMinusSingleGood
+same thing, but using proportional shares (has 1/"# teams" of the utility?)
+#
+
+getFractionIncidence <- function(myData, colName) {
+  countRuns <- max(myData$runNumber)
+  resultByRun <- list()
+  countPlayers <- max(myData$playerId) + 1
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    numWithItem <- 0
+    myVarThisRun <- runSubset[,colName]
+    for (myVar in myVarThisRun) {
+      if (myVar > 0) {
+        numWithItem <- numWithItem + 1
+      }
+    }
+    resultThisRun <- numWithItem / countPlayers
+    resultByRun <- c(resultByRun, resultThisRun)
+  }
+ return(as.numeric(resultByRun))
+}
+
+getFractionIncidence(resultDataTE, "envyAmountNoJitter")
+getFractionIncidence(resultDataTE, "envyAmountMinusSingleGoodNoJitter")
+
+boxplot(getFractionIncidence(resultDataTE, "envyAmountNoJitter"), names=c("Envy"), ylab="Envy",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+
+
+
+boxplot(getFractionIncidence(resultDataRandom, "envyAmountNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountNoJitter"), getFractionIncidence(resultDataTabu, "envyAmountNoJitter"), getFractionIncidence(resultDataTE, "envyAmountNoJitter"), names=c("Random", "RSD", "Draft", "EDCC", "Tabu", "TE"), ylab="Fraction With Envy",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+
+
+boxplot(getFractionIncidence(resultDataRandom, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataTabu, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataTE, "envyAmountMinusSingleGoodNoJitter"), names=c("Random", "RSD", "Draft", "EDCC", "Tabu", "TE"), ylab="Fraction With Envy Minus Single Good",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+
+makeEnvyFractionPlot <- function(mySuffix) {
+myFileString <- paste("draft_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("rsdOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("tabuAllOptSpitl_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("randomOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("eachDCC_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("tabuEach_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+boxplot(getFractionIncidence(resultDataRandom, "envyAmountNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountNoJitter"), getFractionIncidence(resultDataTabu, "envyAmountNoJitter"), getFractionIncidence(resultDataTE, "envyAmountNoJitter"), names=c("Random", "RSD", "Draft", "EDCC", "Tabu", "TE"), ylab="Fraction With Envy",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray", ylim=c(0, 1))
+}
+
+makeEnvyFractionPlot("newfrat")
+makeEnvyFractionPlot("random_20_agents")
+makeEnvyFractionPlot("rndUncor_20_agents")
+
+
+makeEnvyFractionMinusSinglePlot <- function(mySuffix) {
+myFileString <- paste("draft_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("rsdOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("tabuAllOptSpitl_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("randomOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("eachDCC_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("tabuEach_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+boxplot(getFractionIncidence(resultDataRandom, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataTabu, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataTE, "envyAmountMinusSingleGoodNoJitter"), names=c("Random", "RSD", "Draft", "EDCC", "Tabu", "TE"), ylab="Fraction With Envy Minus Single Good",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray", ylim=c(0, 1))
+}
+
+makeEnvyFractionMinusSinglePlot("newfrat")
+makeEnvyFractionMinusSinglePlot("random_20_agents")
+makeEnvyFractionMinusSinglePlot("rndUncor_20_agents")
+makeEnvyFractionMinusSinglePlot("random_30_agents")
+
+
+makeNoTabuEnvyFractionMinusSinglePlot <- function(mySuffix) {
+myFileString <- paste("draft_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("rsdOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("randomOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("eachDCC_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+boxplot(getFractionIncidence(resultDataRandom, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountMinusSingleGoodNoJitter"), names=c("Random", "RSD", "Draft", "EDCC"), ylab="Fraction With Envy Minus Single Good",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+makeNoTabuEnvyFractionMinusSinglePlot("random_50_agents")
+makeNoTabuEnvyFractionMinusSinglePlot("rndUncor_50_agents")
+
+makeEnvyFractionMinusSinglePlotNoTabuOne <- function(mySuffix) {
+myFileString <- paste("draft_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("rsdOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("randomOpt_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("eachDCC_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- paste("tabuEach_", mySuffix, sep="")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+boxplot(getFractionIncidence(resultDataRandom, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataTE, "envyAmountMinusSingleGoodNoJitter"), names=c("Random", "RSD", "Draft", "EDCC", "TE"), ylab="Fraction With Envy Minus Single Good",
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray", ylim=c(0, 1))
+}
+
+makeEnvyFractionMinusSinglePlotNoTabuOne("random_20_agents")
+makeEnvyFractionMinusSinglePlotNoTabuOne("rndUncor_20_agents")
+makeEnvyFractionMinusSinglePlotNoTabuOne("random_30_agents")
+makeEnvyFractionMinusSinglePlotNoTabuOne("rndUncor_30_agents")
+makeEnvyFractionMinusSinglePlotNoTabuOne("vand")
+makeEnvyFractionMinusSinglePlotNoTabuOne("free")
+
+########################
+
+myPrefixString <- "newfrat"
+
+ranksFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/meanRankFiles/", myPrefixString, "_ranks.csv", sep = "")
+ranksData <- read.csv(file= ranksFileName,head=TRUE,sep=",")
+colnames(ranksData)
+
+"playerId"  "meanRank"  "meanValue"
+
+result_string_1 <- "rsdOpt_newFrat"
+result_file_1 <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", result_string_1, "_results.csv", sep = "")
+results_1 <- read.csv(file= result_file_1,head=TRUE,sep=",")
+
+maxRank <- max(results_1$playerId) + 1
+rankRange <- c(1, maxRank)
+
+getResultByPlayerId <- function(results, colName) {
+  playerIds <- results[,c('playerId')]
+  maxPlayerId <- max(playerIds)
+  resultByRun <- list()
+  for (i in 0:maxPlayerId) {
+    runSubset <- subset(results, playerId == i)
+    resultThisRun <- mean(runSubset[,colName])
+    resultByRun <- c(resultByRun, resultThisRun)
+  }
+  return(as.numeric(resultByRun))
+}
+
+myXs <- ranksData$meanRank
+myYs <- getResultByPlayerId(results_1, "meanTeammateRankNoJitter")
+plot(myXs, myYs, frame=F, col.axis="#888888", col.lab="#888888", xlab="Mean Rank by Others", ylab="Mean Teammate Rank", xlim=rankRange, ylim= rankRange)
+abline(lm(myYs~myXs), col="black", lw=0.5)
+
+result_string_2 <- "draft_newfrat"
+result_file_2 <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", result_string_2, "_results.csv", sep = "")
+results_2 <- read.csv(file= result_file_2,head=TRUE,sep=",")
+myYs <- getResultByPlayerId(results_2, "meanTeammateRankNoJitter")
+points(myXs, myYs, pch=4, col="red")
+abline(lm(myYs~myXs), col="red", lw=0.5)
+legend(12, 5, c("RSD", "Draft"), col=c("black", "red"), pch=c(1, 4))
+
+result_string_3 <- "eachDCC_newfrat"
+result_file_3 <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", result_string_3, "_results.csv", sep = "")
+results_3 <- read.csv(file= result_file_3,head=TRUE,sep=",")
+myYs <- getResultByPlayerId(results_3, "meanTeammateRankNoJitter")
+points(myXs, myYs, pch=5, col="blue")
+abline(lm(myYs~myXs), col="blue", lw=0.5)
+legend(12, 5, c("RSD", "Draft", "EDCC"), col=c("black", "red", "blue"), pch=c(1, 4, 5))
+
+result_string_4 <- "tabuEach_newfrat"
+result_file_4 <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", result_string_4, "_results.csv", sep = "")
+results_4 <- read.csv(file= result_file_4,head=TRUE,sep=",")
+myYs <- getResultByPlayerId(results_4, "meanTeammateRankNoJitter")
+points(myXs, myYs, pch=2, col="forestgreen")
+abline(lm(myYs~myXs), col="forestgreen", lw=0.5)
+legend(12, 5, c("RSD", "Draft", "EDCC", "TabuEach"), col=c("black", "red", "blue", "forestgreen"), pch=c(1, 4, 5, 2))
+
+
+plotVersusMeanRank <- function(mySuffix) {
+ranksFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/meanRankFiles/", mySuffix, "_ranks.csv", sep = "")
+ranksData <- read.csv(file= ranksFileName,head=TRUE,sep=",")
+myXs <- ranksData$meanRank
+
+rsdString <- paste("rsdOpt_", mySuffix , sep="")
+rsdFile <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", rsdString, "_results.csv", sep = "")
+resultsRsd <- read.csv(file= rsdFile,head=TRUE,sep=",")
+
+maxRank <- max(resultsRsd$playerId) + 1
+rankRange <- c(1, maxRank)
+
+myYs <- getResultByPlayerId(resultsRsd, "meanTeammateRankNoJitter")
+plot(myXs, myYs, frame=F, col.axis="#888888", col.lab="#888888", xlab="Mean Rank by Others", ylab="Mean Teammate Rank", xlim=rankRange, ylim= rankRange)
+abline(lm(myYs~myXs), col="black", lw=0.5)
+
+draftString <- paste("draft_", mySuffix, sep="")
+draftFile <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", draftString, "_results.csv", sep = "")
+resultsDraft <- read.csv(file= draftFile,head=TRUE,sep=",")
+myYs <- getResultByPlayerId(resultsDraft, "meanTeammateRankNoJitter")
+points(myXs, myYs, pch=4, col="red")
+abline(lm(myYs~myXs), col="red", lw=0.5)
+
+eachDraftString <- paste("eachDCC_", mySuffix, sep="")
+eachDraftFile <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", eachDraftString, "_results.csv", sep = "")
+resultsEachDraft <- read.csv(file= eachDraftFile,head=TRUE,sep=",")
+myYs <- getResultByPlayerId(resultsEachDraft, "meanTeammateRankNoJitter")
+points(myXs, myYs, pch=5, col="blue")
+abline(lm(myYs~myXs), col="blue", lw=0.5)
+legend(12, 5, c("RSD", "Draft", "EDCC"), col=c("black", "red", "blue"), pch=c(1, 4, 5))
+}
+
+plotVersusMeanRank("newfrat")
+plotVersusMeanRank("free")
+plotVersusMeanRank("random_30_agents")
+plotVersusMeanRank("rndUncor_30_agents")
+plotVersusMeanRank("rados")
+plotVersusMeanRank("vand")
+
+
+

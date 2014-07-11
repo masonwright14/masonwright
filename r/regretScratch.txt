@@ -1,0 +1,376 @@
+myFileString <- "draft_newfrat"
+
+descrFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretDescr.csv", sep = "")
+descrDataDraft <- read.csv(file= descrFileName,head=TRUE,sep=",")
+colnames(descrDataDraft)
+[1] "numberAgents"       "deviationsPerAgent" "algorithm"         
+[4] "solver"             "dataFileName"       "numberOfTeams" 
+
+summaryFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretSummary.csv", sep = "")
+summaryDataDraft <- read.csv(file= summaryFileName,head=TRUE,sep=",")
+colnames(summaryDataDraft)
+[1] "runNumber"       "runTimeInMillis"
+
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+colnames(resultDataDraft)
+[1] "runNumber"                      "maxRegretTruthFraction"        
+[3] "maxRegretTruthFractionNoJitter" "regretAgentIndex"              
+[5] "regretAgentRsdIndex"            "countRegretTruth"              
+[7] "countRegretTruthNoJitter"       "meanTruthRegretFraction"  
+
+
+getResultByRun <- function(myData, colName) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    resultThisRun <- mean(runSubset[,colName])
+    # don't include placeholder values of -1
+    if (resultThisRun != -1) {
+      resultByRun <- c(resultByRun, resultThisRun)
+    }
+  }
+  return(as.numeric(resultByRun))
+}
+
+getResultByRunFromFile <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+return(getResultByRun(resultData, colName))
+}
+
+myResult <- getResultByRun(resultDataDraft, "maxRegretTruthFraction")
+mean(myResult)
+
+myResult <- getResultByRunFromFile("draft_newfrat", "maxRegretTruthFraction")
+mean(myResult)
+
+byRunBoxplot <- function(colName, yLabel, suffix) {
+boxplot(getResultByRunFromFile(paste("draft_", suffix, sep = ""), colName), getResultByRunFromFile(paste("eachDrf_", suffix, sep = ""), colName), getResultByRunFromFile(paste("eachDCC_", suffix, sep = ""), colName), names=c("Draft", "Each Draft", "EDCC"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+mySuffix <- "newfrat"
+mySuffix <- "random_20_agents"
+mySuffix <- "random_30_agents"
+mySuffix <- "random_50_agents"
+mySuffix <- "rndUncor_20_agents"
+mySuffix <- "rndUncor_30_agents"
+byRunBoxplot("maxRegretTruthFractionNoJitter", "Regret", mySuffix)
+byRunBoxplot("regretAgentRsdIndex", "Regret RSD Index", mySuffix)
+byRunBoxplot("countRegretTruthNoJitter", "Count With Regret", mySuffix)
+byRunBoxplot("meanTruthRegretFraction", "Mean Regret", mySuffix)
+
+getMeanRegretOfRegretful <- function(myData, numberOfTeams) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    countWithRegret <- runSubset$countRegretTruthNoJitter
+    if (countWithRegret == 0) {
+      resultByRun <- c(resultByRun, 0)
+    } else {
+      meanRegretTruthFraction <- runSubset$meanTruthRegretFraction
+      totalRegretTruth <- meanRegretTruthFraction * numberOfTeams
+      regretTruthOverRegretful <- totalRegretTruth / countWithRegret
+      resultByRun <- c(resultByRun, regretTruthOverRegretful)
+    }
+  }
+  return(as.numeric(resultByRun))
+}
+
+getMeanRegretOfRegretfulFromFile <- function(myFileString) {
+descrFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretDescr.csv", sep = "")
+descrData <- read.csv(file= descrFileName,head=TRUE,sep=",")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+numberOfTeams <- descrData$numberOfTeams
+return(getMeanRegretOfRegretful(resultData, numberOfTeams))
+}
+
+getMeanRegretOfRegretfulOverProportion <- function(myData, numberOfTeams) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    countWithRegret <- runSubset$countRegretTruthNoJitter
+    if (countWithRegret == 0) {
+      resultByRun <- c(resultByRun, 0)
+    } else {
+      meanRegretTruthFraction <- runSubset$meanTruthRegretFraction
+      totalRegretTruth <- meanRegretTruthFraction * numberOfTeams
+      regretTruthOverRegretful <- totalRegretTruth / countWithRegret
+      resultByRun <- c(resultByRun, regretTruthOverRegretful * numberOfTeams)
+    }
+  }
+  return(as.numeric(resultByRun))
+}
+
+getFractionRegretTruth <- function(myData, numberOfAgents) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    countWithRegret <- runSubset$countRegretTruthNoJitter
+    resultByRun <- c(resultByRun, countWithRegret / numberOfAgents)
+  }
+  return(as.numeric(resultByRun))
+}
+
+getFractionRegretTruthFromFile <- function(myFileString) {
+descrFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretDescr.csv", sep = "")
+descrData <- read.csv(file= descrFileName,head=TRUE,sep=",")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+numberOfAgents <- descrData$numberAgents
+return(getFractionRegretTruth(resultData, numberOfAgents))
+}
+
+fractionRegretTruthBoxplot <- function(suffix) {
+boxplot(getFractionRegretTruthFromFile(paste("draft_", suffix, sep = "")), getFractionRegretTruthFromFile(paste("eachDrf_", suffix, sep = "")), getFractionRegretTruthFromFile(paste("eachDCC_", suffix, sep = "")), names=c("Draft", "Each Draft", "EDCC"), ylab= "Fraction Regret Truth", frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+fractionRegretTruthBoxplot("newfrat")
+fractionRegretTruthBoxplot("random_20_agents")
+fractionRegretTruthBoxplot("random_30_agents")
+fractionRegretTruthBoxplot("random_50_agents")
+fractionRegretTruthBoxplot("rndUncor_20_agents")
+fractionRegretTruthBoxplot("rndUncor_30_agents")
+
+getMeanRegretOfRegretfulOverProportionFromFile <- function(myFileString) {
+descrFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretDescr.csv", sep = "")
+descrData <- read.csv(file= descrFileName,head=TRUE,sep=",")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+numberOfTeams <- descrData$numberOfTeams
+return(getMeanRegretOfRegretfulOverProportion(resultData, numberOfTeams))
+}
+
+meanRegretRegretfulOverProportionBoxplot <- function(suffix) {
+boxplot(getMeanRegretOfRegretfulOverProportionFromFile(paste("draft_", suffix, sep = "")), getMeanRegretOfRegretfulOverProportionFromFile(paste("eachDrf_", suffix, sep = "")), getMeanRegretOfRegretfulOverProportionFromFile(paste("eachDCC_", suffix, sep = "")), names=c("Draft", "Each Draft", "EDCC"), ylab= "Mean Regret of Regretful Over Proportion", frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+meanRegretRegretfulOverProportionBoxplot("newfrat")
+meanRegretRegretfulOverProportionBoxplot("random_20_agents")
+meanRegretRegretfulOverProportionBoxplot("random_30_agents")
+
+myData <- getMeanRegretOfRegretfulFromFile("draft_newfrat")
+
+meanRegretRegretfulBoxplot <- function(suffix) {
+boxplot(getMeanRegretOfRegretfulFromFile(paste("draft_", suffix, sep = "")), getMeanRegretOfRegretfulFromFile(paste("eachDrf_", suffix, sep = "")), getMeanRegretOfRegretfulFromFile(paste("eachDCC_", suffix, sep = "")), names=c("Draft", "Each Draft", "EDCC"), ylab= "Mean Regret of Regretful", frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+meanRegretRegretfulBoxplot("newfrat")
+
+meanRegretOverProportion <- function(myData, numberOfTeams) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    meanRegret <- runSubset$meanTruthRegretFraction
+    resultByRun <- c(resultByRun, meanRegret * numberOfTeams)
+  }
+  return(as.numeric(resultByRun))
+}
+
+meanRegretOverProportionFromFile <- function(myFileString) {
+descrFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretDescr.csv", sep = "")
+descrData <- read.csv(file= descrFileName,head=TRUE,sep=",")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+numberOfTeams <- descrData$numberOfTeams
+return(meanRegretOverProportion(resultData, numberOfTeams))
+}
+
+meanRegretOverProportionBoxplot <- function(suffix) {
+boxplot(meanRegretOverProportionFromFile(paste("draft_", suffix, sep = "")), meanRegretOverProportionFromFile(paste("eachDrf_", suffix, sep = "")), meanRegretOverProportionFromFile(paste("eachDCC_", suffix, sep = "")), names=c("Draft", "Each Draft", "EDCC"), ylab= "Mean Regret Over Proportional Share", frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+meanRegretOverProportionBoxplot("newfrat")
+
+
+maxRegretOverProportion <- function(myData, numberOfTeams) {
+  runNumber <- myData[,c('runNumber')]
+  countRuns <- max(runNumber)
+  resultByRun <- list()
+  for (i in 1:countRuns) {
+    runSubset <- subset(myData, runNumber == i)
+    maxRegret <- runSubset$maxRegretTruthFractionNoJitter
+    resultByRun <- c(resultByRun, maxRegret * numberOfTeams)
+  }
+  return(as.numeric(resultByRun))
+}
+
+maxRegretOverProportionFromFile <- function(myFileString) {
+descrFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretDescr.csv", sep = "")
+descrData <- read.csv(file= descrFileName,head=TRUE,sep=",")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+numberOfTeams <- descrData$numberOfTeams
+return(maxRegretOverProportion(resultData, numberOfTeams))
+}
+
+maxRegretOverProportionBoxplot <- function(suffix) {
+boxplot(maxRegretOverProportionFromFile(paste("draft_", suffix, sep = "")), maxRegretOverProportionFromFile(paste("eachDrf_", suffix, sep = "")), maxRegretOverProportionFromFile(paste("eachDCC_", suffix, sep = "")), names=c("Draft", "Each Draft", "EDCC"), ylab= "Regret Over Proportional Share", frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+maxRegretOverProportionBoxplot("newfrat")
+maxRegretOverProportionBoxplot("random_20_agents")
+maxRegretOverProportionBoxplot("random_30_agents")
+maxRegretOverProportionBoxplot("random_50_agents")
+maxRegretOverProportionBoxplot("rndUncor_20_agents")
+maxRegretOverProportionBoxplot("rndUncor_30_agents")
+
+######################################################
+
+getRandomRegretFractionsByAgentCount <- function(prefix) {
+file20 <- paste(prefix, "_random_20_agents", sep = "")
+value20 <- mean(getFractionRegretTruthFromFile(file20))
+
+file30 <- paste(prefix, "_random_30_agents", sep = "")
+value30 <- mean(getFractionRegretTruthFromFile(file30))
+
+file50 <- paste(prefix, "_random_50_agents", sep = "")
+value50 <- mean(getFractionRegretTruthFromFile(file50))
+
+return(c(value20, value30, value50))
+}
+
+myResults <- getRandomRegretFractionsByAgentCount("draft")
+
+makeRandomRegretFractionsPlot <- function() {
+draftData <- getRandomRegretFractionsByAgentCount("draft")
+eachDraftData <- getRandomRegretFractionsByAgentCount("eachDrf")
+edccData <- getRandomRegretFractionsByAgentCount("eachDCC")
+myXs <- c(20, 30, 50)
+plot(myXs, draftData, type="l", col="red", xlab="Number of Agents", ylab="Fraction with Regret",
+	frame=F, col.axis="#888888", col.lab="#888888", ylim=c(0, 1)) 
+
+lines(myXs, eachDraftData, col="forestgreen")
+lines(myXs, edccData, col="blue")
+legend(40, 0.8, c("Draft", "Each Draft", "EDCC"), col=c("red", "forestgreen", "blue"), lty=c(1, 1, 1))
+}
+
+makeRandomRegretFractionsPlot()
+
+getMaxRegretByAgentCount <- function(prefix) {
+file20 <- paste(prefix, "_random_20_agents", sep = "")
+value20 <- mean(getResultByRunFromFile(file20, "maxRegretTruthFractionNoJitter"))
+
+file30 <- paste(prefix, "_random_30_agents", sep = "")
+value30 <- mean(getResultByRunFromFile(file30, "maxRegretTruthFractionNoJitter"))
+
+file50 <- paste(prefix, "_random_50_agents", sep = "")
+value50 <- mean(getResultByRunFromFile(file50, "maxRegretTruthFractionNoJitter"))
+
+return(c(value20, value30, value50))
+}
+
+makeMaxRegretFractionPlot <- function() {
+draftData <- getMaxRegretByAgentCount("draft")
+eachDraftData <- getMaxRegretByAgentCount("eachDrf")
+edccData <- getMaxRegretByAgentCount("eachDCC")
+myXs <- c(20, 30, 50)
+plot(myXs, draftData, type="l", col="red", xlab="Number of Agents", ylab="Regret Fraction",
+	frame=F, col.axis="#888888", col.lab="#888888", ylim=c(0, 1)) 
+
+lines(myXs, eachDraftData, col="forestgreen")
+lines(myXs, edccData, col="blue")
+legend(40, 0.8, c("Draft", "Each Draft", "EDCC"), col=c("red", "forestgreen", "blue"), lty=c(1, 1, 1))
+}
+
+makeMaxRegretFractionPlot()
+
+getMaxRegretOverProportionByAgentCount <- function(prefix) {
+file20 <- paste(prefix, "_random_20_agents", sep = "")
+value20 <- mean(getResultByRunFromFile(file20, "maxRegretTruthFractionNoJitter")) * 4
+
+file30 <- paste(prefix, "_random_30_agents", sep = "")
+value30 <- mean(getResultByRunFromFile(file30, "maxRegretTruthFractionNoJitter")) * 5
+
+file50 <- paste(prefix, "_random_50_agents", sep = "")
+value50 <- mean(getResultByRunFromFile(file50, "maxRegretTruthFractionNoJitter")) * 7
+
+return(c(value20, value30, value50))
+}
+
+makeMaxRegretFractionOverProportionPlot <- function() {
+draftData <- getMaxRegretOverProportionByAgentCount("draft")
+eachDraftData <- getMaxRegretOverProportionByAgentCount("eachDrf")
+edccData <- getMaxRegretOverProportionByAgentCount("eachDCC")
+myXs <- c(20, 30, 50)
+plot(myXs, draftData, type="l", col="red", xlab="Number of Agents", ylab="Regret Fraction over Equal Share",
+	frame=F, col.axis="#888888", col.lab="#888888", ylim=c(0, 1)) 
+
+lines(myXs, eachDraftData, col="forestgreen")
+lines(myXs, edccData, col="blue")
+legend(40, 0.8, c("Draft", "Each Draft", "EDCC"), col=c("red", "forestgreen", "blue"), lty=c(1, 1, 1))
+}
+
+makeMaxRegretFractionOverProportionPlot()
+
+getMeanRegretByAgentCount <- function(prefix) {
+file20 <- paste(prefix, "_random_20_agents", sep = "")
+value20 <- mean(getResultByRunFromFile(file20, "meanTruthRegretFraction"))
+
+file30 <- paste(prefix, "_random_30_agents", sep = "")
+value30 <- mean(getResultByRunFromFile(file30, "meanTruthRegretFraction"))
+
+file50 <- paste(prefix, "_random_50_agents", sep = "")
+value50 <- mean(getResultByRunFromFile(file50, "meanTruthRegretFraction"))
+
+return(c(value20, value30, value50))
+}
+
+makeMeanRegretFractionPlot <- function() {
+draftData <- getMeanRegretByAgentCount("draft")
+eachDraftData <- getMeanRegretByAgentCount("eachDrf")
+edccData <- getMeanRegretByAgentCount("eachDCC")
+myXs <- c(20, 30, 50)
+plot(myXs, draftData, type="l", col="red", xlab="Number of Agents", ylab="Mean Regret Fraction",
+	frame=F, col.axis="#888888", col.lab="#888888", ylim=c(0, 0.05)) 
+
+lines(myXs, eachDraftData, col="forestgreen")
+lines(myXs, edccData, col="blue")
+legend(40, 0.04, c("Draft", "Each Draft", "EDCC"), col=c("red", "forestgreen", "blue"), lty=c(1, 1, 1))
+}
+
+makeMeanRegretFractionPlot()
+
+getMeanRegretOverProportionByAgentCount <- function(prefix) {
+file20 <- paste(prefix, "_random_20_agents", sep = "")
+value20 <- mean(getResultByRunFromFile(file20, "meanTruthRegretFraction")) * 4
+
+file30 <- paste(prefix, "_random_30_agents", sep = "")
+value30 <- mean(getResultByRunFromFile(file30, "meanTruthRegretFraction")) * 5
+
+file50 <- paste(prefix, "_random_50_agents", sep = "")
+value50 <- mean(getResultByRunFromFile(file50, "meanTruthRegretFraction")) * 7
+
+return(c(value20, value30, value50))
+}
+
+makeMeanRegretFractionOverProportionPlot <- function() {
+draftData <- getMeanRegretOverProportionByAgentCount("draft")
+eachDraftData <- getMeanRegretOverProportionByAgentCount("eachDrf")
+edccData <- getMeanRegretOverProportionByAgentCount("eachDCC")
+myXs <- c(20, 30, 50)
+plot(myXs, draftData, type="l", col="red", xlab="Number of Agents", ylab="Mean Regret Fraction over Equal Share",
+	frame=F, col.axis="#888888", col.lab="#888888", ylim=c(0, 0.05)) 
+
+lines(myXs, eachDraftData, col="forestgreen")
+lines(myXs, edccData, col="blue")
+legend(40, 0.02, c("Draft", "Each Draft", "EDCC"), col=c("red", "forestgreen", "blue"), lty=c(1, 1, 1))
+}
+
+makeMeanRegretFractionOverProportionPlot()
