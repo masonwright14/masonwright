@@ -458,6 +458,10 @@ myFileString <- "tabuEach_vand"
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
 resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
 
+myFileString <- "tabuAllOptSpitl_vand"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
 
 
 
@@ -534,6 +538,10 @@ myFileString <- "tabuEach_rndUncor_30_agents"
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
 resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
 
+myFileString <- "tabuAllOptSpitl_rndUncor_30_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
 myFileString <- "randomOpt_rndUncor_30_agents"
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
 resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
@@ -589,6 +597,10 @@ resultDataRsd <- read.csv(file= resultFileName,head=TRUE,sep=",")
 myFileString <- "randomOpt_free"
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
 resultDataRandom <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
+myFileString <- "tabuAllOptSpitl_free"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
 
 myFileString <- "tabuEach_free"
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
@@ -765,7 +777,9 @@ makeRsdPlot("newfrat")
 makeRsdPlot("random_20_agents")
 makeRsdPlot("rndUncor_20_agents")
 makeRsdPlot("random_30_agents")
-
+makeRsdPlot("rndUncor_30_agents")
+makeRsdPlot("free")
+makeRsdPlot("vand")
 
 ########################
 
@@ -805,7 +819,6 @@ legend(12, 4, c("RSD", "Draft", "EDCC", "Tabu"), cex=0.8,
    col=c("red", "darkorange", "blue", "dimgrey"), lty=1)
 }
 
-makeRsdPlotNoTabuEach("random_20_agents")
 
 ########################
 
@@ -845,11 +858,6 @@ legend(12, 4, c("RSD", "Draft", "EDCC", "EachTabu"), cex=0.8,
    col=c("red", "darkorange", "blue", "green4"), lty=1)
 }
 
-makeRsdPlotNoTabuOpt("random_30_agents")
-makeRsdPlotNoTabuOpt("rndUncor_30_agents")
-makeRsdPlotNoTabuOpt("newfrat")
-makeRsdPlotNoTabuOpt("vand")
-makeRsdPlotNoTabuOpt("free")
 
 ########################
 
@@ -1081,6 +1089,9 @@ makeEnvyFractionMinusSinglePlot("newfrat")
 makeEnvyFractionMinusSinglePlot("random_20_agents")
 makeEnvyFractionMinusSinglePlot("rndUncor_20_agents")
 makeEnvyFractionMinusSinglePlot("random_30_agents")
+makeEnvyFractionMinusSinglePlot("rndUncor_30_agents")
+makeEnvyFractionMinusSinglePlot("free")
+makeEnvyFractionMinusSinglePlot("vand")
 
 
 makeNoTabuEnvyFractionMinusSinglePlot <- function(mySuffix) {
@@ -1101,11 +1112,13 @@ resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionja
 resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
 
 boxplot(getFractionIncidence(resultDataRandom, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountMinusSingleGoodNoJitter"), names=c("Random", "RSD", "Draft", "EDCC"), ylab="Fraction With Envy Minus Single Good",
-frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray", ylim=c(0, 1))
 }
 
 makeNoTabuEnvyFractionMinusSinglePlot("random_50_agents")
 makeNoTabuEnvyFractionMinusSinglePlot("rndUncor_50_agents")
+makeNoTabuEnvyFractionMinusSinglePlot("random_200_agents")
+makeNoTabuEnvyFractionMinusSinglePlot("rndUncor_200_agents")
 
 makeEnvyFractionMinusSinglePlotNoTabuOne <- function(mySuffix) {
 myFileString <- paste("draft_", mySuffix, sep="")
@@ -1131,13 +1144,6 @@ resultDataTE <- read.csv(file= resultFileName,head=TRUE,sep=",")
 boxplot(getFractionIncidence(resultDataRandom, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataRsd, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataDraft, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataEDCC, "envyAmountMinusSingleGoodNoJitter"), getFractionIncidence(resultDataTE, "envyAmountMinusSingleGoodNoJitter"), names=c("Random", "RSD", "Draft", "EDCC", "TE"), ylab="Fraction With Envy Minus Single Good",
 frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray", ylim=c(0, 1))
 }
-
-makeEnvyFractionMinusSinglePlotNoTabuOne("random_20_agents")
-makeEnvyFractionMinusSinglePlotNoTabuOne("rndUncor_20_agents")
-makeEnvyFractionMinusSinglePlotNoTabuOne("random_30_agents")
-makeEnvyFractionMinusSinglePlotNoTabuOne("rndUncor_30_agents")
-makeEnvyFractionMinusSinglePlotNoTabuOne("vand")
-makeEnvyFractionMinusSinglePlotNoTabuOne("free")
 
 ########################
 
