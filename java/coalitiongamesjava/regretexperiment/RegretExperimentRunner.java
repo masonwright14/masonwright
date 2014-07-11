@@ -30,7 +30,7 @@ public abstract class RegretExperimentRunner {
         );
         */
         
-        final String inputFilePrefix = "newfrat";
+        final String inputFilePrefix = "rndUncor_20_agents";
         runFastRegretExperiments(inputFilePrefix);
     }
  
@@ -43,7 +43,8 @@ public abstract class RegretExperimentRunner {
             SimpleSearchAlgorithm.EACH_DRAFT_CC
         };
         
-        final int deviationsPerAgent = 100;
+        // final int deviationsPerAgent = 100;
+        final int deviationsPerAgent = 25;
         final String solverName = ExperimentRunner.SOLVER_NAME;
         for (int i = 0; i < fastAlgorithms.length; i++) {
             final SimpleSearchAlgorithm algorithm = fastAlgorithms[i];

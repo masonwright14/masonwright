@@ -30,6 +30,13 @@ public abstract class UtilityGenerator {
         for (List<Integer> currentDeviation: deviateRankLists) {
             List<Double> currentUtilities = 
                 getDeviateUtilities(truthfulUtilities, currentDeviation);
+            if (MipGenerator.DEBUGGING) {
+                if (currentUtilities.equals(truthfulUtilities)) {
+                    System.out.println("deviation has no change:");
+                    System.out.println(currentDeviation);
+                    throw new IllegalStateException();
+                }
+            }
             result.add(currentUtilities);
         }
         

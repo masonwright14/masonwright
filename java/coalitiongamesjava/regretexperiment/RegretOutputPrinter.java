@@ -16,7 +16,8 @@ public abstract class RegretOutputPrinter {
     private static final String DESCRIPTION_STRING = "regretDescr";
     
     private static final String DESCRIPTION_HEADER = 
-        "numberAgents,deviationsPerAgent,algorithm,solver,dataFileName,numberOfTeams\n";
+        "numberAgents,deviationsPerAgent," 
+            + "algorithm,solver,dataFileName,numberOfTeams\n";
     
     private static final String SUMMARY_STRING = "regretSummary";
     

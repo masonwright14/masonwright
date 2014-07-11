@@ -8,13 +8,21 @@ import coalitiongames.MipGenerator;
 import coalitiongames.RsdUtil;
 import experiment.FileHandler;
 
-public class RegretSampleInputGenerator {
+public abstract class RegretSampleInputGenerator {
     public static final String INPUT_FOLDER = "regretInputFiles/";
     
     public static void main(final String[] args) {
-        final int runCount = 40;
-        generateInputFiles("newfrat_cleaned.txt", "newfrat", runCount);
+        // final int runCount = 40;
+        // generateInputFiles("newfrat_cleaned.txt", "newfrat", runCount);
         // generateAllInputFiles(runCount);
+        generateSmallInputFiles();
+    }
+    
+    public static void generateSmallInputFiles() {
+        final int runCount = 8;
+        final String inputFileName = "newfrat_cleaned.txt";
+        final String inputPrefix = "newfrat";
+        generateInputFiles(inputFileName, inputPrefix, runCount);
     }
     
     public static void generateAllInputFiles(

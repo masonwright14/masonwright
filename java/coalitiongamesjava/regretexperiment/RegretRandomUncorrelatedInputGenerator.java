@@ -14,10 +14,17 @@ public abstract class RegretRandomUncorrelatedInputGenerator {
     public static void main(final String[] args) {
         // Util.printDemandAsMatrix(getRandomValueMatrix(5));
 
-        final int runCount = 40;
+        // final int runCount = 40;
         // final int numPlayers = 20;
         // generateRandomInputFiles(numPlayers, runCount);
-        generateAllRandomInputFiles(runCount);
+        // generateAllRandomInputFiles(runCount);
+        generateSmallRandomInputFiles();
+    }
+    
+    public static void generateSmallRandomInputFiles() {
+        final int runCount = 8;
+        final int agents = 20;
+        generateRandomInputFiles(agents, runCount);
     }
     
     public static void generateAllRandomInputFiles(

@@ -24,6 +24,7 @@ public abstract class DeviationGenerator {
         final int otherAgentCount
     ) {
         final List<List<Integer>> result = new ArrayList<List<Integer>>();
+        final List<Integer> originalList = getIntList(otherAgentCount);
         // failureCount holds the number of times a generated deviation
         // was not usable because it was already in the list to return.
         int failureCount = 0;
@@ -36,8 +37,12 @@ public abstract class DeviationGenerator {
             }
             
             final List<Integer> deviation = getDeviationList(otherAgentCount);
-            // don't add the same deviation more than once to the result
-            if (result.contains(deviation)) {
+            // don't add the same deviation more than once to the result.
+            // don't add a deviation that matches the original order.
+            if (
+                result.contains(deviation) 
+                || originalList.equals(deviation)
+            ) {
                 failureCount++;
             } else {
                 result.add(deviation);
@@ -49,6 +54,9 @@ public abstract class DeviationGenerator {
     /**
      * Returns a permutation of the integers from 1 to otherAgentCount.
      * The integers start out in ascending sorted order.
+     * NB: the permutation may be the same as the original order by
+     * chance, so the caller must test for this case.
+     * 
      * A random number of pairs to swap is generated from a Poisson
      * distribution plus 1, where lambda == 1.
      * For each pair to swap, the first index to swap is chosen 

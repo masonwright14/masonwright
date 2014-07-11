@@ -56,6 +56,10 @@ public abstract class ExperimentRunner {
         );
         */
         
+        runExperiment(
+            TabuSearchAlgorithm.TABU_ALL_OPT_SPITL, SOLVER_NAME, "newfrat"
+        );
+        
         /*
         final String fileName = "rndUncor_200_agents";
         runExperiment(SimpleSearchAlgorithm.DRAFT, SOLVER_NAME, fileName);
