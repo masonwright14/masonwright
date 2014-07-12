@@ -783,6 +783,64 @@ makeRsdPlot("vand")
 
 ########################
 
+makeRsdPlotSmooth <- function(mySuffix) {
+mySmoothParam <- 0.4
+myFileString <- paste("rsdOpt", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataRsdOpt <- read.csv(file= resultFileName,head=TRUE,sep=",")
+lastIndex <- max(resultDataRsdOpt$rsdOrderIndex)
+myXs <- list(0:lastIndex)
+byRsdRsdOpt <- getResultsByRsdOrderIndex(resultDataRsdOpt, "meanTeammateRankNoJitter")
+smoothingSplineRsdOpt = smooth.spline(myXs[[1]], byRsdRsdOpt, spar=mySmoothParam)
+plot(myXs[[1]], smoothingSplineRsdOpt$y, type="l", col="red", xlab="Random Serial Index", ylab="Mean Teammate Rank",
+	frame=F, col.axis="#888888", col.lab="#888888") 
+
+myFileString <- paste("draft", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataDraft <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdDraft <- getResultsByRsdOrderIndex(resultDataDraft, "meanTeammateRankNoJitter")
+smoothingSplineRsdDraft = smooth.spline(myXs[[1]], byRsdDraft, spar=mySmoothParam)
+lines(myXs[[1]], smoothingSplineRsdDraft$y, col="darkorange")
+
+myFileString <- paste("eachDCC", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdEDCC<- getResultsByRsdOrderIndex(resultDataEDCC, "meanTeammateRankNoJitter")
+smoothingSplineRsdEDCC = smooth.spline(myXs[[1]], byRsdEDCC, spar=mySmoothParam)
+lines(myXs[[1]], smoothingSplineRsdEDCC$y, col="blue")
+
+myFileString <- paste("tabuAllOptSpitl", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabu <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdTabuAll<- getResultsByRsdOrderIndex(resultDataTabu, "meanTeammateRankNoJitter")
+smoothingSplineRsdTabuAll = smooth.spline(myXs[[1]], byRsdTabuAll, spar=mySmoothParam)
+lines(myXs[[1]], smoothingSplineRsdTabuAll$y, col="dimgrey")
+
+myFileString <- paste("tabuEach", "_", mySuffix, sep = "")
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataTabuEach <- read.csv(file= resultFileName,head=TRUE,sep=",")
+byRsdTabuEach <- getResultsByRsdOrderIndex(resultDataTabuEach, "meanTeammateRankNoJitter")
+smoothingSplineRsdTabuEach = smooth.spline(myXs[[1]], byRsdTabuEach, spar=mySmoothParam)
+lines(myXs[[1]], smoothingSplineRsdTabuEach$y, col="green4")
+
+countOtherAgents <- max(resultDataRsdOpt$rsdOrderIndex)
+meanRank <- (countOtherAgents + 1) / 2
+abline(h=meanRank, col="black", lty=2, lwd=0.8)
+
+legend(12, 4, c("RSD", "Draft", "EDCC", "Tabu", "EachTabu"), cex=0.8, 
+   col=c("red", "darkorange", "blue", "dimgrey", "green4"), lty=1)
+}
+
+makeRsdPlotSmooth("newfrat")
+makeRsdPlotSmooth("random_20_agents")
+makeRsdPlotSmooth("rndUncor_20_agents")
+makeRsdPlotSmooth("random_30_agents")
+makeRsdPlotSmooth("rndUncor_30_agents")
+makeRsdPlotSmooth("free")
+makeRsdPlotSmooth("vand")
+
+########################
+
 makeRsdPlotNoTabuEach <- function(mySuffix) {
 myFileString <- paste("rsdOpt", "_", mySuffix, sep = "")
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
