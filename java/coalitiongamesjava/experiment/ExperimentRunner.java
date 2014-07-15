@@ -57,7 +57,7 @@ public abstract class ExperimentRunner {
         */
         
         runExperiment(
-            TabuSearchAlgorithm.TABU_ALL_OPT_SPITL, SOLVER_NAME, "newfrat"
+            TabuSearchAlgorithm.MAX_WELFARE, SOLVER_NAME, "random_20_agents"
         );
         
         /*

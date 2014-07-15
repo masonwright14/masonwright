@@ -750,7 +750,6 @@ public class SimpleSearchResult {
         builder.append(rsdOrder);
         builder.append(", \ndurationMillis=");
         builder.append(durationMillis);
-        builder.append(", \nisCaptain=");
         builder.append(", \nrsdIndexes=");
         builder.append(getRsdIndexes());
         builder.append(", \nisCaptain=");

@@ -30,7 +30,10 @@ public abstract class DemandProblemGenerator {
         // runSmallEachDraftCaptainsChoice();
         // runVerySmallEachDraftTabu();
         // runSmallEachDraftTabu();
-        runVerySmallRsdTabuAllSpitlSearch();
+        // runVerySmallRsdTabuAllSpitlSearch();
+        // runVerySmallMaxSocialWelfare();
+        // runSmallMaxSocialWelfare();
+        runMediumMaxSocialWelfare();
     }
     
     @SuppressWarnings("unused")
@@ -83,6 +86,29 @@ public abstract class DemandProblemGenerator {
     }
     
     @SuppressWarnings("unused")
+    private static void runVerySmallMaxSocialWelfare() {
+        final int agents = 10;
+        final int valueRange = 10;
+        final int kMax = 4;
+        runMaxSocialWelfare(agents, valueRange, kMax);
+    }
+    
+    @SuppressWarnings("unused")
+    private static void runSmallMaxSocialWelfare() {
+        final int agents = 15;
+        final int valueRange = 15;
+        final int kMax = 5;
+        runMaxSocialWelfare(agents, valueRange, kMax);
+    }
+    
+    private static void runMediumMaxSocialWelfare() {
+        final int agents = 20;
+        final int valueRange = 20;
+        final int kMax = 5;
+        runMaxSocialWelfare(agents, valueRange, kMax);
+    }
+    
+    @SuppressWarnings("unused")
     private static void runVerySmallTabuSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -98,6 +124,7 @@ public abstract class DemandProblemGenerator {
         );
     }
     
+    @SuppressWarnings("unused")
     private static void runVerySmallRsdTabuAllSpitlSearch() {
         final int agents = 10;
         final int valueRange = 10;
@@ -754,6 +781,42 @@ public abstract class DemandProblemGenerator {
                 kMax,
                 rsdOrder
             );
+        System.out.println(searchResult.toString());
+    }
+    
+    private static void runMaxSocialWelfare(
+        final int n,
+        final double valueRange,
+        final int kMax
+    ) {
+        final double baseValue = 50.0;
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
+            List<Double> values = new ArrayList<Double>();
+            for (int j = 1; j < n; j++) {
+                double newValue = 
+                    baseValue + Math.random() * valueRange - valueRange / 2.0;
+                if (newValue < 0) {
+                    newValue = 0;
+                }
+                values.add(newValue);
+            }
+            
+            final double budget = 
+                MipGenerator.MIN_BUDGET 
+                + Math.random() * MipGenerator.MIN_BUDGET / n;
+            
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
+        }
+        
+        final List<Integer> rsdOrder = 
+            RsdUtil.getShuffledNumberList(n);
+        final SimpleSearchResult searchResult = 
+            MaxSocialWelfareAllocation.
+                maxSocialWelfareAllocation(agents, kMax, rsdOrder);
         System.out.println(searchResult.toString());
     }
     

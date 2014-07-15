@@ -12,6 +12,7 @@ import coalitiongames.EachAgentDraftTabu;
 import coalitiongames.EachDraftCaptainsChoice;
 import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
+import coalitiongames.MaxSocialWelfareAllocation;
 import coalitiongames.RandomAllocation;
 import coalitiongames.RsdAllLevelsTabuSearch;
 import coalitiongames.RsdAllocation;
@@ -32,7 +33,8 @@ public abstract class ProblemGenerator {
     }
     
     public static enum TabuSearchAlgorithm implements SearchAlgorithm {
-        TABU_ONE, TABU_ALL, TABU_ALL_OPT, TABU_EACH, TABU_ALL_OPT_SPITL
+        TABU_ONE, TABU_ALL, TABU_ALL_OPT, TABU_EACH, TABU_ALL_OPT_SPITL,
+        MAX_WELFARE
     }
     
     static final String[] INPUT_PREFIX_ARRAY = {
@@ -47,7 +49,7 @@ public abstract class ProblemGenerator {
     private static final String[] ALGORITHM_NAME_ARRAY = {
         "draft", "eachDrf", "eachDCC", "randomAny", "randomOpt",
         "rsdGreedy", "rsdOpt", "tabuAll", "tabuAllOpt", 
-        "tabuOne", "tabuEach", "tabuAllOptSpitl"
+        "tabuOne", "tabuEach", "tabuAllOptSpitl", "maxWelfare"
     };
     
     public static List<String> getAlgorithmNames() {
@@ -70,7 +72,8 @@ public abstract class ProblemGenerator {
         TabuSearchAlgorithm.TABU_ALL,
         TabuSearchAlgorithm.TABU_ALL_OPT,
         TabuSearchAlgorithm.TABU_EACH,
-        TabuSearchAlgorithm.TABU_ALL_OPT_SPITL
+        TabuSearchAlgorithm.TABU_ALL_OPT_SPITL,
+        TabuSearchAlgorithm.MAX_WELFARE
     };
     
     public static SearchAlgorithm getSearchAlgorithm(final String name) {
@@ -113,6 +116,9 @@ public abstract class ProblemGenerator {
         if (name.equals("tabuAllOptSpitl")) {
             return TabuSearchAlgorithm.TABU_ALL_OPT_SPITL;
         }
+        if (name.equals("maxWelfare")) {
+            return TabuSearchAlgorithm.MAX_WELFARE;
+        }
         
         throw new IllegalArgumentException();
     }
@@ -154,6 +160,8 @@ public abstract class ProblemGenerator {
                 return "tabuEach";
             case TABU_ALL_OPT_SPITL:
                 return "tabuAllOptSpitl";
+            case MAX_WELFARE:
+                return "maxWelfare";
             default:
                 throw new IllegalArgumentException(); 
             }
@@ -263,9 +271,50 @@ public abstract class ProblemGenerator {
             return runTabuAllOptSpitlAllocation(
                 rsdOrder, budgets, values, kMax
             );
+        case MAX_WELFARE:
+            return runMaxWelfareAllocation(
+                rsdOrder, budgets, values, kMax
+            );
         default:
             throw new IllegalArgumentException();
         }
+    }
+    
+    private static List<Double> flooredList(final List<Double> input) {
+        final List<Double> result = new ArrayList<Double>();
+        for (final Double value: input) {
+            result.add(Math.floor(value));
+        }
+        return result;
+    }
+    
+    private static SimpleSearchResult runMaxWelfareAllocation(
+        final List<Integer> rsdOrder,
+        final List<Double> budgets,
+        final List<List<Double>> values,
+        final int kMax
+    ) {
+        final int n = rsdOrder.size();
+        final List<Agent> agents = new ArrayList<Agent>();
+        final List<UUID> uuids = getUuids(n);
+        for (int i = 0; i < n; i++) {
+            final List<Double> agentValues = flooredList(values.get(i));
+            agentValues.remove(i); // remove -1.0 for own value.
+            final List<UUID> subsetList = getUuidsWithout(uuids, i);
+            final int id = i;
+            agents.add(
+                new Agent(
+                    agentValues, subsetList, budgets.get(i), id, uuids.get(i)
+                )
+            );
+        }
+        
+        final SimpleSearchResult searchResult = 
+            MaxSocialWelfareAllocation.
+                maxSocialWelfareAllocation(
+                    agents, kMax, rsdOrder
+                );
+        return searchResult;
     }
     
     /*

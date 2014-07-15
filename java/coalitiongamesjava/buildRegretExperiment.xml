@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project default="all">
+   
+   <!-- location of cplex's .so or .dylib files -->
+   <property name="java.library.path" value="/Users/masonwright/Applications/IBM/ILOG/CPLEX_Studio125/cplex/bin/x86-64_darwin"/>
+   
+   <property name="src.dir" location="src" />
+   <property name="build.dir" location="buildRegret" />
+   <property name="ant.project.name" value="coalitionRegret" />
+    
+   <!-- location of cplex.jar -->
+   <property name="lib.dir" value="/Users/masonwright/Applications/IBM/ILOG/CPLEX_Studio125/cplex/lib" />
+   
+   <path id="application" location="${build.dir}/${ant.project.name}.jar" />
+   <path id="classpath">
+      <fileset dir="${lib.dir}" includes="**/*.jar" />
+   </path>
+   
+   <!-- delete old build files -->
+   <target name="clean">
+      <delete dir="${build.dir}" />
+      <delete dir="${docs.dir}" />
+   </target>
+   
+   <!-- make directories for new build files -->
+   <target name="mkdir" depends="clean">
+      <mkdir dir="${build.dir}" />
+   </target>
+   
+   <!-- compile the code -->
+   <target name="compile" depends="clean, mkdir">
+      <!-- compile all code from source dir into build dir. don't include Ant files in the compiled code -->
+      <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath" debug="true" debuglevel="lines,vars,source" includeantruntime="false" fork="true">
+        <src path="${src.dir}" />
+        <include name="experiment/**" />
+        <include name="coalitiongames/**" />
+        <include name="regretexperiment/**" />
+        <exclude name="coalitiongames/MipGeneratorGLPK.java" />
+        <exclude name="examples/**" />
+      </javac>
+   </target>
+   
+   <!-- produce a jar -->
+   <target name="jar" depends="compile">
+      <jar destfile="${build.dir}/${ant.project.name}.jar" basedir="${build.dir}">
+         <manifest>
+            <attribute name="Main-Class" value="regretexperiment.CLIRegretExperiment" />
+         </manifest>
+                     
+         <!-- include all jar files from the library -->
+         <zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
+      </jar>
+   </target>
+   
+   <target name="all" depends="jar">
+   </target>
+   
+</project>
+   

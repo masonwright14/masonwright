@@ -12,6 +12,7 @@ import coalitiongames.EachAgentDraftTabu;
 import coalitiongames.EachDraftCaptainsChoice;
 import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
+import coalitiongames.MaxSocialWelfareAllocation;
 import coalitiongames.RsdAllLevelsTabuSearch;
 import coalitiongames.RsdAllocation;
 import coalitiongames.RsdTabuAllSpitl;
@@ -375,6 +376,11 @@ public abstract class RegretProblemGenerator {
                 RsdTabuAllSpitl.rsdTabuSearchAllLevelsOptimalSizesSpitl(
                     agents, gammaZ, kMax, rsdOrder
                 );
+            break;
+        case MAX_WELFARE:
+            searchResult =
+                MaxSocialWelfareAllocation.
+                    maxSocialWelfareAllocation(agents, kMax, rsdOrder);
             break;
         default:
             throw new IllegalArgumentException();
