@@ -300,11 +300,14 @@ public abstract class ProblemGenerator {
         for (int i = 0; i < n; i++) {
             final List<Double> agentValues = flooredList(values.get(i));
             agentValues.remove(i); // remove -1.0 for own value.
+            
+            final List<Double> normalizedValues = 
+                MaxSocialWelfareAllocation.normalizeUtility(agentValues);
             final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
             agents.add(
                 new Agent(
-                    agentValues, subsetList, budgets.get(i), id, uuids.get(i)
+                    normalizedValues, subsetList, budgets.get(i), id, uuids.get(i)
                 )
             );
         }

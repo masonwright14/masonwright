@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 public abstract class MaxSocialWelfareAllocation {
+    
+    public static final double AGENT_UTILITY_BUDGET = 100.0;
 
     public static SimpleSearchResult maxSocialWelfareAllocation(
         final List<Agent> agents,
@@ -20,6 +22,10 @@ public abstract class MaxSocialWelfareAllocation {
         assert agents != null && agents.size() >= minimumAgents;
         final int n = agents.size();
         assert kMax <= n;
+        
+        if (!verifyUtilityBudgets(agents)) {
+            throw new IllegalArgumentException("incorrect utility budgets");
+        }
         
         final List<Integer> teamSizes = 
             RsdUtil.getOptimalTeamSizeList(agents.size(), kMax);
@@ -48,6 +54,42 @@ public abstract class MaxSocialWelfareAllocation {
             allocation, kMin, kMax, agents, rsdOrder, 
             searchDurationMillis, captainIndexes, similarity
         );
+    }
+    
+    public static List<Double> normalizeUtility(final List<Double> oldUtility) {
+        double totalUtility = 0.0;
+        for (Double value: oldUtility) {
+            totalUtility += value;
+        }
+        if (totalUtility <= 0.0) {
+            return new ArrayList<Double>(oldUtility);
+        }
+        
+        final double factor = AGENT_UTILITY_BUDGET / totalUtility;
+        
+        final List<Double> result = new ArrayList<Double>();
+        for (Double value: oldUtility) {
+            result.add(factor * value);
+        }
+        
+        return result;
+    }
+    
+    private static boolean verifyUtilityBudgets(final List<Agent> agents) {
+        final double tolerance = 0.001;
+        for (Agent agent: agents) {
+            double totalUtility = 0.0;
+            final List<Double> utilities = agent.getValues();
+            for (Double value: utilities) {
+                totalUtility += value;
+            }
+            
+            if (Math.abs(totalUtility - AGENT_UTILITY_BUDGET) > tolerance) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     private static List<List<Double>> valueMatrix(final List<Agent> agents) {

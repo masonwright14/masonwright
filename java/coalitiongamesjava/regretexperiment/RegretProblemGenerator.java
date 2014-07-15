@@ -46,7 +46,10 @@ public abstract class RegretProblemGenerator {
         assert algorithm != SimpleSearchAlgorithm.RANDOM_ANY 
             && algorithm != SimpleSearchAlgorithm.RANDOM_OPT;
         
-        final List<Agent> truthfulAgents = getAgents(fileName);
+        final boolean isMaxWelfare = 
+            (algorithm == TabuSearchAlgorithm.MAX_WELFARE);
+        
+        final List<Agent> truthfulAgents = getAgents(fileName, isMaxWelfare);
         final List<Double> truthfulTotalUtilities = 
             getTotalUtilities(truthfulAgents);
         final List<Integer> truthfulTotalUtilitiesNoJitter =
@@ -469,7 +472,10 @@ public abstract class RegretProblemGenerator {
         return result;
     }
     
-    private static List<Agent> getAgents(final String fileName) {
+    private static List<Agent> getAgents(
+        final String fileName,
+        final boolean isMaxWelfare
+    ) {
         final List<Agent> agents = new ArrayList<Agent>();
 
         final List<Integer> rsdOrder = SampleInputLoader.getRsdOrder(fileName);
@@ -479,8 +485,16 @@ public abstract class RegretProblemGenerator {
         final int n = rsdOrder.size();
         final List<UUID> uuids = ProblemGenerator.getUuids(n);
         for (int i = 0; i < n; i++) {
-            final List<Double> agentValues = values.get(i);
+            List<Double> agentValues = values.get(i);
             agentValues.remove(i); // remove -1.0 for own value.
+            
+            // for maximizing social welfare, normalize all agent utility
+            // budgets to the same value before running the algorithm
+            if (isMaxWelfare) {
+                agentValues = 
+                    MaxSocialWelfareAllocation.normalizeUtility(agentValues);
+            }
+            
             final List<UUID> subsetList = 
                 ProblemGenerator.getUuidsWithout(uuids, i);
             final int id = i;

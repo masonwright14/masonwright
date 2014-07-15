@@ -803,13 +803,16 @@ public abstract class DemandProblemGenerator {
                 values.add(newValue);
             }
             
+            final List<Double> normalizedValues = 
+                MaxSocialWelfareAllocation.normalizeUtility(values);
+            
             final double budget = 
                 MipGenerator.MIN_BUDGET 
                 + Math.random() * MipGenerator.MIN_BUDGET / n;
             
             final List<UUID> subsetList = getUuidsWithout(uuids, i);
             final int id = i;
-            agents.add(new Agent(values, subsetList, budget, id, uuids.get(i)));
+            agents.add(new Agent(normalizedValues, subsetList, budget, id, uuids.get(i)));
         }
         
         final List<Integer> rsdOrder = 
