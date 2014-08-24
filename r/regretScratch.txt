@@ -35,8 +35,14 @@ getResultByRun <- function(myData, colName) {
   return(as.numeric(resultByRun))
 }
 
-getResultByRunFromFile <- function(myFileString, colName) {
-resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFiles/", myFileString, "_regretResults.csv", sep = "")
+getResultByRunFromFileLarge <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFilesLarge/", myFileString, "_regretResults.csv", sep = "")
+resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
+return(getResultByRun(resultData, colName))
+}
+
+getResultByRunFromSmallFile <- function(myFileString, colName) {
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/regretOutputFilesSmall/", myFileString, "_regretResults.csv", sep = "")
 resultData <- read.csv(file= resultFileName,head=TRUE,sep=",")
 return(getResultByRun(resultData, colName))
 }
@@ -47,8 +53,16 @@ mean(myResult)
 myResult <- getResultByRunFromFile("draft_newfrat", "maxRegretTruthFraction")
 mean(myResult)
 
-byRunBoxplot <- function(colName, yLabel, suffix) {
-boxplot(getResultByRunFromFile(paste("draft_", suffix, sep = ""), colName), getResultByRunFromFile(paste("eachDrf_", suffix, sep = ""), colName), getResultByRunFromFile(paste("eachDCC_", suffix, sep = ""), colName), names=c("Draft", "Each Draft", "EDCC"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+byRunBoxplotLarge <- function(colName, yLabel, suffix) {
+boxplot(getResultByRunFromFileLarge(paste("draft_", suffix, sep = ""), colName), getResultByRunFromFileLarge(paste("eachDrf_", suffix, sep = ""), colName), getResultByRunFromFileLarge(paste("eachDCC_", suffix, sep = ""), colName), names=c("Draft", "Each Draft", "EDCC"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+byRunBoxplotSmall <- function(colName, yLabel, suffix) {
+boxplot(getResultByRunFromSmallFile(paste("draft_", suffix, sep = ""), colName), getResultByRunFromSmallFile(paste("eachDrf_", suffix, sep = ""), colName), getResultByRunFromSmallFile(paste("eachDCC_", suffix, sep = ""), colName), names=c("Draft", "Each Draft", "EDCC"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
+}
+
+byRunBoxplotSmallTabu <- function(colName, yLabel, suffix) {
+boxplot(getResultByRunFromSmallFile(paste("draft_", suffix, sep = ""), colName), getResultByRunFromSmallFile(paste("eachDrf_", suffix, sep = ""), colName), getResultByRunFromSmallFile(paste("eachDCC_", suffix, sep = ""), colName), getResultByRunFromSmallFile(paste("tabuAllOptSpitl_", suffix, sep = ""), colName), names=c("Draft", "Each Draft", "EDCC", "Tabu Spitl"), ylab= yLabel, frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, staplewex=0.4, outcex=0.8, outcol="gray")
 }
 
 mySuffix <- "newfrat"
@@ -57,10 +71,20 @@ mySuffix <- "random_30_agents"
 mySuffix <- "random_50_agents"
 mySuffix <- "rndUncor_20_agents"
 mySuffix <- "rndUncor_30_agents"
-byRunBoxplot("maxRegretTruthFractionNoJitter", "Regret", mySuffix)
-byRunBoxplot("regretAgentRsdIndex", "Regret RSD Index", mySuffix)
-byRunBoxplot("countRegretTruthNoJitter", "Count With Regret", mySuffix)
-byRunBoxplot("meanTruthRegretFraction", "Mean Regret", mySuffix)
+byRunBoxplotLarge("maxRegretTruthFractionNoJitter", "Regret", mySuffix)
+byRunBoxplotLarge("regretAgentRsdIndex", "Regret RSD Index", mySuffix)
+byRunBoxplotLarge("countRegretTruthNoJitter", "Count With Regret", mySuffix)
+byRunBoxplotLarge("meanTruthRegretFraction", "Mean Regret", mySuffix)
+
+byRunBoxplotSmall("maxRegretTruthFractionNoJitter", "Regret", mySuffix)
+byRunBoxplotSmall("regretAgentRsdIndex", "Regret RSD Index", mySuffix)
+byRunBoxplotSmall("countRegretTruthNoJitter", "Count With Regret", mySuffix)
+byRunBoxplotSmall("meanTruthRegretFraction", "Mean Regret", mySuffix)
+
+byRunBoxplotSmallTabu("maxRegretTruthFractionNoJitter", "Regret", mySuffix)
+byRunBoxplotSmallTabu("regretAgentRsdIndex", "Regret RSD Index", mySuffix)
+byRunBoxplotSmallTabu("countRegretTruthNoJitter", "Count With Regret", mySuffix)
+byRunBoxplotSmallTabu("meanTruthRegretFraction", "Mean Regret", mySuffix)
 
 getMeanRegretOfRegretful <- function(myData, numberOfTeams) {
   runNumber <- myData[,c('runNumber')]

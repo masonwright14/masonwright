@@ -153,14 +153,21 @@ public abstract class PreferenceAnalyzer {
            return 0.0;
        }
        
-       final double result = (aDotB / (aNorm * bNorm));
-       if (result < -1.0 || result > 1.0) {
+       final double tolerance = 0.001;
+       double result = (aDotB / (aNorm * bNorm));
+       if (result + tolerance < -1.0 || result - tolerance > 1.0) {
            System.out.println("ERROR: " + result);
            System.out.println(a);
            System.out.println(b);
            System.out.println(aDotB);
            System.out.println(aNorm);
            System.out.println(bNorm);
+       }
+       if (result < -1.0) {
+           result = -1.0;
+       }
+       if (result > 1.0) {
+           result = 1.0;
        }
        assert result >= -1.0 && result <= 1.0;
        return result;

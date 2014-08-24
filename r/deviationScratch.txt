@@ -20,14 +20,14 @@ getResultByRunForAgent <- function(myData, agentId, colName) {
   return(getResultByRun(agentData, colName))
 }
 
-getResultByRunForAgent(resultDataDraft, 0, "budget")
+# getResultByRunForAgent(resultDataDraft, 0, "budget")
 
 getSdForAgent <- function(myData, agentId, colName) {
   agentDataByRun <- getResultByRunForAgent(myData, agentId, colName)
   return(as.numeric(sd(agentDataByRun)))
 }
 
-getSdForAgent(resultDataDraft, 0, "budget")
+# getSdForAgent(resultDataDraft, 0, "budget")
 
 getRangeForAgent <- function(myData, agentId, colName) {
   agentDataByRun <- getResultByRunForAgent(myData, agentId, colName)
@@ -35,7 +35,7 @@ getRangeForAgent <- function(myData, agentId, colName) {
   return(as.numeric(myRange))
 }
 
-getRangeForAgent(resultDataDraft, 0, "budget")
+# getRangeForAgent(resultDataDraft, 0, "budget")
 
 getMeanSdByAgent <- function(myData, colName) {
   myList <- list()
@@ -48,7 +48,7 @@ getMeanSdByAgent <- function(myData, colName) {
   return(mean(myList))
 }
 
-getMeanSdByAgent(resultDataDraft, "budget")
+# getMeanSdByAgent(resultDataDraft, "budget")
 
 getMeanRangeByAgent <- function(myData, colName) {
   myList <- list()
@@ -96,7 +96,7 @@ return(getAgentRanges(resultData, colName))
 }
 
 
-getMeanRangeByAgent(resultDataDraft, "budget")
+# getMeanRangeByAgent(resultDataDraft, "budget")
 
 getMeanSdByAgentFile <- function(myFileString, colName) {
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")

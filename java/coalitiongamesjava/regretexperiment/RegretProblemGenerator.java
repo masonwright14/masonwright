@@ -13,6 +13,7 @@ import coalitiongames.EachDraftCaptainsChoice;
 import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
 import coalitiongames.MaxSocialWelfareAllocation;
+import coalitiongames.MaxSocialWelfareAllocation.ProblemType;
 import coalitiongames.RsdAllLevelsTabuSearch;
 import coalitiongames.RsdAllocation;
 import coalitiongames.RsdTabuAllSpitl;
@@ -383,7 +384,9 @@ public abstract class RegretProblemGenerator {
         case MAX_WELFARE:
             searchResult =
                 MaxSocialWelfareAllocation.
-                    maxSocialWelfareAllocation(agents, kMax, rsdOrder);
+                    maxSocialWelfareAllocation(
+                        agents, kMax, rsdOrder, ProblemType.HARD_REGRET
+                );
             break;
         default:
             throw new IllegalArgumentException();

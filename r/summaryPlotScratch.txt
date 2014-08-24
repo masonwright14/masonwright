@@ -545,6 +545,10 @@ myFileString <- "eachDCC_rndUncor_20_agents"
 resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
 resultDataEDCC <- read.csv(file= resultFileName,head=TRUE,sep=",")
 
+myFileString <- "maxWelfare_rndUncor_20_agents"
+resultFileName <- paste("/Users/masonwright/Dropbox/Mechanism Design/coalitionjar/outputFiles/", myFileString, "_results.csv", sep = "")
+resultDataMaxWelfare <- read.csv(file= resultFileName,head=TRUE,sep=",")
+
 
 
 
@@ -1236,7 +1240,7 @@ frame=F, col ="gray", boxwex=0.3, col.axis="#888888", col.lab="#888888", las=1, 
 }
 
 makeEnvyFractionMinusSinglePlotMaxWelfare("random_20_agents")
-
+makeEnvyFractionMinusSinglePlotMaxWelfare("rndUncor_20_agents")
 
 makeNoTabuEnvyFractionMinusSinglePlot("random_50_agents")
 makeNoTabuEnvyFractionMinusSinglePlot("rndUncor_50_agents")
@@ -1356,11 +1360,13 @@ resultsEachDraft <- read.csv(file= eachDraftFile,head=TRUE,sep=",")
 myYs <- getResultByPlayerId(resultsEachDraft, "meanTeammateRankNoJitter")
 points(myXs, myYs, pch=5, col="blue")
 abline(lm(myYs~myXs), col="blue", lw=0.5)
-legend(12, 5, c("RSD", "Draft", "EDCC"), col=c("black", "red", "blue"), pch=c(1, 4, 5))
+legend(12, 5, c("RSD", "HBS Draft", "OPOP Draft"), col=c("black", "red", "blue"), pch=c(1, 4, 5))
 }
 
 plotVersusMeanRank("newfrat")
 plotVersusMeanRank("free")
+plotVersusMeanRank("random_20_agents")
+plotVersusMeanRank("rndUncor_20_agents")
 plotVersusMeanRank("random_30_agents")
 plotVersusMeanRank("rndUncor_30_agents")
 plotVersusMeanRank("rados")

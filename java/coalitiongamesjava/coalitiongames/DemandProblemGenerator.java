@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import coalitiongames.MaxSocialWelfareAllocation.ProblemType;
+
 public abstract class DemandProblemGenerator {
     
     public static void main(final String[] args) {
@@ -33,7 +35,8 @@ public abstract class DemandProblemGenerator {
         // runVerySmallRsdTabuAllSpitlSearch();
         // runVerySmallMaxSocialWelfare();
         // runSmallMaxSocialWelfare();
-        runMediumMaxSocialWelfare();
+        // runMediumMaxSocialWelfare();
+        runTrickyMaxSocialWelfare();
     }
     
     @SuppressWarnings("unused")
@@ -101,9 +104,17 @@ public abstract class DemandProblemGenerator {
         runMaxSocialWelfare(agents, valueRange, kMax);
     }
     
+    @SuppressWarnings("unused")
     private static void runMediumMaxSocialWelfare() {
         final int agents = 20;
         final int valueRange = 20;
+        final int kMax = 5;
+        runMaxSocialWelfare(agents, valueRange, kMax);
+    }
+    
+    private static void runTrickyMaxSocialWelfare() {
+        final int agents = 17;
+        final int valueRange = 17;
         final int kMax = 5;
         runMaxSocialWelfare(agents, valueRange, kMax);
     }
@@ -819,7 +830,7 @@ public abstract class DemandProblemGenerator {
             RsdUtil.getShuffledNumberList(n);
         final SimpleSearchResult searchResult = 
             MaxSocialWelfareAllocation.
-                maxSocialWelfareAllocation(agents, kMax, rsdOrder);
+                maxSocialWelfareAllocation(agents, kMax, rsdOrder, ProblemType.HARD);
         System.out.println(searchResult.toString());
     }
     

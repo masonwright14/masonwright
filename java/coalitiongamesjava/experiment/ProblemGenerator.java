@@ -13,6 +13,7 @@ import coalitiongames.EachDraftCaptainsChoice;
 import coalitiongames.GammaZ;
 import coalitiongames.GammaZ2;
 import coalitiongames.MaxSocialWelfareAllocation;
+import coalitiongames.MaxSocialWelfareAllocation.ProblemType;
 import coalitiongames.RandomAllocation;
 import coalitiongames.RsdAllLevelsTabuSearch;
 import coalitiongames.RsdAllocation;
@@ -312,10 +313,16 @@ public abstract class ProblemGenerator {
             );
         }
         
+        ProblemType problemType = ProblemType.HARD;
+        final int easyProblemSize = 20;
+        if (rsdOrder.size() == easyProblemSize) {
+            problemType = ProblemType.EASY;
+        }
+        
         final SimpleSearchResult searchResult = 
             MaxSocialWelfareAllocation.
                 maxSocialWelfareAllocation(
-                    agents, kMax, rsdOrder
+                    agents, kMax, rsdOrder, problemType
                 );
         return searchResult;
     }

@@ -55,11 +55,11 @@ public abstract class ExperimentRunner {
             TabuSearchAlgorithm.TABU_EACH, SOLVER_NAME, "rndUncor_20_agents"
         );
         */
-        
+        /*
         runExperiment(
             TabuSearchAlgorithm.MAX_WELFARE, SOLVER_NAME, "random_20_agents"
         );
-        
+        */
         /*
         final String fileName = "rndUncor_200_agents";
         runExperiment(SimpleSearchAlgorithm.DRAFT, SOLVER_NAME, fileName);
@@ -71,9 +71,9 @@ public abstract class ExperimentRunner {
         
         // runAllExperimentsOfSubtype(SimpleSearchAlgorithm.EACH_DRAFT_CC);
         
-        // printMeanCosineSimilarities();
+        printMeanCosineSimilarities();
         
-        printAgentMeanRanksAndValues();
+        // printAgentMeanRanksAndValues();
     }
     
     public static void runAllExperimentsOfType(final boolean isTabu) {
