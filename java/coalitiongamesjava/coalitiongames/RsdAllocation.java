@@ -1,7 +1,6 @@
 package coalitiongames;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -28,9 +27,7 @@ public abstract class RsdAllocation {
         final List<Integer> teamSizes = 
             RsdUtil.getOptimalTeamSizeList(agents.size(), kMax);
 
-        // make it so first agent to pick has the smaller team size, etc.
-        Collections.reverse(teamSizes);
-        assert teamSizes.get(0) <= teamSizes.get(teamSizes.size() - 1);
+        assert teamSizes.get(0) >= teamSizes.get(teamSizes.size() - 1);
 
         return rsdHelper(agents, kMax, kMin, rsdOrder, teamSizes);
     }

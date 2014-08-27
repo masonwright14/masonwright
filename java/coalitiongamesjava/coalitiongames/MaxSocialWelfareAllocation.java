@@ -536,8 +536,8 @@ public abstract class MaxSocialWelfareAllocation {
             // this prevents there from being matching 1's in some column
             // for different rows, where those rows have mismatches 1's in
             // another column, which would lead to a total of 3.
-            // x_ij + x_i'j + x_ij' - x_i'j' <= 2, for all i, i' > i, j, j' > j
-            // x_ij + x_i'j - x_ij' + x_i'j' <= 2, for all i, i' > i, j, j' > j
+            // x_ij + x_i'j + x_ij' - x_i'j' <= 2, for all i, i' > i, j, j' != j
+            // x_ij + x_i'j - x_ij' + x_i'j' <= 2, for all i, i' > i, j, j' != j
             for (int rowUpper = 0; rowUpper < agentCount - 1; rowUpper++) {
                 for (
                     int rowLower = rowUpper + 1; 
@@ -545,7 +545,10 @@ public abstract class MaxSocialWelfareAllocation {
                     rowLower++
                 ) {
                     for (int i = 0; i < agentCount - 1; i++) {
-                        for (int j = i + 1; j < agentCount; j++) {
+                        for (int j = 0; j < agentCount; j++) {
+                            if (i == j) {
+                                continue;
+                            }
                             final int upperIIndex = 
                                 listIndex(agentCount, rowUpper, i);
                             final int upperJIndex = 

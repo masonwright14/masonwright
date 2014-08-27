@@ -35,8 +35,8 @@ public abstract class DemandProblemGenerator {
         // runVerySmallRsdTabuAllSpitlSearch();
         // runVerySmallMaxSocialWelfare();
         // runSmallMaxSocialWelfare();
-        // runMediumMaxSocialWelfare();
-        runTrickyMaxSocialWelfare();
+        runMediumMaxSocialWelfare();
+        // runTrickyMaxSocialWelfare();
     }
     
     @SuppressWarnings("unused")
@@ -104,14 +104,14 @@ public abstract class DemandProblemGenerator {
         runMaxSocialWelfare(agents, valueRange, kMax);
     }
     
-    @SuppressWarnings("unused")
     private static void runMediumMaxSocialWelfare() {
         final int agents = 20;
         final int valueRange = 20;
         final int kMax = 5;
         runMaxSocialWelfare(agents, valueRange, kMax);
     }
-    
+
+    @SuppressWarnings("unused")
     private static void runTrickyMaxSocialWelfare() {
         final int agents = 17;
         final int valueRange = 17;

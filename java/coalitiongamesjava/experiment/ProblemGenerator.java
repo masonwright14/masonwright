@@ -21,6 +21,7 @@ import coalitiongames.RsdTabuAllSpitl;
 import coalitiongames.RsdTabuSearch;
 import coalitiongames.SearchResult;
 import coalitiongames.SimpleSearchResult;
+import coalitiongames.Util;
 
 public abstract class ProblemGenerator {
     
@@ -180,12 +181,30 @@ public abstract class ProblemGenerator {
         System.out.println(result);
         */
         
+        /*
         final SimpleSearchResult result =
             getTabuSearchResult(
                 "inputFiles/newfrat_1.txt", 
                 TabuSearchAlgorithm.TABU_ALL_OPT
             );
         System.out.println(result);
+        */
+        
+        final SimpleSearchResult result =
+            getTabuSearchResult(
+                "inputFiles/free_1.txt", 
+                TabuSearchAlgorithm.MAX_WELFARE
+            );
+        System.out.println(result);
+        System.out.println("\nallocation:\n");
+        System.out.println(result.getAllocation());
+        System.out.println();
+        Util.printDemandAsMatrix(result.getAllocation());
+        System.out.println();
+        for (Agent agent: result.getAgents()) {
+            System.out.println("\nagent:");
+            System.out.println(agent.getValues());
+        }
     }
     
     public static SimpleSearchResult getSimpleSearchResult(
