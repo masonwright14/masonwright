@@ -544,7 +544,7 @@ public abstract class MaxSocialWelfareAllocation {
                     rowLower < agentCount; 
                     rowLower++
                 ) {
-                    for (int i = 0; i < agentCount - 1; i++) {
+                    for (int i = 0; i < agentCount; i++) {
                         for (int j = 0; j < agentCount; j++) {
                             if (i == j) {
                                 continue;
