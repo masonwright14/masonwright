@@ -300,6 +300,7 @@ public abstract class ProblemGenerator {
         }
     }
     
+    /*
     private static List<Double> flooredList(final List<Double> input) {
         final List<Double> result = new ArrayList<Double>();
         for (final Double value: input) {
@@ -307,6 +308,7 @@ public abstract class ProblemGenerator {
         }
         return result;
     }
+    */
     
     private static SimpleSearchResult runMaxWelfareAllocation(
         final List<Integer> rsdOrder,
@@ -318,7 +320,8 @@ public abstract class ProblemGenerator {
         final List<Agent> agents = new ArrayList<Agent>();
         final List<UUID> uuids = getUuids(n);
         for (int i = 0; i < n; i++) {
-            final List<Double> agentValues = flooredList(values.get(i));
+            // final List<Double> agentValues = flooredList(values.get(i));
+            final List<Double> agentValues = values.get(i);
             agentValues.remove(i); // remove -1.0 for own value.
             
             final List<Double> normalizedValues = 
